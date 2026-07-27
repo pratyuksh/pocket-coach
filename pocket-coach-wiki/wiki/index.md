@@ -10,6 +10,8 @@
 | Page | Description | Sources |
 |---|---|---|
 | [[requirements/readme]] | Requirements index and guide for the PocketCoach application | - |
+| [[requirements/executive-summary]] | High-level non-technical summary in English for trainers and club leadership | - |
+| [[requirements/executive-summary-de]] | Verständliche Management-Zusammenfassung auf Deutsch für Übungsleiter und Vorstand | - |
 | [[requirements/overview-roles-auth]] | Overview of the application, additive roles, permissions, and registration | - |
 | [[requirements/season-planning]] | Season setup, block planning, and the training themes library | - |
 | [[requirements/sessions-and-assignment]] | Session structure, player groups, assignment tracks, surveys, and substitutions | - |

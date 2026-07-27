@@ -12,6 +12,8 @@
 
 | # | File | Contents |
 |---|---|---|
+| 0a | [Executive Summary (English)](./executive-summary.md) | High-level summary for non-technical stakeholders, club leadership, and trainers |
+| 0b | [Management-Zusammenfassung (Deutsch)](./executive-summary-de.md) | Verständliche Zusammenfassung für Übungsleiter, Cheftrainer und Vereinsleitung |
 | 1 | [Overview, Roles & Authentication](./overview-roles-auth.md) | What the app is, who uses it, how they log in, and the permission model |
 | 2 | [Season & Training Planning](./season-planning.md) | Season lifecycle, training blocks, and the training theme system |
 | 3 | [Sessions & Trainer Management](./sessions-and-assignment.md) | Session structure, player groups, trainer assignment, availability surveys, and substitutions |
