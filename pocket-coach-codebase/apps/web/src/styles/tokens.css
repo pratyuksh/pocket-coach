@@ -1,0 +1,55 @@
+:root {
+  /* Color Palette - HSL Tailored Theme */
+  --bg-primary: hsl(222, 47%, 7%);
+  --bg-surface: hsl(222, 41%, 11%);
+  --bg-surface-elevated: hsl(217, 33%, 17%);
+  --bg-glass: rgba(15, 23, 42, 0.75);
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --border-subtle: hsl(217, 19%, 23%);
+
+  /* Accent Colors */
+  --primary: hsl(160, 84%, 39%);
+  --primary-hover: hsl(160, 84%, 45%);
+  --primary-light: rgba(16, 185, 129, 0.15);
+  --accent-cyan: hsl(188, 94%, 43%);
+  --accent-cyan-light: rgba(6, 182, 212, 0.15);
+
+  /* Semantic Feedback */
+  --color-success: hsl(142, 71%, 45%);
+  --color-success-bg: rgba(34, 197, 94, 0.12);
+  --color-warning: hsl(38, 92%, 50%);
+  --color-warning-bg: rgba(245, 158, 11, 0.12);
+  --color-danger: hsl(0, 84%, 60%);
+  --color-danger-bg: rgba(239, 68, 68, 0.12);
+  --color-info: hsl(217, 91%, 60%);
+  --color-info-bg: rgba(59, 130, 246, 0.12);
+
+  /* Typography Colors */
+  --text-primary: hsl(210, 40%, 98%);
+  --text-secondary: hsl(215, 20%, 65%);
+  --text-muted: hsl(215, 16%, 47%);
+  --text-inverse: hsl(222, 47%, 7%);
+
+  /* Fonts */
+  --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Elevation Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 20px rgba(16, 185, 129, 0.25);
+
+  /* Spacing Tokens */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+
+  /* Border Radii */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 1rem;
+  --radius-full: 9999px;
+}
