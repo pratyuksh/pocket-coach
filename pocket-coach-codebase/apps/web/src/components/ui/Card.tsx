@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'glass' | 'solid' | 'bordered';
+  variant?: 'glass' | 'solid' | 'bordered' | 'interactive';
   padding?: 'none' | 'sm' | 'md' | 'lg';
 }
 
@@ -15,12 +15,14 @@ export const Card: React.FC<CardProps> = ({
   const getVariantStyles = () => {
     switch (variant) {
       case 'solid':
-        return 'bg-slate-900 border border-slate-800 shadow-md';
+        return 'bg-[var(--bg-surface)] border border-[var(--border-subtle)] shadow-[var(--shadow-main)]';
       case 'bordered':
-        return 'bg-slate-950/60 border border-emerald-500/20 shadow-sm';
+        return 'bg-[var(--bg-surface-elevated)] border border-emerald-500/30 shadow-sm';
+      case 'interactive':
+        return 'bg-[var(--bg-glass)] backdrop-blur-2xl border border-[var(--border-glass)] shadow-[var(--shadow-main)] hover:-translate-y-1 hover:border-emerald-500/40 hover:shadow-xl cursor-pointer transition-all duration-300';
       case 'glass':
       default:
-        return 'bg-slate-900/75 backdrop-blur-xl border border-white/10 shadow-lg';
+        return 'bg-[var(--bg-glass)] backdrop-blur-2xl border border-[var(--border-glass)] shadow-[var(--shadow-main)]';
     }
   };
 
@@ -29,18 +31,18 @@ export const Card: React.FC<CardProps> = ({
       case 'none':
         return 'p-0';
       case 'sm':
-        return 'p-3';
+        return 'p-3 sm:p-4';
       case 'lg':
-        return 'p-6';
+        return 'p-6 sm:p-8';
       case 'md':
       default:
-        return 'p-4 sm:p-5';
+        return 'p-5 sm:p-6';
     }
   };
 
   return (
     <div
-      className={`rounded-2xl transition-all duration-200 ${getVariantStyles()} ${getPaddingStyles()} ${className}`}
+      className={`rounded-3xl transition-all duration-200 ${getVariantStyles()} ${getPaddingStyles()} ${className}`}
       {...props}
     >
       {children}
@@ -54,7 +56,7 @@ export const CardHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   ...props
 }) => (
   <div
-    className={`mb-3 pb-2 border-b border-white/5 flex items-center justify-between ${className}`}
+    className={`mb-4 pb-3 border-b border-[var(--border-glass)] ${className}`}
     {...props}
   >
     {children}
@@ -66,7 +68,7 @@ export const CardTitle: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({
   className = '',
   ...props
 }) => (
-  <h3 className={`text-lg font-semibold text-slate-100 tracking-tight ${className}`} {...props}>
+  <h3 className={`text-lg font-bold text-[var(--text-primary)] tracking-tight font-heading ${className}`} {...props}>
     {children}
   </h3>
 );
@@ -87,7 +89,7 @@ export const CardFooter: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   ...props
 }) => (
   <div
-    className={`mt-4 pt-3 border-t border-white/5 flex items-center justify-end gap-2 ${className}`}
+    className={`mt-5 pt-3.5 border-t border-[var(--border-glass)] flex flex-row items-center justify-end gap-2.5 ${className}`}
     {...props}
   >
     {children}

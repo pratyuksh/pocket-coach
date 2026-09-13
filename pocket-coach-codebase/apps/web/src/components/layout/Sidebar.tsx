@@ -20,10 +20,20 @@ export const Sidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="hidden md:flex flex-col w-64 bg-slate-900/90 border-r border-white/10 min-h-screen p-4">
-      <div className="px-3 py-2 mb-6">
-        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-          Navigation
+    <aside className="hidden md:flex flex-col w-64 bg-[var(--bg-glass)] backdrop-blur-2xl border-r border-[var(--border-glass)] min-h-screen p-5 z-20 shadow-[var(--shadow-main)] transition-colors duration-200">
+      {/* Brand Header */}
+      <div className="flex items-center gap-3 px-2 py-3 mb-6 border-b border-[var(--border-glass)] pb-5">
+        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-emerald-400 text-slate-950 font-black text-lg shadow-lg shadow-emerald-500/25 ring-1 ring-emerald-400/40">
+          PC
+        </div>
+        <div>
+          <h2 className="text-base font-black text-[var(--text-primary)] tracking-tight font-heading">PocketCoach</h2>
+        </div>
+      </div>
+
+      <div className="px-3 py-1 mb-3">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+          Management Console
         </span>
       </div>
 
@@ -35,22 +45,32 @@ export const Sidebar: React.FC = () => {
               key={item.path}
               to={item.path}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all duration-150 ${
-                  isActive
-                    ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-sm'
-                    : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
+                `relative flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-200 ${isActive
+                  ? 'bg-gradient-to-r from-emerald-500/15 to-teal-500/10 text-emerald-600 dark:text-emerald-300 border border-emerald-500/40 shadow-sm'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-elevated)] border border-transparent'
                 }`
               }
             >
-              <Icon className="w-5 h-5 shrink-0" />
-              <span>{item.label}</span>
+              {({ isActive }) => (
+                <>
+                  {isActive && (
+                    <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-emerald-500 dark:bg-emerald-400 shadow-glow" />
+                  )}
+                  <Icon className={`w-5 h-5 shrink-0 transition-colors ${isActive ? 'text-emerald-500' : 'text-[var(--text-muted)]'}`} />
+                  <span className="font-heading">{item.label}</span>
+                </>
+              )}
             </NavLink>
           );
         })}
       </nav>
 
-      <div className="pt-4 mt-auto border-t border-white/5 px-3 py-2 text-xs text-slate-400">
-        PocketCoach v1.0 • Phase 1
+      <div className="pt-4 mt-auto border-t border-[var(--border-glass)] px-3 py-2 text-[11px] text-[var(--text-secondary)] flex items-center justify-between">
+        <span>v1.2 • Monorepo</span>
+        <span className="inline-flex items-center gap-1.5 text-emerald-500 font-semibold">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          Active
+        </span>
       </div>
     </aside>
   );

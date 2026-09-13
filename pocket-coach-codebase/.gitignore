@@ -6,3 +6,6 @@ dist
 .env.*.local
 .supabase
 *.log
+test-results
+playwright-report
+blob-report

@@ -75,13 +75,24 @@ flowchart TD
 ##### Database Migrations (`packages/supabase/migrations/`)
 - `01_profiles.sql`: Create `profiles` table (`id`, `display_name`, `email`, `avatar_url`, `specialty`, `is_junior_coach`, `is_active`, `preferred_language`, `calendar_token`)
 - `02_user_roles.sql`: Create `user_roles` table (`id`, `profile_id`, `role`, `granted_at`, `granted_by`)
-- Row-Level Security (RLS) policies for profiles and user roles
+- `20260913000000_tighten_auth_rls.sql`: Strict Row-Level Security (RLS) policies for `profiles` and `user_roles` using `is_super_admin` `SECURITY DEFINER` helper function
 
 ##### Web Application (`apps/web/src/features/`)
 - `features/auth/`: `LoginForm`, `RegisterForm`, `InviteForm`, `GoogleOAuthButton`
-- `features/trainers/`: `TrainerRoster`, `TrainerProfile`, `RoleManager`, `SpecialtyEditor`
+- `features/trainers/`: `TrainerRoster`, `TrainerProfileEditor`, `RoleManagerModal`
 - `lib/supabase.ts`: Supabase client setup with auth session listener
 - `hooks/useAuth.ts`, `hooks/usePermissions.ts`: Permission evaluation hooks
+
+#### Google OAuth Note
+- **Local Dev vs Production Configuration**: `GoogleOAuthButton` triggers `supabase.auth.signInWithOAuth({ provider: 'google' })`. To enable live external Google Sign-In redirects locally, Google OAuth Client ID and Secret must be added to `packages/supabase/config.toml` under `[auth.external.google]`. Unit tests (`GoogleOAuthButton.test.tsx`) mock and verify provider parameter dispatch cleanly.
+
+#### Additional Implemented Features in Phase 1.2
+- **Live Calendar Feed Sync (WebCal)**: Integrated WebCal subscription feed URL display and 1-click token regeneration ("Regenerate Link") in `TrainerProfileEditor.tsx` (`/settings`).
+- **Dashboard Management Shell (`/dashboard`)**: Operational status hero banner, active user metrics, system health indicator, and route shortcuts.
+- **Preview Page Shells**: Page structures for Training Sessions (`/sessions`), Availability Survey Matrix (`/availability`), and Substitution Gaps (`/substitutions`).
+- **Glassmorphism Design System & Theme Engine**: CSS token variables (`tokens.css`, `global.css`), dark/light mode toggle (`useTheme.tsx`), and UI primitives (`Button`, `Card`, `Badge`, `Modal`, `Toast`, `ThemeToggle`).
+- **Developer Ergonomics**: Demo account 1-tap quick fill buttons (`LoginForm.tsx`), base64 setup link generator (`InviteModal.tsx`), and root helper script `pnpm supabase:reset`.
+- **Testing Infrastructure**: Comprehensive 39-test Vitest suite (`apps/web/src/test/`) and 5-test Playwright E2E suite (`apps/web/e2e/`).
 
 #### Testable Milestone 1.2
 - [x] Super-admin logs in and invites a new trainer via email (`/trainers`).
@@ -89,6 +100,8 @@ flowchart TD
 - [x] Invited trainer opens invitation link (`/invite/:token`), completes registration, and gets the base **Trainer** role automatically.
 - [x] Trainer edits display name, avatar, and free-text "Responsibility / Speciality" in `/settings`.
 - [x] Super-admin grants **Head-trainer** role to a user; elevated permissions unlock immediately without re-login.
+- [x] Trainer views personal WebCal feed link and regenerates calendar token in `/settings`.
+- [x] Postgres database enforces strict role-based RLS policies for `profiles` and `user_roles`.
 
 ---
 

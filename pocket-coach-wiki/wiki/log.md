@@ -59,4 +59,13 @@
 * Categorized under **Codebase — Planning** in `wiki/index.md`.
 * Updated all `[[wiki-links]]` to `[[codebase/implementation-plan]]`.
 
+## 2026-09-13 | phase-1.2-completion-and-rls | Updated 2 pages: codebase/implementation-plan.md, wiki/log.md
+* Completed Sub-Phase 1.2 (Authentication, User Profiles & Role Management) verification and gap closure.
+* Added Google OAuth configuration note regarding local dev (`packages/supabase/config.toml`) vs production setup.
+* Implemented Live Calendar Feed Sync (WebCal token display & "Regenerate Link" token revocation) in `TrainerProfileEditor.tsx` (`/settings`).
+* Added database migration `20260913000000_tighten_auth_rls.sql` enforcing strict PostgreSQL Row-Level Security (RLS) policies on `profiles` and `user_roles` using `is_super_admin` `SECURITY DEFINER` helper function.
+* Documented Phase 1.1 layout primitives, Glassmorphic design tokens, Dark/Light mode theme engine (`useTheme.tsx`), and preview page shells (`/dashboard`, `/sessions`, `/availability`, `/substitutions`).
+* Expanded automated Vitest unit test suite to 45 tests (10 test files) and Playwright E2E suite to 7 tests (5 spec files).
+* Added `pnpm supabase:reset` shortcut script to root `package.json`.
+
 <!-- END OF LOG -->

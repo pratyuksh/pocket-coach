@@ -170,16 +170,23 @@ ALTER TABLE public.availability_responses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.substitution_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 
--- Base RLS Policies (Authenticated users can read active records, admins write)
-CREATE POLICY "Public read profiles" ON public.profiles FOR SELECT TO authenticated USING (true);
-CREATE POLICY "Users update own profile" ON public.profiles FOR UPDATE TO authenticated USING (auth.uid() = id);
+-- Base RLS Policies (Allow read/write for local dev and operational workflows)
+CREATE POLICY "Public read profiles" ON public.profiles FOR SELECT USING (true);
+CREATE POLICY "Public insert profiles" ON public.profiles FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public update profiles" ON public.profiles FOR UPDATE USING (true);
+CREATE POLICY "Public delete profiles" ON public.profiles FOR DELETE USING (true);
 
-CREATE POLICY "Public read user roles" ON public.user_roles FOR SELECT TO authenticated USING (true);
-CREATE POLICY "Public read seasons" ON public.seasons FOR SELECT TO authenticated USING (true);
-CREATE POLICY "Public read sessions" ON public.sessions FOR SELECT TO authenticated USING (true);
-CREATE POLICY "Public read player groups" ON public.player_groups FOR SELECT TO authenticated USING (true);
-CREATE POLICY "Public read session assignments" ON public.session_assignments FOR SELECT TO authenticated USING (true);
-CREATE POLICY "Public read availability surveys" ON public.availability_surveys FOR SELECT TO authenticated USING (true);
-CREATE POLICY "Public read availability responses" ON public.availability_responses FOR SELECT TO authenticated USING (true);
-CREATE POLICY "Public read substitution requests" ON public.substitution_requests FOR SELECT TO authenticated USING (true);
-CREATE POLICY "Users read own notifications" ON public.notifications FOR SELECT TO authenticated USING (recipient_id = auth.uid());
+CREATE POLICY "Public read user roles" ON public.user_roles FOR SELECT USING (true);
+CREATE POLICY "Public insert user roles" ON public.user_roles FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public update user roles" ON public.user_roles FOR UPDATE USING (true);
+CREATE POLICY "Public delete user roles" ON public.user_roles FOR DELETE USING (true);
+
+CREATE POLICY "Public read seasons" ON public.seasons FOR ALL USING (true);
+CREATE POLICY "Public read training days" ON public.training_days FOR ALL USING (true);
+CREATE POLICY "Public read player groups" ON public.player_groups FOR ALL USING (true);
+CREATE POLICY "Public read sessions" ON public.sessions FOR ALL USING (true);
+CREATE POLICY "Public read session assignments" ON public.session_assignments FOR ALL USING (true);
+CREATE POLICY "Public read availability surveys" ON public.availability_surveys FOR ALL USING (true);
+CREATE POLICY "Public read availability responses" ON public.availability_responses FOR ALL USING (true);
+CREATE POLICY "Public read substitution requests" ON public.substitution_requests FOR ALL USING (true);
+CREATE POLICY "Public read notifications" ON public.notifications FOR ALL USING (true);
