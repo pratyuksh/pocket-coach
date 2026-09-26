@@ -16,11 +16,11 @@ try {
 
 export default defineConfig({
   testDir: './e2e',
-  fullyParallel: false,
+  fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: 0,
-  workers: 1,
-  reporter: 'list',
+  retries: process.env.CI ? 1 : 0,
+  workers: process.env.CI ? 2 : 1,
+  reporter: process.env.CI ? [['github'], ['list']] : 'list',
   use: {
     baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:5173',
     trace: 'on-first-retry',
@@ -28,7 +28,9 @@ export default defineConfig({
     ...(executablePath ? { launchOptions: { executablePath } } : {}),
   },
   webServer: {
-    command: 'pnpm --filter @pocket-coach/web dev',
+    command: process.env.CI
+      ? 'pnpm --filter @pocket-coach/web preview --port 5173'
+      : 'pnpm --filter @pocket-coach/web dev',
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
   },

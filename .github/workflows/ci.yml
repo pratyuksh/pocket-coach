@@ -70,6 +70,12 @@ jobs:
       - name: Start Supabase local instance
         run: pnpm supabase:start
 
+      - name: Cache Playwright browser binaries
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('pocket-coach-codebase/pnpm-lock.yaml') }}
+
       - name: Install Playwright Chromium browser
         run: pnpm --filter @pocket-coach/web exec playwright install --with-deps chromium
 
