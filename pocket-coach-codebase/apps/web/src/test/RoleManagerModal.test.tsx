@@ -66,7 +66,7 @@ describe('RoleManagerModal', () => {
   });
 
   it('toggles elevated roles and saves updated role list', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     const mockOnSuccess = vi.fn();
     const mockOnClose = vi.fn();
 

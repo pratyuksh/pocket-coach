@@ -147,7 +147,7 @@ describe('TrainerRoster', () => {
   });
 
   it('opens confirmation modal and executes trainer removal when confirmed', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     render(<TrainerRoster />);
 
     await waitFor(() => {

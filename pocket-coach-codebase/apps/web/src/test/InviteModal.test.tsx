@@ -54,7 +54,7 @@ describe('InviteModal', () => {
   });
 
   it('submits the invite form with correct data', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     const onSuccess = vi.fn();
     const onClose = vi.fn();
 
@@ -111,7 +111,7 @@ describe('InviteModal', () => {
       error: { message: 'User already registered', status: 422 },
     });
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     const onSuccess = vi.fn();
 
     render(<InviteModal isOpen={true} onClose={vi.fn()} onSuccess={onSuccess} />);
@@ -129,7 +129,7 @@ describe('InviteModal', () => {
     // Make signUp hang
     mockSignUp.mockReturnValue(new Promise(() => {}));
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
 
     render(<InviteModal isOpen={true} onClose={vi.fn()} />);
 
@@ -142,7 +142,7 @@ describe('InviteModal', () => {
   });
 
   it('allows selecting head_trainer role', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
 
     render(<InviteModal isOpen={true} onClose={vi.fn()} onSuccess={vi.fn()} />);
 

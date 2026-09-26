@@ -62,7 +62,7 @@ describe('TrainerProfileEditor', () => {
   });
 
   it('updates profile settings including avatar_url on form submit', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     render(<TrainerProfileEditor />);
 
     const avatarInput = screen.getByLabelText(/avatar image url/i);
@@ -94,7 +94,7 @@ describe('TrainerProfileEditor', () => {
   });
 
   it('allows regenerating calendar feed token', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     render(<TrainerProfileEditor />);
 
     const regenBtn = screen.getByRole('button', { name: /regenerate link/i });

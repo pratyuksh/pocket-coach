@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import { isHeadTrainer, isSuperAdmin, hasRole } from '@pocket-coach/shared-types';
 import type { UserRole } from '@pocket-coach/shared-types';

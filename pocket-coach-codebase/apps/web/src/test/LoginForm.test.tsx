@@ -33,7 +33,7 @@ describe('LoginForm', () => {
   });
 
   it('populates credentials when demo account buttons are clicked', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     render(<LoginForm />);
 
     const superAdminBtn = screen.getByRole('button', { name: /super admin/i });
@@ -44,7 +44,7 @@ describe('LoginForm', () => {
   });
 
   it('submits login form and navigates to dashboard on success', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     (supabase.auth.signInWithPassword as any).mockResolvedValue({
       data: { user: { id: 'user-1' } },
       error: null,
@@ -71,7 +71,7 @@ describe('LoginForm', () => {
   });
 
   it('displays error message when login fails', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     (supabase.auth.signInWithPassword as any).mockResolvedValue({
       data: null,
       error: { message: 'Invalid login credentials' },
