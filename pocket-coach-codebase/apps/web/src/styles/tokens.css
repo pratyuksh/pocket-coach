@@ -1,0 +1,88 @@
+:root,
+[data-theme='dark'],
+.dark {
+  /* Dark Glass Theme */
+  --bg-primary: #030712;
+  --bg-surface: #0f172a;
+  --bg-surface-elevated: #1e293b;
+  --bg-glass: rgba(15, 23, 42, 0.88);
+  --border-glass: rgba(255, 255, 255, 0.1);
+  --border-subtle: #334155;
+
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-inverse: #0f172a;
+
+  --input-bg: rgba(3, 7, 18, 0.9);
+  --input-border: rgba(51, 65, 85, 0.8);
+  --input-text: #ffffff;
+  --input-placeholder: #64748b;
+  --input-icon: #94a3b8;
+
+  --shadow-main: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+  --ambient-glow-1: rgba(16, 185, 129, 0.15);
+  --ambient-glow-2: rgba(20, 184, 166, 0.15);
+}
+
+[data-theme='light'],
+.light {
+  /* Light Crisp Elegant Theme */
+  --bg-primary: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #f1f5f9;
+  --bg-glass: rgba(255, 255, 255, 0.95);
+  --border-glass: rgba(203, 213, 225, 0.8);
+  --border-subtle: #cbd5e1;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --text-inverse: #ffffff;
+
+  --input-bg: #ffffff;
+  --input-border: #cbd5e1;
+  --input-text: #0f172a;
+  --input-placeholder: #94a3b8;
+  --input-icon: #64748b;
+
+  --shadow-main: 0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  --ambient-glow-1: rgba(16, 185, 129, 0.15);
+  --ambient-glow-2: rgba(20, 184, 166, 0.15);
+}
+
+:root {
+  /* Accent Colors */
+  --primary: #10b981;
+  --primary-hover: #059669;
+  --primary-light: rgba(16, 185, 129, 0.15);
+  --accent-cyan: #06b6d4;
+  --accent-cyan-light: rgba(6, 182, 212, 0.15);
+
+  /* Semantic Feedback */
+  --color-success: #22c55e;
+  --color-success-bg: rgba(34, 197, 94, 0.12);
+  --color-warning: #f59e0b;
+  --color-warning-bg: rgba(245, 158, 11, 0.12);
+  --color-danger: #ef4444;
+  --color-danger-bg: rgba(239, 68, 68, 0.12);
+  --color-info: #3b82f6;
+  --color-info-bg: rgba(59, 130, 246, 0.12);
+
+  /* Fonts */
+  --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Spacing Tokens */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+
+  /* Border Radii */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.25rem;
+  --radius-full: 9999px;
+}

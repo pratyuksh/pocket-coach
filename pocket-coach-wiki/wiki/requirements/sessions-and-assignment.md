@@ -25,14 +25,21 @@
 
 A **training session** represents one training day.
 
-- Sessions are automatically generated for each **configured training day** of the week (as defined in the season setup) for every week in the season.
-- Each session inherits the **default time slot** for its day of the week (e.g., all Tuesdays use the Tuesday default). Individual sessions can **override the default time** if there is an exception (e.g., a holiday-shortened session).
+- Sessions are automatically generated for each **configured training day slot** of the week (as defined in the season setup) for every week in the season.
+- Each session inherits the **default time slot and sports hall location** for its weekday configuration. Individual sessions can **override the default time or location** if an exception occurs (e.g., holiday or facility conflict).
+- Standard default junior schedule:
+  - **Tuesday 17:30 – 19:00**: All Groups (`Kids / Basic`, `Advanced-1`, `Advanced-2`) @ *Sporthalle Schulhaus Apfelbaum (Oerlikon)*
+  - **Wednesday 17:30 – 18:30**: Beginner Level (`Kids / Basic`) @ *Sporthalle Borrweg (Friesenberg)*
+  - **Wednesday 18:15 – 19:45**: Intermediate / Advanced Level (`Advanced-1`, `Advanced-2`) @ *Sporthalle Borrweg (Friesenberg)*
+  - **Thursday 17:30 – 19:00**: All Groups (`Kids / Basic`, `Advanced-1`, `Advanced-2`) @ *Sporthalle Wolfsblick (Zürich-Affoltern)*
+  - **Friday 17:30 – 19:00**: All Groups (`Kids / Basic`, `Advanced-1`, `Advanced-2`) @ *Sporthalle Schulhaus Apfelbaum (Oerlikon)*
 - Each session has **two independent trainer tracks**:
   - **Regular trainers**: 2–3 primary trainer slots
   - **14/18 Coaches**: 1–2 additional slots, assigned independently from the regular trainer track
 - Each session contains:
   - Date and day of the week
   - Start and end time (defaulted from season config, overridable per session)
+  - Sports hall location (defaulted from season config, overridable per session)
   - Associated training theme (inherited from the week's plan — see [Season Planning](./season-planning.md))
   - Assigned regular trainers (2–3), each optionally tagged as Hilfstrainer at point of assignment
   - Assigned 14/18 Coaches (1–2), shown as a distinct group
@@ -54,7 +61,7 @@ The club has three broadly fixed training groups:
 
 - Group membership is broadly fixed for a season.
 - Head-trainers can reassign players to groups, particularly at the start of a season.
-- Groups are associated with sessions so trainers know which groups they are training.
+- Groups are associated with training days and session slots so trainers know which groups are attending each session.
 
 > **Note:** Players do not have accounts in the app. Groups are managed as named entities by the coaching staff.
 

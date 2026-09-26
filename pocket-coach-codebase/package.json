@@ -1,0 +1,33 @@
+{
+  "name": "pocket-coach-monorepo",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.11.0",
+  "scripts": {
+    "predev": "pnpm supabase:start",
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,css,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,css,json,md}\"",
+    "test": "pnpm --filter @pocket-coach/web test",
+    "test:e2e": "pnpm --filter @pocket-coach/web test:e2e",
+    "supabase:start": "pnpm --filter @pocket-coach/supabase start",
+    "supabase:stop": "pnpm --filter @pocket-coach/supabase stop",
+    "supabase:reset": "pnpm --filter @pocket-coach/supabase reset"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "@typescript-eslint/eslint-plugin": "^8.24.0",
+    "@typescript-eslint/parser": "^8.24.0",
+    "eslint": "^9.20.1",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "prettier": "^3.5.1",
+    "turbo": "^2.4.0",
+    "typescript": "^5.7.0"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "@pocket-coach/supabase",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "supabase start",
+    "stop": "supabase stop",
+    "reset": "supabase db reset"
+  }
+}

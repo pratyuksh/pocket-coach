@@ -25,11 +25,26 @@ A **training season** is the top-level container for all planning.
 
 - Super-admin or Head-trainer can create a new season (with a name, start date, and end date).
 - A typical season runs from **August to July** of the following year (~12 months), though the exact dates are configurable.
-- As part of season setup, a Head-trainer configures the **training days** for that season — the days of the week on which training sessions occur (e.g., Tuesday, Wednesday, Thursday, Friday). These can be any combination of weekdays and may differ from previous seasons.
-- For each configured training day, a **default time slot** (start time and end time) is set. All sessions on that day of the week use this time by default for the entire season (e.g., all Tuesdays: 19:00–21:00, all Fridays: 18:30–20:30).
+- As part of season setup, Head-trainers can select a **Default Season Template** (e.g., Standard Junior Season) or build a custom schedule from scratch.
+- Head-trainers configure **training days**, **sports hall locations**, and **player group associations** for that season.
+- For each configured training day slot, a **sports hall location** (selected from available club halls) and **default time slot** (start time and end time) are set. All sessions generated for that slot inherit these defaults for the entire season (e.g., Tuesday Apfelbaum: 17:30–19:00, Wednesday Borrweg Slot 1: 17:30–18:30, Wednesday Borrweg Slot 2: 18:15–19:45, Thursday Wolfsblick: 17:30–19:00, Friday Apfelbaum: 17:30–19:00).
 - A season contains one or more **training blocks**.
 - Only one season is "active" at a time.
 - When a season ends, it is **archived** and remains accessible for historical reference.
+
+---
+
+## Sports Hall Locations
+
+Training sessions take place at designated club hall locations.
+
+- The club maintains a list of available **sports halls/locations**, which can be updated per season.
+- Default hall locations:
+  1. **Sporthalle Schulhaus Apfelbaum** (Oerlikon)
+  2. **Sporthalle Borrweg** (Friesenberg)
+  3. **Sporthalle Wolfsblick** (Zürich-Affoltern)
+- Each training day slot is assigned to one hall location by default.
+- Individual sessions can override the hall location if a facility conflict or special event occurs.
 
 ---
 
