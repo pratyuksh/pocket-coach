@@ -52,6 +52,23 @@ erDiagram
         timestamptz updated_at
     }
 
+    LOCATIONS {
+        uuid id PK
+        text name "Sporthalle Schulhaus Apfelbaum, etc."
+        text district_area "Oerlikon, Friesenberg, Zürich-Affoltern"
+        boolean is_active
+        timestamptz created_at
+    }
+
+    SEASON_TEMPLATES {
+        uuid id PK
+        text name "Standard Junior Season"
+        text description
+        boolean is_default
+        jsonb template_data "JSON spec of training days, times, locations, and groups"
+        timestamptz created_at
+    }
+
     SEASONS {
         uuid id PK
         text name
@@ -64,6 +81,7 @@ erDiagram
     TRAINING_DAYS {
         uuid id PK
         uuid season_id FK
+        uuid location_id FK
         smallint day_of_week "0=Sun .. 6=Sat"
         time default_start_time
         time default_end_time
@@ -86,6 +104,7 @@ erDiagram
     SESSIONS {
         uuid id PK
         uuid season_id FK
+        uuid location_id FK
         uuid block_week_id FK "nullable — Phase 2 extension"
         date session_date
         smallint day_of_week

@@ -68,4 +68,11 @@
 * Expanded automated Vitest unit test suite to 45 tests (10 test files) and Playwright E2E suite to 7 tests (5 spec files).
 * Added `pnpm supabase:reset` shortcut script to root `package.json`.
 
+## 2026-09-26 | phase-1.3-planning-locations-templates | Updated 5 pages: requirements/season-planning.md, requirements/sessions-and-assignment.md, codebase/architecture/database-schema.md, codebase/implementation-plan.md, wiki/index.md
+* Updated Sub-Phase 1.3 implementation plan to include sports hall locations, default season templates (`season_templates`), and exact weekly Junior schedule slots.
+* Added 3 default sports hall locations: Sporthalle Schulhaus Apfelbaum (Oerlikon), Sporthalle Borrweg (Friesenberg), and Sporthalle Wolfsblick (Zürich-Affoltern).
+* Documented standard Junior weekly schedule across 5 slots: Tuesday 17:30–19:00 (Apfelbaum, all groups), Wednesday 17:30–18:30 (Borrweg, Kids/Basic), Wednesday 18:15–19:45 (Borrweg, Advanced-1 & 2), Thursday 17:30–19:00 (Wolfsblick, all groups), Friday 17:30–19:00 (Apfelbaum, all groups).
+* Updated PostgreSQL schema in `database-schema.md` with `LOCATIONS` and `SEASON_TEMPLATES` tables, and `location_id` foreign key on `TRAINING_DAYS` and `SESSIONS` (bringing core Phase 1 table count to 16).
+* Updated Wiki index (`wiki/index.md`) descriptions for updated requirement and planning pages.
+
 <!-- END OF LOG -->

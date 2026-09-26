@@ -105,28 +105,37 @@ flowchart TD
 
 ---
 
-### Sub-Phase 1.3: Seasons, Training Days & Automatic Session Generation
+### Sub-Phase 1.3: Seasons, Training Days, Hall Locations & Automatic Session Generation
 
-**Goal**: Configure training seasons and weekly training days, and automatically batch-generate session records for the entire season date range.
+**Goal**: Configure training seasons, sports hall locations, default season templates, and weekly training days, and automatically batch-generate session records (with hall locations and player groups attached) for the entire season date range.
 
 #### Proposed Changes
 
 ##### Database Migrations (`packages/supabase/migrations/`)
-- `03_seasons.sql`: Create `seasons` table (`id`, `name`, `start_date`, `end_date`, `is_active`)
-- `04_training_days.sql`: Create `training_days` (`id`, `season_id`, `day_of_week`, `default_start_time`, `default_end_time`) and `training_day_player_groups` join table
-- `05_player_groups.sql`: Create `player_groups` table (`id`, `season_id`, `name`, `description`, `sort_order`)
-- `06_sessions.sql`: Create `sessions` (`id`, `season_id`, `block_week_id` nullable, `session_date`, `day_of_week`, `start_time`, `end_time`, `is_time_overridden`) and `session_player_groups` join table
-- Database trigger / function: `generate_season_sessions(season_id)` to auto-populate `sessions` and default `session_player_groups` for all configured training days.
+- `20260927000000_seasons_locations_and_templates.sql`:
+  - Create `locations` table (`id`, `name`, `district_area`, `is_active`) and seed default 3 halls (*Sporthalle Schulhaus Apfelbaum (Oerlikon)*, *Sporthalle Borrweg (Friesenberg)*, *Sporthalle Wolfsblick (Zürich-Affoltern)*).
+  - Create `season_templates` table (`id`, `name`, `description`, `is_default`, `template_data`) and seed `Standard Junior Season` schedule template.
+  - Add `location_id` foreign key to `training_days` and `sessions`.
+  - Database stored procedure `generate_season_sessions(p_season_id UUID)` to auto-populate `sessions` (including date, times, location, and player groups) for all configured training day slots in the season date range.
 
 ##### Web Application (`apps/web/src/features/`)
-- `features/season/`: `SeasonSetupForm` (season container + weekday time slots + default player group assignment per day)
-- `features/sessions/`: `SessionList` (chronological list with date/day filters), `SessionDetail` (view time, player groups, default slots)
+- `features/locations/`: `LocationManagerModal` (view/edit hall locations per season).
+- `features/seasons/`: `SeasonSetupModal` (wizard supporting 1-click `Standard Junior Season` template application, location select per slot, and custom schedule adjustment).
+- `features/sessions/`: `SessionScheduleView` (chronological session schedule filterable by Hall Location, Day of Week, and Group), `SessionCard` (location badge & group tags), `SessionOverrideModal` (single session time/location/group override).
+
+#### Standard Default Junior Schedule
+- **Tuesday (17:30 – 19:00)**: All Groups (`Kids / Basic`, `Advanced-1`, `Advanced-2`) @ *Sporthalle Schulhaus Apfelbaum (Oerlikon)*
+- **Wednesday Slot 1 (17:30 – 18:30)**: Beginner Level (`Kids / Basic`) @ *Sporthalle Borrweg (Friesenberg)*
+- **Wednesday Slot 2 (18:15 – 19:45)**: Intermediate / Advanced Level (`Advanced-1`, `Advanced-2`) @ *Sporthalle Borrweg (Friesenberg)*
+- **Thursday (17:30 – 19:00)**: All Groups (`Kids / Basic`, `Advanced-1`, `Advanced-2`) @ *Sporthalle Wolfsblick (Zürich-Affoltern)*
+- **Friday (17:30 – 19:00)**: All Groups (`Kids / Basic`, `Advanced-1`, `Advanced-2`) @ *Sporthalle Schulhaus Apfelbaum (Oerlikon)*
 
 #### Testable Milestone 1.3
-- [x] Head-trainer creates a Season (e.g. Aug 1 – Jul 31) and configures training days (e.g. Tuesdays 19:00–21:00 with Advanced-1/2, Fridays 18:30–20:30 with Kids/Basic).
-- [x] System automatically batch-generates all session records for every Tuesday and Friday in that date range with their default player groups attached.
-- [x] Head-trainer browses `/sessions` and sees the complete auto-generated schedule.
-- [x] Head-trainer overrides time or player groups for a specific holiday session.
+- [ ] Head-trainer creates a Season (e.g. Aug 1 – Jul 31) using the **Standard Junior Season** default template.
+- [ ] Form pre-fills 3 hall locations, player group levels, and 5 weekly training slots (Tue, Wed x2, Thu, Fri).
+- [ ] System automatically batch-generates all session records for every configured weekday slot in that date range with hall locations and player group linkages.
+- [ ] Head-trainer browses `/sessions`, filters by Hall Location, and sees the auto-generated schedule.
+- [ ] Head-trainer overrides time or location for a specific holiday/event session.
 
 ---
 
