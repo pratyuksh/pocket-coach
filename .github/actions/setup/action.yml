@@ -1,18 +1,23 @@
 name: 'Setup Environment'
-description: 'Setup pnpm, setup Node.js, and install dependencies'
+description: 'Setup Node.js 22, setup pnpm, and install dependencies'
 
 runs:
   using: 'composite'
   steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
       with:
         version: 11.11.0
 
-    - name: Setup Node.js
+    - name: Enable pnpm store cache
       uses: actions/setup-node@v4
       with:
-        node-version: 20
+        node-version: 22
         cache: 'pnpm'
         cache-dependency-path: 'pocket-coach-codebase/pnpm-lock.yaml'
 
@@ -20,3 +25,8 @@ runs:
       shell: bash
       working-directory: pocket-coach-codebase
       run: pnpm install
+
+    - name: Build monorepo packages
+      shell: bash
+      working-directory: pocket-coach-codebase
+      run: pnpm build
