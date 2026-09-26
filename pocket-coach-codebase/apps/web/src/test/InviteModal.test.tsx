@@ -39,9 +39,7 @@ describe('InviteModal', () => {
   });
 
   it('renders the form when open', () => {
-    render(
-      <InviteModal isOpen={true} onClose={vi.fn()} />,
-    );
+    render(<InviteModal isOpen={true} onClose={vi.fn()} />);
 
     expect(screen.getByText('Invite New Trainer / Coach')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('newtrainer@club.de')).toBeInTheDocument();
@@ -50,9 +48,7 @@ describe('InviteModal', () => {
   });
 
   it('does not render when closed', () => {
-    const { container } = render(
-      <InviteModal isOpen={false} onClose={vi.fn()} />,
-    );
+    const { container } = render(<InviteModal isOpen={false} onClose={vi.fn()} />);
 
     expect(container.innerHTML).toBe('');
   });
@@ -62,9 +58,7 @@ describe('InviteModal', () => {
     const onSuccess = vi.fn();
     const onClose = vi.fn();
 
-    render(
-      <InviteModal isOpen={true} onClose={onClose} onSuccess={onSuccess} />,
-    );
+    render(<InviteModal isOpen={true} onClose={onClose} onSuccess={onSuccess} />);
 
     // Fill in the form
     await user.type(screen.getByPlaceholderText('newtrainer@club.de'), 'new@club.de');
@@ -87,9 +81,7 @@ describe('InviteModal', () => {
 
     // Should upsert profile and role
     await waitFor(() => {
-      const profileCall = mockUpsert.mock.calls.find(
-        (call: any) => call[0].table === 'profiles',
-      );
+      const profileCall = mockUpsert.mock.calls.find((call: any) => call[0].table === 'profiles');
       expect(profileCall).toBeDefined();
       expect(profileCall![0].data).toMatchObject({
         id: 'new-user-uuid',
@@ -99,9 +91,7 @@ describe('InviteModal', () => {
     });
 
     await waitFor(() => {
-      const roleCall = mockUpsert.mock.calls.find(
-        (call: any) => call[0].table === 'user_roles',
-      );
+      const roleCall = mockUpsert.mock.calls.find((call: any) => call[0].table === 'user_roles');
       expect(roleCall).toBeDefined();
       expect(roleCall![0].data).toMatchObject({
         profile_id: 'new-user-uuid',
@@ -124,9 +114,7 @@ describe('InviteModal', () => {
     const user = userEvent.setup();
     const onSuccess = vi.fn();
 
-    render(
-      <InviteModal isOpen={true} onClose={vi.fn()} onSuccess={onSuccess} />,
-    );
+    render(<InviteModal isOpen={true} onClose={vi.fn()} onSuccess={onSuccess} />);
 
     await user.type(screen.getByPlaceholderText('newtrainer@club.de'), 'reinvite@club.de');
     await user.click(screen.getByText('Send Invitation'));
@@ -143,9 +131,7 @@ describe('InviteModal', () => {
 
     const user = userEvent.setup();
 
-    render(
-      <InviteModal isOpen={true} onClose={vi.fn()} />,
-    );
+    render(<InviteModal isOpen={true} onClose={vi.fn()} />);
 
     await user.type(screen.getByPlaceholderText('newtrainer@club.de'), 'test@club.de');
     await user.click(screen.getByText('Send Invitation'));
@@ -158,23 +144,16 @@ describe('InviteModal', () => {
   it('allows selecting head_trainer role', async () => {
     const user = userEvent.setup();
 
-    render(
-      <InviteModal isOpen={true} onClose={vi.fn()} onSuccess={vi.fn()} />,
-    );
+    render(<InviteModal isOpen={true} onClose={vi.fn()} onSuccess={vi.fn()} />);
 
     // Change role to Head Trainer
-    await user.selectOptions(
-      screen.getByDisplayValue('Trainer (Default)'),
-      'head_trainer',
-    );
+    await user.selectOptions(screen.getByDisplayValue('Trainer (Default)'), 'head_trainer');
 
     await user.type(screen.getByPlaceholderText('newtrainer@club.de'), 'ht@club.de');
     await user.click(screen.getByText('Send Invitation'));
 
     await waitFor(() => {
-      const roleCall = mockUpsert.mock.calls.find(
-        (call: any) => call[0].table === 'user_roles',
-      );
+      const roleCall = mockUpsert.mock.calls.find((call: any) => call[0].table === 'user_roles');
       expect(roleCall).toBeDefined();
       expect(roleCall![0].data.role).toBe('head_trainer');
     });

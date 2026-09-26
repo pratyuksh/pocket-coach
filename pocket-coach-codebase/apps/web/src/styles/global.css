@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @import './tokens.css';
 
 @variant dark (&:where([data-theme="dark"], [data-theme="dark"] *, .dark, .dark *));
@@ -22,7 +22,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
-  transition: background-color 0.25s ease, color 0.25s ease;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
 }
 
 #root {
@@ -31,7 +33,9 @@ body {
   flex-direction: column;
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  transition: background-color 0.25s ease, color 0.25s ease;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
 }
 
 h1,
@@ -66,7 +70,7 @@ a:hover {
 
 /* Chrome/Safari Autofill Fix */
 input:-webkit-autofill,
-input:-webkit-autofill:hover, 
+input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
   -webkit-text-fill-color: var(--input-text) !important;
@@ -110,7 +114,11 @@ input:-webkit-autofill:active {
   font-size: 14px;
   line-height: 1.4;
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .styled-input::placeholder {
@@ -142,7 +150,10 @@ input:-webkit-autofill:active {
   border: 1px solid rgba(52, 211, 153, 0.3);
   box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    opacity 0.15s ease;
 }
 
 .auth-btn-primary:hover {
@@ -172,7 +183,11 @@ input:-webkit-autofill:active {
   font-family: var(--font-heading);
   border: 1px solid var(--border-subtle);
   cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease, color 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease,
+    color 0.15s ease;
 }
 
 .auth-btn-outline:hover {

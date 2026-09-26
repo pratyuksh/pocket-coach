@@ -43,8 +43,8 @@ export const InviteModal: React.FC<InviteModalProps> = ({ isOpen, onClose, onSuc
       } else if (
         inviteErr &&
         (inviteErr.message.toLowerCase().includes('already registered') ||
-         inviteErr.message.toLowerCase().includes('already exists') ||
-         inviteErr.status === 422)
+          inviteErr.message.toLowerCase().includes('already exists') ||
+          inviteErr.status === 422)
       ) {
         // Check if existing profile can be re-activated
         const { data: existingProf } = await supabase
@@ -121,11 +121,16 @@ export const InviteModal: React.FC<InviteModalProps> = ({ isOpen, onClose, onSuc
           </div>
           <h4 className="text-lg font-bold text-[var(--text-primary)]">Invitation Sent!</h4>
           <p className="text-xs text-[var(--text-secondary)]">
-            Account created for <span className="text-emerald-500 font-semibold">{email}</span>. Check local email dashboard (Inbucket) at <code className="text-xs font-mono text-cyan-500">http://localhost:54324</code> or use the invitation link below.
+            Account created for <span className="text-emerald-500 font-semibold">{email}</span>.
+            Check local email dashboard (Inbucket) at{' '}
+            <code className="text-xs font-mono text-cyan-500">http://localhost:54324</code> or use
+            the invitation link below.
           </p>
 
           <div className="p-3 rounded-xl bg-[var(--bg-surface-elevated)] border border-[var(--border-glass)] space-y-2">
-            <p className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">Invitation Setup Link:</p>
+            <p className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
+              Invitation Setup Link:
+            </p>
             <div className="flex items-center gap-2">
               <input
                 type="text"
@@ -172,7 +177,12 @@ export const InviteModal: React.FC<InviteModalProps> = ({ isOpen, onClose, onSuc
           )}
 
           <div>
-            <label htmlFor="invite-email" className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Email Address *</label>
+            <label
+              htmlFor="invite-email"
+              className="block text-xs font-semibold text-[var(--text-secondary)] mb-1"
+            >
+              Email Address *
+            </label>
             <div className="relative">
               <Mail className="w-4 h-4 text-[var(--input-icon)] absolute left-3 top-3" />
               <input
@@ -188,7 +198,12 @@ export const InviteModal: React.FC<InviteModalProps> = ({ isOpen, onClose, onSuc
           </div>
 
           <div>
-            <label htmlFor="invite-name" className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Display Name / Full Name</label>
+            <label
+              htmlFor="invite-name"
+              className="block text-xs font-semibold text-[var(--text-secondary)] mb-1"
+            >
+              Display Name / Full Name
+            </label>
             <input
               id="invite-name"
               type="text"
@@ -201,21 +216,46 @@ export const InviteModal: React.FC<InviteModalProps> = ({ isOpen, onClose, onSuc
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="invite-role" className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Base Role</label>
+              <label
+                htmlFor="invite-role"
+                className="block text-xs font-semibold text-[var(--text-secondary)] mb-1"
+              >
+                Base Role
+              </label>
               <select
                 id="invite-role"
                 value={role}
                 onChange={(e) => setRole(e.target.value as any)}
                 className="w-full bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--input-text)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-500"
               >
-                <option value="trainer" className="bg-[var(--bg-surface)] text-[var(--text-primary)]">Trainer (Default)</option>
-                <option value="head_trainer" className="bg-[var(--bg-surface)] text-[var(--text-primary)]">Head Trainer</option>
-                <option value="super_admin" className="bg-[var(--bg-surface)] text-[var(--text-primary)]">Super Admin</option>
+                <option
+                  value="trainer"
+                  className="bg-[var(--bg-surface)] text-[var(--text-primary)]"
+                >
+                  Trainer (Default)
+                </option>
+                <option
+                  value="head_trainer"
+                  className="bg-[var(--bg-surface)] text-[var(--text-primary)]"
+                >
+                  Head Trainer
+                </option>
+                <option
+                  value="super_admin"
+                  className="bg-[var(--bg-surface)] text-[var(--text-primary)]"
+                >
+                  Super Admin
+                </option>
               </select>
             </div>
 
             <div>
-              <label htmlFor="invite-specialty" className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Responsibility / Specialty</label>
+              <label
+                htmlFor="invite-specialty"
+                className="block text-xs font-semibold text-[var(--text-secondary)] mb-1"
+              >
+                Responsibility / Specialty
+              </label>
               <input
                 id="invite-specialty"
                 type="text"
@@ -235,7 +275,10 @@ export const InviteModal: React.FC<InviteModalProps> = ({ isOpen, onClose, onSuc
               onChange={(e) => setIsJuniorCoach(e.target.checked)}
               className="w-4 h-4 rounded border-[var(--border-subtle)] text-emerald-500 focus:ring-emerald-500 bg-[var(--input-bg)]"
             />
-            <label htmlFor="isJuniorCoach" className="text-xs text-[var(--text-secondary)] cursor-pointer">
+            <label
+              htmlFor="isJuniorCoach"
+              className="text-xs text-[var(--text-secondary)] cursor-pointer"
+            >
               Mark as Junior Coach / 14-18 Track
             </label>
           </div>

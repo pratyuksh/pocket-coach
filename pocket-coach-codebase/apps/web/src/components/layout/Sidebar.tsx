@@ -27,7 +27,9 @@ export const Sidebar: React.FC = () => {
           PC
         </div>
         <div>
-          <h2 className="text-base font-black text-[var(--text-primary)] tracking-tight font-heading">PocketCoach</h2>
+          <h2 className="text-base font-black text-[var(--text-primary)] tracking-tight font-heading">
+            PocketCoach
+          </h2>
         </div>
       </div>
 
@@ -45,9 +47,10 @@ export const Sidebar: React.FC = () => {
               key={item.path}
               to={item.path}
               className={({ isActive }) =>
-                `relative flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-200 ${isActive
-                  ? 'bg-gradient-to-r from-emerald-500/15 to-teal-500/10 text-emerald-600 dark:text-emerald-300 border border-emerald-500/40 shadow-sm'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-elevated)] border border-transparent'
+                `relative flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-200 ${
+                  isActive
+                    ? 'bg-gradient-to-r from-emerald-500/15 to-teal-500/10 text-emerald-600 dark:text-emerald-300 border border-emerald-500/40 shadow-sm'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-elevated)] border border-transparent'
                 }`
               }
             >
@@ -56,7 +59,9 @@ export const Sidebar: React.FC = () => {
                   {isActive && (
                     <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-emerald-500 dark:bg-emerald-400 shadow-glow" />
                   )}
-                  <Icon className={`w-5 h-5 shrink-0 transition-colors ${isActive ? 'text-emerald-500' : 'text-[var(--text-muted)]'}`} />
+                  <Icon
+                    className={`w-5 h-5 shrink-0 transition-colors ${isActive ? 'text-emerald-500' : 'text-[var(--text-muted)]'}`}
+                  />
                   <span className="font-heading">{item.label}</span>
                 </>
               )}

@@ -70,7 +70,9 @@ export const Modal: React.FC<ModalProps> = ({
         {/* Header */}
         {title && (
           <div className="flex items-center justify-between px-6 py-4.5 border-b border-[var(--border-glass)] bg-[var(--bg-surface-elevated)]">
-            <h2 className="text-lg font-bold text-[var(--text-primary)] font-heading tracking-tight">{title}</h2>
+            <h2 className="text-lg font-bold text-[var(--text-primary)] font-heading tracking-tight">
+              {title}
+            </h2>
             <button
               onClick={onClose}
               className="p-1.5 rounded-xl text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface)] border border-transparent hover:border-[var(--border-glass)] transition-all"

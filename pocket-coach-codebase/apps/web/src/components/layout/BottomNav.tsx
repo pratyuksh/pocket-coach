@@ -21,7 +21,9 @@ export const BottomNav: React.FC = () => {
             to={item.path}
             className={({ isActive }) =>
               `flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-xs font-medium transition-all ${
-                isActive ? 'text-emerald-500 font-bold' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                isActive
+                  ? 'text-emerald-500 font-bold'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`
             }
           >

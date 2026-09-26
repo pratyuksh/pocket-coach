@@ -56,13 +56,7 @@ describe('RoleManagerModal', () => {
   });
 
   it('renders modal with trainer details and roles', async () => {
-    render(
-      <RoleManagerModal
-        isOpen={true}
-        onClose={vi.fn()}
-        trainer={sampleTrainer}
-      />
-    );
+    render(<RoleManagerModal isOpen={true} onClose={vi.fn()} trainer={sampleTrainer} />);
 
     await waitFor(() => {
       expect(screen.getByText('Manage Roles: Jordan Miller')).toBeInTheDocument();
@@ -82,7 +76,7 @@ describe('RoleManagerModal', () => {
         onClose={mockOnClose}
         trainer={sampleTrainer}
         onSuccess={mockOnSuccess}
-      />
+      />,
     );
 
     await waitFor(() => {
@@ -104,7 +98,7 @@ describe('RoleManagerModal', () => {
           expect.objectContaining({ profile_id: 'trainer-456', role: 'trainer' }),
           expect.objectContaining({ profile_id: 'trainer-456', role: 'head_trainer' }),
           expect.objectContaining({ profile_id: 'trainer-456', role: 'super_admin' }),
-        ])
+        ]),
       );
       expect(mockOnSuccess).toHaveBeenCalled();
       expect(mockOnClose).toHaveBeenCalled();

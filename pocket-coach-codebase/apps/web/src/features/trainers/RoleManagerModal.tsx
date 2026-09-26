@@ -101,13 +101,12 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({
 
         <p className="text-xs text-[var(--text-secondary)]">
           Configure permissions and access levels for{' '}
-          <span className="text-[var(--text-primary)] font-semibold">{trainer.email}</span>. Elevated roles take effect immediately.
+          <span className="text-[var(--text-primary)] font-semibold">{trainer.email}</span>.
+          Elevated roles take effect immediately.
         </p>
 
         <div className="space-y-2 pt-1">
-          <div
-            className="p-3.5 rounded-xl border flex items-center justify-between bg-emerald-500/15 border-emerald-500/40 opacity-90 cursor-not-allowed select-none"
-          >
+          <div className="p-3.5 rounded-xl border flex items-center justify-between bg-emerald-500/15 border-emerald-500/40 opacity-90 cursor-not-allowed select-none">
             <div className="flex items-center gap-3">
               <Shield className="w-5 h-5 text-emerald-500" />
               <div>
@@ -115,7 +114,9 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({
                   <h4 className="text-sm font-semibold text-[var(--text-primary)]">Trainer</h4>
                   <Badge variant="neutral">Permanent Base Role</Badge>
                 </div>
-                <p className="text-xs text-[var(--text-secondary)]">Mandatory foundational role for all active coaching staff.</p>
+                <p className="text-xs text-[var(--text-secondary)]">
+                  Mandatory foundational role for all active coaching staff.
+                </p>
               </div>
             </div>
             <Check className="w-5 h-5 text-emerald-500" />
@@ -136,7 +137,9 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({
                   <h4 className="text-sm font-semibold text-[var(--text-primary)]">Head Trainer</h4>
                   <Badge variant="info">Management</Badge>
                 </div>
-                <p className="text-xs text-[var(--text-secondary)]">Can create seasons, launch availability surveys & assign trainers.</p>
+                <p className="text-xs text-[var(--text-secondary)]">
+                  Can create seasons, launch availability surveys & assign trainers.
+                </p>
               </div>
             </div>
             {currentRoles.includes('head_trainer') && <Check className="w-5 h-5 text-cyan-500" />}
@@ -157,7 +160,9 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({
                   <h4 className="text-sm font-semibold text-[var(--text-primary)]">Super Admin</h4>
                   <Badge variant="warning">Full Access</Badge>
                 </div>
-                <p className="text-xs text-[var(--text-secondary)]">Full administrative access, user invitation & role management.</p>
+                <p className="text-xs text-[var(--text-secondary)]">
+                  Full administrative access, user invitation & role management.
+                </p>
               </div>
             </div>
             {currentRoles.includes('super_admin') && <Check className="w-5 h-5 text-amber-500" />}

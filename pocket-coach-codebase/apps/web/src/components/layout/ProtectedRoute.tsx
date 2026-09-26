@@ -22,8 +22,12 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
             PC
           </div>
           <div className="space-y-1">
-            <h3 className="text-sm font-bold text-[var(--text-primary)] tracking-tight">Authenticating Session...</h3>
-            <p className="text-xs text-[var(--text-secondary)]">Verifying secure credentials with PocketCoach</p>
+            <h3 className="text-sm font-bold text-[var(--text-primary)] tracking-tight">
+              Authenticating Session...
+            </h3>
+            <p className="text-xs text-[var(--text-secondary)]">
+              Verifying secure credentials with PocketCoach
+            </p>
           </div>
           <div className="w-32 h-1 bg-[var(--bg-surface-elevated)] rounded-full overflow-hidden border border-[var(--border-glass)]">
             <div className="w-full h-full bg-gradient-to-r from-emerald-500 to-teal-400 animate-pulse" />

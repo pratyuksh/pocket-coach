@@ -2,7 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardBody, Button, Toast } from '../../components/ui';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../lib/supabase';
-import { User, Globe, Tag, AlertCircle, LogOut, Calendar, Copy, RefreshCw, Check } from 'lucide-react';
+import {
+  User,
+  Globe,
+  Tag,
+  AlertCircle,
+  LogOut,
+  Calendar,
+  Copy,
+  RefreshCw,
+  Check,
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const TrainerProfileEditor: React.FC = () => {
@@ -62,7 +72,9 @@ export const TrainerProfileEditor: React.FC = () => {
       }
 
       await refreshProfile();
-      setToastMessage('Calendar subscription token regenerated! Previous subscription links are now invalidated.');
+      setToastMessage(
+        'Calendar subscription token regenerated! Previous subscription links are now invalidated.',
+      );
     } catch (err: any) {
       setError(err?.message || 'Failed to regenerate calendar token');
     } finally {
@@ -121,7 +133,9 @@ export const TrainerProfileEditor: React.FC = () => {
     <div className="space-y-6 max-w-4xl mx-auto">
       <Card variant="glass">
         <CardHeader>
-          <CardTitle className="text-xl font-bold text-[var(--text-primary)] font-heading">Trainer Profile & Settings</CardTitle>
+          <CardTitle className="text-xl font-bold text-[var(--text-primary)] font-heading">
+            Trainer Profile & Settings
+          </CardTitle>
           <p className="text-xs text-[var(--text-secondary)]">
             Manage your public trainer profile, specialty focus, and app language preferences.
           </p>
@@ -139,13 +153,23 @@ export const TrainerProfileEditor: React.FC = () => {
             <div className="flex items-center gap-4 pb-2">
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-700 text-white font-extrabold flex items-center justify-center text-lg overflow-hidden shrink-0 border border-[var(--border-glass)] shadow-md">
                 {avatarUrl ? (
-                  <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" onError={(e) => { (e.target as any).style.display = 'none'; }} />
+                  <img
+                    src={avatarUrl}
+                    alt="Avatar"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as any).style.display = 'none';
+                    }}
+                  />
                 ) : (
                   <span>{displayName ? displayName.charAt(0).toUpperCase() : 'T'}</span>
                 )}
               </div>
               <div className="flex-1">
-                <label htmlFor="settings-avatar" className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+                <label
+                  htmlFor="settings-avatar"
+                  className="block text-xs font-semibold text-[var(--text-secondary)] mb-1"
+                >
                   Avatar Image URL
                 </label>
                 <input
@@ -160,7 +184,10 @@ export const TrainerProfileEditor: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor="settings-name" className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+              <label
+                htmlFor="settings-name"
+                className="block text-xs font-semibold text-[var(--text-secondary)] mb-1"
+              >
                 Display Name
               </label>
               <div className="relative">
@@ -177,7 +204,10 @@ export const TrainerProfileEditor: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor="settings-email" className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+              <label
+                htmlFor="settings-email"
+                className="block text-xs font-semibold text-[var(--text-secondary)] mb-1"
+              >
                 Account Email (Read-Only)
               </label>
               <input
@@ -190,7 +220,10 @@ export const TrainerProfileEditor: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor="settings-specialty" className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+              <label
+                htmlFor="settings-specialty"
+                className="block text-xs font-semibold text-[var(--text-secondary)] mb-1"
+              >
                 Responsibility / Specialty Focus
               </label>
               <div className="relative">
@@ -208,7 +241,10 @@ export const TrainerProfileEditor: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="settings-lang" className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+                <label
+                  htmlFor="settings-lang"
+                  className="block text-xs font-semibold text-[var(--text-secondary)] mb-1"
+                >
                   Preferred App Language
                 </label>
                 <div className="relative">
@@ -219,8 +255,18 @@ export const TrainerProfileEditor: React.FC = () => {
                     onChange={(e) => setPreferredLanguage(e.target.value as 'de' | 'en')}
                     className="w-full bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--input-text)] rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-emerald-500 transition-colors"
                   >
-                    <option value="de" className="bg-[var(--bg-surface)] text-[var(--text-primary)]">Deutsch (German)</option>
-                    <option value="en" className="bg-[var(--bg-surface)] text-[var(--text-primary)]">English</option>
+                    <option
+                      value="de"
+                      className="bg-[var(--bg-surface)] text-[var(--text-primary)]"
+                    >
+                      Deutsch (German)
+                    </option>
+                    <option
+                      value="en"
+                      className="bg-[var(--bg-surface)] text-[var(--text-primary)]"
+                    >
+                      English
+                    </option>
                   </select>
                 </div>
               </div>
@@ -237,7 +283,10 @@ export const TrainerProfileEditor: React.FC = () => {
                     onChange={(e) => setIsJuniorCoach(e.target.checked)}
                     className="w-4 h-4 rounded border-[var(--border-subtle)] text-emerald-500 focus:ring-emerald-500 bg-[var(--input-bg)]"
                   />
-                  <label htmlFor="juniorTrack" className="text-xs text-[var(--text-secondary)] cursor-pointer select-none">
+                  <label
+                    htmlFor="juniorTrack"
+                    className="text-xs text-[var(--text-secondary)] cursor-pointer select-none"
+                  >
                     Junior Coach / 14-18 Assistant Track
                   </label>
                 </div>
@@ -265,14 +314,18 @@ export const TrainerProfileEditor: React.FC = () => {
                 Live Calendar Feed Sync (WebCal)
               </CardTitle>
               <p className="text-xs text-[var(--text-secondary)]">
-                Subscribe to your personal session schedule in Apple Calendar, Google Calendar, or Outlook.
+                Subscribe to your personal session schedule in Apple Calendar, Google Calendar, or
+                Outlook.
               </p>
             </div>
           </div>
         </CardHeader>
         <CardBody className="space-y-4">
           <div className="space-y-2">
-            <label htmlFor="calendar-feed-url" className="block text-xs font-semibold text-[var(--text-secondary)]">
+            <label
+              htmlFor="calendar-feed-url"
+              className="block text-xs font-semibold text-[var(--text-secondary)]"
+            >
               Personal WebCal Feed URL
             </label>
             <div className="flex items-center gap-2">
@@ -290,7 +343,11 @@ export const TrainerProfileEditor: React.FC = () => {
                 className="shrink-0 text-xs gap-1.5"
                 onClick={handleCopyFeedUrl}
               >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                {copied ? (
+                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5" />
+                )}
                 <span>{copied ? 'Copied' : 'Copy Feed Link'}</span>
               </Button>
             </div>
@@ -298,7 +355,8 @@ export const TrainerProfileEditor: React.FC = () => {
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-[var(--border-glass)] text-xs text-[var(--text-secondary)]">
             <p className="text-[11px] leading-relaxed max-w-lg">
-              Need to revoke calendar access? Generating a new link immediately invalidates the previous URL across all external calendar apps.
+              Need to revoke calendar access? Generating a new link immediately invalidates the
+              previous URL across all external calendar apps.
             </p>
             <Button
               type="button"
@@ -307,7 +365,9 @@ export const TrainerProfileEditor: React.FC = () => {
               disabled={regeneratingToken}
               onClick={handleRegenerateCalendarToken}
               className="shrink-0 text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 text-xs"
-              leftIcon={<RefreshCw className={`w-3.5 h-3.5 ${regeneratingToken ? 'animate-spin' : ''}`} />}
+              leftIcon={
+                <RefreshCw className={`w-3.5 h-3.5 ${regeneratingToken ? 'animate-spin' : ''}`} />
+              }
             >
               {regeneratingToken ? 'Regenerating...' : 'Regenerate Link'}
             </Button>
@@ -319,7 +379,9 @@ export const TrainerProfileEditor: React.FC = () => {
       <Card variant="glass" className="border-rose-500/30 bg-rose-500/10">
         <CardBody className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5">
           <div>
-            <h4 className="text-sm font-bold text-[var(--text-primary)] font-heading">Active Session & Sign Out</h4>
+            <h4 className="text-sm font-bold text-[var(--text-primary)] font-heading">
+              Active Session & Sign Out
+            </h4>
             <p className="text-xs text-[var(--text-secondary)] mt-0.5">
               Revoke session credentials on this device and return to sign in screen.
             </p>
@@ -343,4 +405,3 @@ export const TrainerProfileEditor: React.FC = () => {
     </div>
   );
 };
-

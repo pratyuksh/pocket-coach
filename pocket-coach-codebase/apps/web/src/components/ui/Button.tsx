@@ -59,7 +59,11 @@ export const Button: React.FC<ButtonProps> = ({
       disabled={disabled || isLoading}
       {...props}
     >
-      {isLoading ? <Spinner size="sm" color="current" /> : leftIcon ? <span className="inline-flex shrink-0">{leftIcon}</span> : null}
+      {isLoading ? (
+        <Spinner size="sm" color="current" />
+      ) : leftIcon ? (
+        <span className="inline-flex shrink-0">{leftIcon}</span>
+      ) : null}
       {children && <span className="inline-block truncate">{children}</span>}
       {!isLoading && rightIcon ? <span className="inline-flex shrink-0">{rightIcon}</span> : null}
     </button>

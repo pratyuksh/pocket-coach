@@ -33,6 +33,8 @@ test.describe('Invite Trainer E2E Flow', () => {
     await page.getByRole('button', { name: /send invitation/i }).click();
 
     // 7. Verify invitation success feedback
-    await expect(page.getByRole('heading', { name: /invitation sent/i })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /invitation sent/i })).toBeVisible({
+      timeout: 10000,
+    });
   });
 });

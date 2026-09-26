@@ -46,7 +46,9 @@ export const Header: React.FC<HeaderProps> = ({ title = 'Dashboard' }) => {
           PC
         </div>
         <div>
-          <h1 className="text-lg font-bold tracking-tight text-[var(--text-primary)] font-heading">{title}</h1>
+          <h1 className="text-lg font-bold tracking-tight text-[var(--text-primary)] font-heading">
+            {title}
+          </h1>
           <p className="text-[11px] text-[var(--text-secondary)] hidden sm:block font-medium">
             PocketCoach Operational Management
           </p>
@@ -70,13 +72,17 @@ export const Header: React.FC<HeaderProps> = ({ title = 'Dashboard' }) => {
           {user ? (
             <div className="flex items-center gap-2.5 bg-[var(--bg-surface-elevated)] p-1.5 pr-2 rounded-xl border border-[var(--border-glass)]">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-600 to-teal-700 dark:from-emerald-900 dark:to-slate-800 border border-emerald-500/40 flex items-center justify-center text-white dark:text-emerald-400 font-bold text-xs shadow-inner">
-                {profile?.display_name ? profile.display_name.charAt(0).toUpperCase() : user.email?.charAt(0).toUpperCase()}
+                {profile?.display_name
+                  ? profile.display_name.charAt(0).toUpperCase()
+                  : user.email?.charAt(0).toUpperCase()}
               </div>
               <div className="hidden lg:block text-left">
                 <p className="text-xs font-semibold text-[var(--text-primary)] leading-tight truncate max-w-[120px]">
                   {profile?.display_name || user.email?.split('@')[0]}
                 </p>
-                <p className="text-[10px] text-[var(--text-secondary)] truncate max-w-[120px]">{user.email}</p>
+                <p className="text-[10px] text-[var(--text-secondary)] truncate max-w-[120px]">
+                  {user.email}
+                </p>
               </div>
               <button
                 onClick={handleSignOut}

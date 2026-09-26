@@ -32,6 +32,38 @@ export interface DeviceToken {
   updated_at: string;
 }
 
+export interface Location {
+  id: string;
+  name: string;
+  district_area: string | null;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface SeasonTemplateData {
+  player_groups: Array<{
+    name: string;
+    description: string;
+    sort_order: number;
+  }>;
+  training_days: Array<{
+    day_of_week: number;
+    default_start_time: string;
+    default_end_time: string;
+    location_name: string;
+    groups: string[];
+  }>;
+}
+
+export interface SeasonTemplate {
+  id: string;
+  name: string;
+  description: string | null;
+  is_default: boolean;
+  template_data: SeasonTemplateData;
+  created_at: string;
+}
+
 export interface Season {
   id: string;
   name: string;
@@ -44,6 +76,7 @@ export interface Season {
 export interface TrainingDay {
   id: string;
   season_id: string;
+  location_id: string | null;
   day_of_week: number; // 0=Sun .. 6=Sat
   default_start_time: string;
   default_end_time: string;
@@ -66,6 +99,7 @@ export interface PlayerGroup {
 export interface Session {
   id: string;
   season_id: string;
+  location_id: string | null;
   block_week_id: string | null; // Nullable Phase 2 extension
   session_date: string;
   day_of_week: number;

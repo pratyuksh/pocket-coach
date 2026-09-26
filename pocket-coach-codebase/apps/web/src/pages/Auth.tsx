@@ -23,7 +23,9 @@ export const LoginPage: React.FC = () => {
           PC
         </div>
         <div>
-          <h1 className="text-2xl font-black text-[var(--text-primary)] tracking-tight font-heading">PocketCoach</h1>
+          <h1 className="text-2xl font-black text-[var(--text-primary)] tracking-tight font-heading">
+            PocketCoach
+          </h1>
         </div>
       </div>
 
@@ -40,16 +42,22 @@ export const RegisterPage: React.FC = () => {
     <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center p-4 relative overflow-hidden transition-colors duration-200">
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      <Card variant="glass" className="max-w-md w-full border-[var(--border-glass)] shadow-2xl relative z-10">
+      <Card
+        variant="glass"
+        className="max-w-md w-full border-[var(--border-glass)] shadow-2xl relative z-10"
+      >
         <CardHeader>
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-emerald-500" />
-            <CardTitle className="text-xl font-bold text-[var(--text-primary)] font-heading">Trainer Registration</CardTitle>
+            <CardTitle className="text-xl font-bold text-[var(--text-primary)] font-heading">
+              Trainer Registration
+            </CardTitle>
           </div>
         </CardHeader>
         <CardBody className="space-y-4">
           <p className="text-sm text-[var(--text-secondary)]">
-            Registration completes upon receiving an invitation from a Super Admin. If you have an invitation link, please open it directly.
+            Registration completes upon receiving an invitation from a Super Admin. If you have an
+            invitation link, please open it directly.
           </p>
           <Link to="/login">
             <Button variant="gradient" className="w-full">
@@ -114,10 +122,13 @@ export const InvitePage: React.FC = () => {
         // Update profile record
         const { data: userData } = await supabase.auth.getUser();
         if (userData.user) {
-          await supabase.from('profiles').update({
-            display_name: displayName,
-            updated_at: new Date().toISOString(),
-          }).eq('id', userData.user.id);
+          await supabase
+            .from('profiles')
+            .update({
+              display_name: displayName,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', userData.user.id);
         }
 
         navigate('/dashboard');
@@ -162,9 +173,14 @@ export const InvitePage: React.FC = () => {
     <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center p-4 relative overflow-hidden transition-colors duration-200 font-body">
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[var(--ambient-glow-1)] rounded-full blur-[140px] pointer-events-none" />
 
-      <Card variant="glass" className="max-w-md w-full border-[var(--border-glass)] shadow-2xl relative z-10 p-2">
+      <Card
+        variant="glass"
+        className="max-w-md w-full border-[var(--border-glass)] shadow-2xl relative z-10 p-2"
+      >
         <CardHeader>
-          <CardTitle className="text-xl font-bold text-[var(--text-primary)] font-heading">Accept Trainer Invitation</CardTitle>
+          <CardTitle className="text-xl font-bold text-[var(--text-primary)] font-heading">
+            Accept Trainer Invitation
+          </CardTitle>
           <p className="text-xs text-[var(--text-secondary)]">
             Complete your account setup to join the club roster.
           </p>
@@ -179,7 +195,10 @@ export const InvitePage: React.FC = () => {
 
           <form onSubmit={handleCompleteSetup} className="space-y-4">
             <div>
-              <label htmlFor="invite-setup-email" className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+              <label
+                htmlFor="invite-setup-email"
+                className="block text-xs font-semibold text-[var(--text-secondary)] mb-1"
+              >
                 Account Email
               </label>
               <input
@@ -194,7 +213,10 @@ export const InvitePage: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor="invite-setup-name" className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+              <label
+                htmlFor="invite-setup-name"
+                className="block text-xs font-semibold text-[var(--text-secondary)] mb-1"
+              >
                 Display Name / Full Name
               </label>
               <input
@@ -209,7 +231,10 @@ export const InvitePage: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor="invite-setup-pass" className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+              <label
+                htmlFor="invite-setup-pass"
+                className="block text-xs font-semibold text-[var(--text-secondary)] mb-1"
+              >
                 Set Password
               </label>
               <input
@@ -224,7 +249,10 @@ export const InvitePage: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor="invite-setup-pass-confirm" className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+              <label
+                htmlFor="invite-setup-pass-confirm"
+                className="block text-xs font-semibold text-[var(--text-secondary)] mb-1"
+              >
                 Confirm Password
               </label>
               <input

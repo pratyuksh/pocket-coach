@@ -4,8 +4,20 @@ import { RefreshCw, AlertTriangle, UserCheck, ShieldAlert } from 'lucide-react';
 
 export const SubstitutionsPage: React.FC = () => {
   const sampleGaps = [
-    { id: 1, team: 'Youth U16 Athletics', date: 'Tomorrow, 17:30', reason: 'Trainer illness', status: 'Urgent Gap' },
-    { id: 2, team: 'Senior First Team Match', date: 'Saturday, 15:00', reason: 'Coaching seminar', status: 'Open Volunteer' },
+    {
+      id: 1,
+      team: 'Youth U16 Athletics',
+      date: 'Tomorrow, 17:30',
+      reason: 'Trainer illness',
+      status: 'Urgent Gap',
+    },
+    {
+      id: 2,
+      team: 'Senior First Team Match',
+      date: 'Saturday, 15:00',
+      reason: 'Coaching seminar',
+      status: 'Open Volunteer',
+    },
   ];
 
   return (
@@ -22,7 +34,8 @@ export const SubstitutionsPage: React.FC = () => {
             </h2>
           </div>
           <p className="text-xs text-[var(--text-secondary)] pl-9">
-            Resolve unassigned training sessions with smart substitution requests and atomic volunteer locks.
+            Resolve unassigned training sessions with smart substitution requests and atomic
+            volunteer locks.
           </p>
         </div>
 
@@ -34,7 +47,11 @@ export const SubstitutionsPage: React.FC = () => {
       {/* Gaps Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {sampleGaps.map((gap) => (
-          <Card key={gap.id} variant="interactive" className="border-amber-500/20 hover:border-amber-500/40">
+          <Card
+            key={gap.id}
+            variant="interactive"
+            className="border-amber-500/20 hover:border-amber-500/40"
+          >
             <CardHeader className="flex items-start justify-between pb-3">
               <Badge variant={gap.status === 'Urgent Gap' ? 'danger' : 'warning'}>
                 <ShieldAlert className="w-3 h-3 text-rose-500" />
@@ -43,12 +60,20 @@ export const SubstitutionsPage: React.FC = () => {
             </CardHeader>
 
             <CardBody className="space-y-3">
-              <h3 className="text-base font-bold text-[var(--text-primary)] font-heading">{gap.team}</h3>
-              <p className="text-xs text-[var(--text-secondary)] font-medium">Session: {gap.date}</p>
+              <h3 className="text-base font-bold text-[var(--text-primary)] font-heading">
+                {gap.team}
+              </h3>
+              <p className="text-xs text-[var(--text-secondary)] font-medium">
+                Session: {gap.date}
+              </p>
               <p className="text-xs text-[var(--text-secondary)] italic">Reason: "{gap.reason}"</p>
 
               <div className="pt-2 border-t border-[var(--border-glass)] flex justify-end">
-                <Button variant="outline" size="sm" leftIcon={<UserCheck className="w-3.5 h-3.5" />}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  leftIcon={<UserCheck className="w-3.5 h-3.5" />}
+                >
                   Volunteer Cover
                 </Button>
               </div>

@@ -55,10 +55,7 @@ export const CardHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   className = '',
   ...props
 }) => (
-  <div
-    className={`mb-4 pb-3 border-b border-[var(--border-glass)] ${className}`}
-    {...props}
-  >
+  <div className={`mb-4 pb-3 border-b border-[var(--border-glass)] ${className}`} {...props}>
     {children}
   </div>
 );
@@ -68,7 +65,10 @@ export const CardTitle: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({
   className = '',
   ...props
 }) => (
-  <h3 className={`text-lg font-bold text-[var(--text-primary)] tracking-tight font-heading ${className}`} {...props}>
+  <h3
+    className={`text-lg font-bold text-[var(--text-primary)] tracking-tight font-heading ${className}`}
+    {...props}
+  >
     {children}
   </h3>
 );

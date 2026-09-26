@@ -3,7 +3,10 @@ import { execSync } from 'child_process';
 
 let executablePath: string | undefined;
 try {
-  const systemChromium = execSync('which chromium || which google-chrome', { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
+  const systemChromium = execSync('which chromium || which google-chrome', {
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'ignore'],
+  }).trim();
   if (systemChromium) {
     executablePath = systemChromium;
   }

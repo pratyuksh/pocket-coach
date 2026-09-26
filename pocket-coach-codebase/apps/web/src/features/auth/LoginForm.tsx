@@ -52,9 +52,15 @@ export const LoginForm: React.FC = () => {
       )}
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-9 max-w-md mx-auto w-full flex flex-col items-center">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-9 max-w-md mx-auto w-full flex flex-col items-center"
+      >
         <div className="space-y-3 w-full">
-          <label htmlFor="login-email" className="block text-left text-xs font-bold text-[var(--text-secondary)] font-heading tracking-wide uppercase px-1">
+          <label
+            htmlFor="login-email"
+            className="block text-left text-xs font-bold text-[var(--text-secondary)] font-heading tracking-wide uppercase px-1"
+          >
             Email Address
           </label>
           <div className="input-group">
@@ -74,7 +80,10 @@ export const LoginForm: React.FC = () => {
         </div>
 
         <div className="space-y-3 w-full">
-          <label htmlFor="login-password" className="block text-left text-xs font-bold text-[var(--text-secondary)] font-heading tracking-wide uppercase px-1">
+          <label
+            htmlFor="login-password"
+            className="block text-left text-xs font-bold text-[var(--text-secondary)] font-heading tracking-wide uppercase px-1"
+          >
             Password
           </label>
           <div className="input-group">
@@ -94,11 +103,7 @@ export const LoginForm: React.FC = () => {
         </div>
 
         <div className="pt-10 w-full flex justify-center">
-          <button
-            type="submit"
-            disabled={loading}
-            className="auth-btn-primary"
-          >
+          <button type="submit" disabled={loading} className="auth-btn-primary">
             <LogIn className="w-4 h-4 shrink-0" />
             <span>{loading ? 'Signing in...' : 'Sign In'}</span>
           </button>
@@ -120,26 +125,38 @@ export const LoginForm: React.FC = () => {
       <div className="pt-8 border-t border-[var(--border-glass)] space-y-4">
         <p className="text-[11px] font-semibold text-[var(--text-secondary)] flex items-center justify-center gap-1.5">
           <KeyRound className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-          <span>Demo Accounts (Password: <code className="text-emerald-500 font-mono font-bold">Password123!</code>)</span>
+          <span>
+            Demo Accounts (Password:{' '}
+            <code className="text-emerald-500 font-mono font-bold">Password123!</code>)
+          </span>
         </p>
         <div className="grid grid-cols-3 gap-3">
           <button
             type="button"
-            onClick={() => { setEmail('admin@club.de'); setPassword('Password123!'); }}
+            onClick={() => {
+              setEmail('admin@club.de');
+              setPassword('Password123!');
+            }}
             className="py-2.5 px-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30 text-[11px] font-bold transition-all cursor-pointer text-center truncate"
           >
             Super Admin
           </button>
           <button
             type="button"
-            onClick={() => { setEmail('headtrainer@club.de'); setPassword('Password123!'); }}
+            onClick={() => {
+              setEmail('headtrainer@club.de');
+              setPassword('Password123!');
+            }}
             className="py-2.5 px-2.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-600 dark:text-cyan-300 border border-cyan-500/30 text-[11px] font-bold transition-all cursor-pointer text-center truncate"
           >
             Head Trainer
           </button>
           <button
             type="button"
-            onClick={() => { setEmail('trainer1@club.de'); setPassword('Password123!'); }}
+            onClick={() => {
+              setEmail('trainer1@club.de');
+              setPassword('Password123!');
+            }}
             className="py-2.5 px-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30 text-[11px] font-bold transition-all cursor-pointer text-center truncate"
           >
             Trainer

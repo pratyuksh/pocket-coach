@@ -6,6 +6,12 @@ dist
 .env.*.local
 .supabase
 *.log
+*.tsbuildinfo
 test-results
 playwright-report
 blob-report
+coverage
+.DS_Store
+Thumbs.db
+packages/supabase/snippets/
+packages/supabase/.temp/

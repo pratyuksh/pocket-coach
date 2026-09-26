@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Profile Settings & Calendar Feed E2E Flow', () => {
-  test('should allow user to update profile settings and regenerate calendar feed token', async ({ page }) => {
+  test('should allow user to update profile settings and regenerate calendar feed token', async ({
+    page,
+  }) => {
     // 1. Log in as Trainer
     await page.goto('/login');
     await page.getByLabel(/email address/i).fill('trainer1@club.de');

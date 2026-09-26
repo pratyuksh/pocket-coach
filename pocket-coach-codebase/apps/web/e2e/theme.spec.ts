@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Theme Toggle E2E Flow', () => {
-  test('should allow user to toggle between dark and light themes on login page', async ({ page }) => {
+  test('should allow user to toggle between dark and light themes on login page', async ({
+    page,
+  }) => {
     await page.goto('/login');
 
     // Default theme should be dark

@@ -4,7 +4,17 @@ import { supabase } from '../../lib/supabase';
 import { usePermissions } from '../../hooks/usePermissions';
 import { useAuth } from '../../hooks/useAuth';
 import type { Profile, UserRole } from '@pocket-coach/shared-types';
-import { Users, UserPlus, Tag, Mail, RefreshCw, ShieldCheck, Award, Trash2, AlertCircle } from 'lucide-react';
+import {
+  Users,
+  UserPlus,
+  Tag,
+  Mail,
+  RefreshCw,
+  ShieldCheck,
+  Award,
+  Trash2,
+  AlertCircle,
+} from 'lucide-react';
 import { InviteModal } from '../auth/InviteModal';
 import { RoleManagerModal } from './RoleManagerModal';
 
@@ -34,17 +44,18 @@ export const TrainerRoster: React.FC = () => {
 
       if (profErr) throw profErr;
 
-      const { data: rolesData, error: rolesErr } = await supabase
-        .from('user_roles')
-        .select('*');
+      const { data: rolesData, error: rolesErr } = await supabase.from('user_roles').select('*');
 
       if (rolesErr) throw rolesErr;
 
-      const rolesByProfile = (rolesData || []).reduce((acc: Record<string, UserRole[]>, row: any) => {
-        if (!acc[row.profile_id]) acc[row.profile_id] = [];
-        acc[row.profile_id].push(row.role as UserRole);
-        return acc;
-      }, {});
+      const rolesByProfile = (rolesData || []).reduce(
+        (acc: Record<string, UserRole[]>, row: any) => {
+          if (!acc[row.profile_id]) acc[row.profile_id] = [];
+          acc[row.profile_id].push(row.role as UserRole);
+          return acc;
+        },
+        {},
+      );
 
       const combined: TrainerWithRoles[] = (profilesData || []).map((p: any) => ({
         ...(p as Profile),
@@ -112,7 +123,12 @@ export const TrainerRoster: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" onClick={fetchRoster} leftIcon={<RefreshCw className="w-4 h-4" />}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchRoster}
+            leftIcon={<RefreshCw className="w-4 h-4" />}
+          >
             Refresh
           </Button>
 
@@ -133,7 +149,10 @@ export const TrainerRoster: React.FC = () => {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-44 rounded-2xl bg-[var(--bg-surface-elevated)] animate-pulse border border-[var(--border-glass)]" />
+            <div
+              key={i}
+              className="h-44 rounded-2xl bg-[var(--bg-surface-elevated)] animate-pulse border border-[var(--border-glass)]"
+            />
           ))}
         </div>
       ) : trainers.length === 0 ? (
@@ -195,11 +214,27 @@ export const TrainerRoster: React.FC = () => {
               <CardBody className="space-y-3 pt-2">
                 {/* Roles list */}
                 <div className="flex flex-wrap items-center gap-1.5">
-                  <span className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mr-1">Roles:</span>
+                  <span className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mr-1">
+                    Roles:
+                  </span>
                   {t.roles.map((r) => {
-                    if (r === 'super_admin') return <Badge key={r} variant="warning">Super Admin</Badge>;
-                    if (r === 'head_trainer') return <Badge key={r} variant="info">Head Trainer</Badge>;
-                    return <Badge key={r} variant="neutral">Trainer</Badge>;
+                    if (r === 'super_admin')
+                      return (
+                        <Badge key={r} variant="warning">
+                          Super Admin
+                        </Badge>
+                      );
+                    if (r === 'head_trainer')
+                      return (
+                        <Badge key={r} variant="info">
+                          Head Trainer
+                        </Badge>
+                      );
+                    return (
+                      <Badge key={r} variant="neutral">
+                        Trainer
+                      </Badge>
+                    );
                   })}
                   {t.is_junior_coach && (
                     <Badge variant="success">
@@ -250,7 +285,9 @@ export const TrainerRoster: React.FC = () => {
           <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs flex items-center gap-3">
             <AlertCircle className="w-5 h-5 shrink-0" />
             <span>
-              Are you sure you want to remove <strong>{trainerToRemove?.display_name || trainerToRemove?.email}</strong> from the club roster? This action will revoke their access.
+              Are you sure you want to remove{' '}
+              <strong>{trainerToRemove?.display_name || trainerToRemove?.email}</strong> from the
+              club roster? This action will revoke their access.
             </span>
           </div>
 

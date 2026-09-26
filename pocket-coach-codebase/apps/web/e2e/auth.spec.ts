@@ -19,7 +19,9 @@ test.describe('Authentication & Navigation E2E', () => {
     await expect(page).toHaveURL(/\/(trainers|dashboard|$)/);
   });
 
-  test('should redirect unauthenticated users to login and handle sign-out redirect', async ({ page }) => {
+  test('should redirect unauthenticated users to login and handle sign-out redirect', async ({
+    page,
+  }) => {
     // 1. Unauthenticated visit to protected route redirects to /login
     await page.goto('/dashboard');
     await expect(page).toHaveURL(/\/login/);

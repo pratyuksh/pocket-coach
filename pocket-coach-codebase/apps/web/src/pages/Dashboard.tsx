@@ -1,13 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardBody,
-  Button,
-  Badge,
-} from '../components/ui';
+import { Card, CardHeader, CardTitle, CardBody, Button, Badge } from '../components/ui';
 import { useAuth } from '../hooks/useAuth';
 import { usePermissions } from '../hooks/usePermissions';
 import {
@@ -53,7 +46,8 @@ export const DashboardPage: React.FC = () => {
               Welcome back{profile?.display_name ? `, ${profile.display_name}` : ''}!
             </h2>
             <p className="text-emerald-100 dark:text-slate-300 text-sm leading-relaxed">
-              Streamlined sports club management active. Monitor trainer rosters, assign coaching roles, collect availability surveys, and solve substitution gaps in real-time.
+              Streamlined sports club management active. Monitor trainer rosters, assign coaching
+              roles, collect availability surveys, and solve substitution gaps in real-time.
             </p>
 
             <div className="pt-2 flex flex-wrap items-center gap-3">
@@ -76,7 +70,9 @@ export const DashboardPage: React.FC = () => {
             <div className="p-3 bg-slate-900/90 rounded-2xl border border-white/10 shadow-xl backdrop-blur-xl flex items-center gap-3">
               <div className="w-3 h-3 rounded-full bg-emerald-400 animate-ping" />
               <div>
-                <p className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">System Status</p>
+                <p className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">
+                  System Status
+                </p>
                 <p className="text-xs font-extrabold text-emerald-400">All Services Operational</p>
               </div>
             </div>
@@ -93,7 +89,7 @@ export const DashboardPage: React.FC = () => {
                 Authenticated User
               </p>
               <h4 className="text-sm font-black text-[var(--text-primary)] truncate max-w-[160px] font-heading">
-                {user ? (profile?.display_name || user.email?.split('@')[0]) : 'Guest'}
+                {user ? profile?.display_name || user.email?.split('@')[0] : 'Guest'}
               </h4>
               <p className="text-[11px] text-emerald-500 font-semibold truncate max-w-[160px]">
                 {user?.email}
@@ -129,7 +125,10 @@ export const DashboardPage: React.FC = () => {
               <p className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
                 Club Roster
               </p>
-              <Link to="/trainers" className="text-sm font-black text-emerald-500 hover:text-emerald-400 flex items-center gap-1.5 font-heading">
+              <Link
+                to="/trainers"
+                className="text-sm font-black text-emerald-500 hover:text-emerald-400 flex items-center gap-1.5 font-heading"
+              >
                 <span>View Roster</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
@@ -146,8 +145,12 @@ export const DashboardPage: React.FC = () => {
               <p className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
                 Local Database
               </p>
-              <h4 className="text-sm font-black text-[var(--text-primary)] font-heading">Supabase Stack</h4>
-              <Badge variant="success" size="sm">Connected</Badge>
+              <h4 className="text-sm font-black text-[var(--text-primary)] font-heading">
+                Supabase Stack
+              </h4>
+              <Badge variant="success" size="sm">
+                Connected
+              </Badge>
             </div>
             <div className="p-3.5 bg-cyan-500/15 border border-cyan-500/30 rounded-2xl text-cyan-500 shadow-md">
               <CheckCircle2 className="w-6 h-6" />
@@ -170,7 +173,10 @@ export const DashboardPage: React.FC = () => {
 
           <CardBody className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Link to="/trainers" className="group p-4 rounded-2xl bg-[var(--bg-surface-elevated)] border border-[var(--border-glass)] hover:border-emerald-500/40 transition-all duration-200 shadow-lg">
+              <Link
+                to="/trainers"
+                className="group p-4 rounded-2xl bg-[var(--bg-surface-elevated)] border border-[var(--border-glass)] hover:border-emerald-500/40 transition-all duration-200 shadow-lg"
+              >
                 <div className="flex items-center justify-between mb-2">
                   <div className="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-500 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Users className="w-5 h-5" />
@@ -185,7 +191,10 @@ export const DashboardPage: React.FC = () => {
                 </p>
               </Link>
 
-              <Link to="/sessions" className="group p-4 rounded-2xl bg-[var(--bg-surface-elevated)] border border-[var(--border-glass)] hover:border-teal-500/40 transition-all duration-200 shadow-lg">
+              <Link
+                to="/sessions"
+                className="group p-4 rounded-2xl bg-[var(--bg-surface-elevated)] border border-[var(--border-glass)] hover:border-teal-500/40 transition-all duration-200 shadow-lg"
+              >
                 <div className="flex items-center justify-between mb-2">
                   <div className="w-10 h-10 rounded-xl bg-teal-500/15 text-teal-500 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <CalendarDays className="w-5 h-5" />

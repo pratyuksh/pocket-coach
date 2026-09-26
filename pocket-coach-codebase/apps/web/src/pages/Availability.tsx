@@ -40,7 +40,9 @@ export const AvailabilityPage: React.FC = () => {
             </CardHeader>
             <CardBody className="space-y-2.5 text-xs text-[var(--text-secondary)]">
               <div className="flex items-center justify-between p-2 rounded-xl bg-[var(--bg-surface-elevated)] border border-[var(--border-glass)]">
-                <span className="text-[var(--text-primary)] font-medium">Evening Session (17:30 - 20:00)</span>
+                <span className="text-[var(--text-primary)] font-medium">
+                  Evening Session (17:30 - 20:00)
+                </span>
                 {idx % 2 === 0 ? (
                   <CheckCircle className="w-4 h-4 text-emerald-500" />
                 ) : (
