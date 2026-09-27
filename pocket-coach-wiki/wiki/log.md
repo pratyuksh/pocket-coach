@@ -75,4 +75,11 @@
 * Updated PostgreSQL schema in `database-schema.md` with `LOCATIONS` and `SEASON_TEMPLATES` tables, and `location_id` foreign key on `TRAINING_DAYS` and `SESSIONS` (bringing core Phase 1 table count to 16).
 * Updated Wiki index (`wiki/index.md`) descriptions for updated requirement and planning pages.
 
+## 2026-09-27 | phase-1.3-completion-and-ci-pipeline | Updated 2 pages: codebase/implementation-plan.md, wiki/log.md
+* Completed Sub-Phase 1.3 (Seasons, Training Days, Hall Locations & Automatic Session Generation).
+* Added database migration `20260927000000_seasons_locations_and_templates.sql` for `seasons`, `sports_hall_locations`, `season_templates`, `session_overrides`, `player_groups`, and `training_days`.
+* Built UI components and hooks: `SeasonSetupModal`, `TemplateSelector`, `LocationManagerModal`, `SessionScheduleView`, `SessionCard`, and `SessionOverrideModal`.
+* Enhanced schedule layout with ISO Calendar Week (KW) and Month grouping, filter dropdowns, and optimized vertical element spacing.
+* Added complete test suite (52 Vitest unit tests, 7 Playwright E2E tests) and established GitHub Actions CI pipeline (`.github/workflows/ci.yml`).
+
 <!-- END OF LOG -->

@@ -131,11 +131,11 @@ flowchart TD
 - **Friday (17:30 – 19:00)**: All Groups (`Kids / Basic`, `Advanced-1`, `Advanced-2`) @ *Sporthalle Schulhaus Apfelbaum (Oerlikon)*
 
 #### Testable Milestone 1.3
-- [ ] Head-trainer creates a Season (e.g. Aug 1 – Jul 31) using the **Standard Junior Season** default template.
-- [ ] Form pre-fills 3 hall locations, player group levels, and 5 weekly training slots (Tue, Wed x2, Thu, Fri).
-- [ ] System automatically batch-generates all session records for every configured weekday slot in that date range with hall locations and player group linkages.
-- [ ] Head-trainer browses `/sessions`, filters by Hall Location, and sees the auto-generated schedule.
-- [ ] Head-trainer overrides time or location for a specific holiday/event session.
+- [x] Head-trainer creates a Season (e.g. Aug 1 – Jul 31) using the **Standard Junior Season** default template.
+- [x] Form pre-fills 3 hall locations, player group levels, and 5 weekly training slots (Tue, Wed x2, Thu, Fri).
+- [x] System automatically batch-generates all session records for every configured weekday slot in that date range with hall locations and player group linkages.
+- [x] Head-trainer browses `/sessions`, filters by Hall Location, and sees the auto-generated schedule.
+- [x] Head-trainer overrides time or location for a specific holiday/event session.
 
 ---
 
