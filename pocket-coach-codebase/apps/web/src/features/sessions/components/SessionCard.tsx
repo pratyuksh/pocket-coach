@@ -1,13 +1,14 @@
 import React from 'react';
 import { Card, Badge, Button } from '../../../components/ui';
 import type { EnrichedSession } from '../hooks/useSessions';
-import { Clock, MapPin, Edit2, Trash2, AlertCircle } from 'lucide-react';
+import { Clock, MapPin, Edit2, Trash2, AlertCircle, UserPlus, UserCheck, User } from 'lucide-react';
 
 interface SessionCardProps {
   session: EnrichedSession;
   canEdit?: boolean;
   onEditOverride?: (session: EnrichedSession) => void;
   onDeleteSession?: (session: EnrichedSession) => void;
+  onAssignClick?: (session: EnrichedSession) => void;
 }
 
 const WEEKDAY_NAMES = [
@@ -25,6 +26,7 @@ export const SessionCard: React.FC<SessionCardProps> = ({
   canEdit = true,
   onEditOverride,
   onDeleteSession,
+  onAssignClick,
 }) => {
   const weekdayName = WEEKDAY_NAMES[session.day_of_week] || 'Weekday';
   const startTime = session.start_time.slice(0, 5);
@@ -33,7 +35,7 @@ export const SessionCard: React.FC<SessionCardProps> = ({
   return (
     <Card
       variant="interactive"
-      className="relative group py-4 px-4 sm:px-5 sm:py-4.5 border border-slate-200/80 dark:border-slate-800/80 hover:border-emerald-500/50 transition-all max-w-4xl"
+      className="relative group py-4 px-4 sm:px-5 sm:py-4.5 border border-slate-200/80 dark:border-slate-800/80 hover:border-emerald-500/50 transition-all w-full"
     >
       <div className="flex flex-col md:flex-row md:items-center gap-4 lg:gap-5 py-0.5">
         {/* Left Column: Date & Time (Compact fixed width across all rows for vertical alignment) */}
@@ -65,7 +67,7 @@ export const SessionCard: React.FC<SessionCardProps> = ({
         </div>
 
         {/* Middle Column: Hall Location (Compact fixed width so Player Groups sit closely beside it) */}
-        <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300 md:w-60 lg:w-64 md:shrink-0">
+        <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300 md:w-56 lg:w-64 md:shrink-0">
           <div className="p-1 rounded-md bg-teal-500/10 text-teal-500 shrink-0">
             <MapPin className="w-3.5 h-3.5" />
           </div>
@@ -76,8 +78,8 @@ export const SessionCard: React.FC<SessionCardProps> = ({
           </span>
         </div>
 
-        {/* Player Groups Column (Positioned directly next to Hall Location with compact spacing) */}
-        <div className="flex flex-wrap items-center gap-1.5 shrink-0">
+        {/* Player Groups Column (Fixed width for column-level vertical alignment across rows) */}
+        <div className="flex flex-wrap items-center gap-1.5 md:w-56 lg:w-64 md:shrink-0">
           {session.is_time_overridden && (
             <Badge variant="warning">
               <AlertCircle className="w-3 h-3 mr-1 text-amber-500" /> Overridden
@@ -94,9 +96,63 @@ export const SessionCard: React.FC<SessionCardProps> = ({
           )}
         </div>
 
-        {/* Right Action: Edit & Delete Buttons */}
-        {canEdit && (onEditOverride || onDeleteSession) && (
+        {/* Assignees Column (Fixed width for visual vertical alignment across all sessions) */}
+        <div className="flex flex-wrap items-center gap-1.5 md:w-60 lg:w-72 md:shrink-0">
+          {session.assignments && session.assignments.length > 0 ? (
+            session.assignments.map((a) => {
+              const is1418 = a.profile?.is_junior_coach || a.track === 'junior_coach';
+              const name = a.profile?.display_name || 'Trainer';
+
+              if (is1418) {
+                return (
+                  <Badge
+                    key={a.id}
+                    variant="neutral"
+                    className="text-[11px] font-semibold text-teal-600 dark:text-teal-400 border-teal-500/20"
+                  >
+                    <User className="w-3 h-3 mr-1 text-teal-500" />
+                    {name}
+                  </Badge>
+                );
+              }
+
+              const roleTag =
+                a.session_role === 'primary'
+                  ? 'Lead: '
+                  : a.session_role === 'assistant_coach'
+                    ? 'Assistant: '
+                    : '';
+
+              return (
+                <Badge key={a.id} variant="gradient" className="text-[11px] font-semibold">
+                  <UserCheck className="w-3 h-3 mr-1 text-emerald-300" />
+                  {roleTag}
+                  {name}
+                </Badge>
+              );
+            })
+          ) : (
+            <span className="text-[11px] text-slate-400 dark:text-slate-500 italic flex items-center gap-1">
+              <UserCheck className="w-3 h-3 text-slate-400 opacity-60" /> Unassigned
+            </span>
+          )}
+        </div>
+
+        {/* Right Action: Assign, Edit & Delete Buttons */}
+        {canEdit && (onEditOverride || onDeleteSession || onAssignClick) && (
           <div className="ml-auto shrink-0 flex items-center gap-1.5">
+            {onAssignClick && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => onAssignClick(session)}
+                title="Assign Trainers"
+                className="text-teal-600 hover:text-teal-700 hover:bg-teal-500/10 border-teal-500/20"
+              >
+                <UserPlus className="w-3.5 h-3.5 mr-1" /> Assign
+              </Button>
+            )}
             {onEditOverride && (
               <Button
                 type="button"
@@ -126,4 +182,3 @@ export const SessionCard: React.FC<SessionCardProps> = ({
     </Card>
   );
 };
-

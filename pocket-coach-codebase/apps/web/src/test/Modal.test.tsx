@@ -26,7 +26,7 @@ describe('Modal', () => {
   });
 
   it('calls onClose when clicking the backdrop', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     const onClose = vi.fn();
 
     render(
@@ -41,7 +41,7 @@ describe('Modal', () => {
   });
 
   it('calls onClose when pressing Escape', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     const onClose = vi.fn();
 
     render(

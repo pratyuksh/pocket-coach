@@ -273,7 +273,7 @@ export const TrainerProfileEditor: React.FC = () => {
 
               <div>
                 <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
-                  Coaching Track Status
+                  Coaching Profile Designation
                 </label>
                 <div className="flex items-center gap-2 pt-2">
                   <input
@@ -287,7 +287,7 @@ export const TrainerProfileEditor: React.FC = () => {
                     htmlFor="juniorTrack"
                     className="text-xs text-[var(--text-secondary)] cursor-pointer select-none"
                   >
-                    Junior Coach / 14-18 Assistant Track
+                    1418 Coach (U14–U18 youth player coach designation)
                   </label>
                 </div>
               </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Button, Badge } from '../../../components/ui';
 import { useLocations } from '../hooks/useLocations';
+import { usePermissions } from '../../../hooks/usePermissions';
 import { MapPin, Plus, Building2, AlertCircle } from 'lucide-react';
 
 interface LocationManagerModalProps {
@@ -9,6 +10,7 @@ interface LocationManagerModalProps {
 }
 
 export const LocationManagerModal: React.FC<LocationManagerModalProps> = ({ isOpen, onClose }) => {
+  const { canManageSeasons } = usePermissions();
   const { locations, loading, error, addLocation, updateLocation } = useLocations();
   const [newHallName, setNewHallName] = useState('');
   const [newDistrict, setNewDistrict] = useState('');
@@ -55,53 +57,55 @@ export const LocationManagerModal: React.FC<LocationManagerModalProps> = ({ isOp
         )}
 
         {/* Add Location Form */}
-        <form
-          onSubmit={handleAddLocation}
-          className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-3"
-        >
-          <h4 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-emerald-500" />
-            Add New Hall Location
-          </h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
-                Hall Name *
-              </label>
-              <input
-                type="text"
-                value={newHallName}
-                onChange={(e) => setNewHallName(e.target.value)}
-                placeholder="e.g. Sporthalle Borrweg"
-                required
-                className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
-              />
+        {canManageSeasons && (
+          <form
+            onSubmit={handleAddLocation}
+            className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-3"
+          >
+            <h4 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-emerald-500" />
+              Add New Hall Location
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Hall Name *
+                </label>
+                <input
+                  type="text"
+                  value={newHallName}
+                  onChange={(e) => setNewHallName(e.target.value)}
+                  placeholder="e.g. Sporthalle Borrweg"
+                  required
+                  className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  District / Area
+                </label>
+                <input
+                  type="text"
+                  value={newDistrict}
+                  onChange={(e) => setNewDistrict(e.target.value)}
+                  placeholder="e.g. Friesenberg"
+                  className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
-                District / Area
-              </label>
-              <input
-                type="text"
-                value={newDistrict}
-                onChange={(e) => setNewDistrict(e.target.value)}
-                placeholder="e.g. Friesenberg"
-                className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
-              />
+            <div className="flex justify-end">
+              <Button
+                type="submit"
+                variant="primary"
+                size="sm"
+                isLoading={submitting}
+                disabled={!newHallName.trim()}
+              >
+                <Plus className="w-4 h-4 mr-1" /> Add Location
+              </Button>
             </div>
-          </div>
-          <div className="flex justify-end">
-            <Button
-              type="submit"
-              variant="primary"
-              size="sm"
-              isLoading={submitting}
-              disabled={!newHallName.trim()}
-            >
-              <Plus className="w-4 h-4 mr-1" /> Add Location
-            </Button>
-          </div>
-        </form>
+          </form>
+        )}
 
         {/* Existing Locations List */}
         <div className="space-y-2">
@@ -133,14 +137,16 @@ export const LocationManagerModal: React.FC<LocationManagerModalProps> = ({ isOp
                       )}
                     </div>
                   </div>
-                  <Button
-                    type="button"
-                    variant={loc.is_active ? 'outline' : 'primary'}
-                    size="sm"
-                    onClick={() => handleToggleActive(loc.id, loc.is_active)}
-                  >
-                    {loc.is_active ? 'Deactivate' : 'Activate'}
-                  </Button>
+                  {canManageSeasons && (
+                    <Button
+                      type="button"
+                      variant={loc.is_active ? 'outline' : 'primary'}
+                      size="sm"
+                      onClick={() => handleToggleActive(loc.id, loc.is_active)}
+                    >
+                      {loc.is_active ? 'Deactivate' : 'Activate'}
+                    </Button>
+                  )}
                 </div>
               ))}
             </div>

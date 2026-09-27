@@ -279,7 +279,7 @@ export const InviteModal: React.FC<InviteModalProps> = ({ isOpen, onClose, onSuc
               htmlFor="isJuniorCoach"
               className="text-xs text-[var(--text-secondary)] cursor-pointer"
             >
-              Mark as Junior Coach / 14-18 Track
+              Mark as 1418 Coach (U14/U18 youth player designation)
             </label>
           </div>
 

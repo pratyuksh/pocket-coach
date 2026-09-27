@@ -155,9 +155,9 @@ flowchart TD
   - `PersonalStatsCard`: Breakdown by role (Trainer, Assistant-coach, 14/18 Coach, Total) showing Completed vs. Total Assigned.
 
 #### Testable Milestone 1.4
-- [ ] Head-trainer assigns regular trainers and junior coaches via direct session card detail modals and the Bulk Assign tool.
-- [ ] Assigned trainers navigate to "My Sessions" and see their schedule highlighted.
-- [ ] Personal session stats update dynamically on the trainer's profile page and Trainer Roster.
+- [x] Head-trainer assigns regular trainers and 14/18 coaches via direct session card detail modals and the Bulk Assign tool.
+- [x] Assigned trainers navigate to "My Sessions" and see their schedule highlighted.
+- [x] Personal session stats update dynamically on the trainer's profile page and Trainer Roster.
 
 ---
 

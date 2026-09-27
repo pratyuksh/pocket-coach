@@ -121,7 +121,7 @@ describe('TrainerRoster', () => {
       expect(screen.getByText('Super Admin User')).toBeInTheDocument();
       expect(screen.getByText('Regular Trainer One')).toBeInTheDocument();
       expect(screen.getByText('Athletics')).toBeInTheDocument();
-      expect(screen.getByText('Junior Coach')).toBeInTheDocument();
+      expect(screen.getByText('1418 Coach')).toBeInTheDocument();
     });
   });
 

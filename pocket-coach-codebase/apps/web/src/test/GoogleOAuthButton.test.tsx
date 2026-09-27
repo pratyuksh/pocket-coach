@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { AuthError } from '@supabase/supabase-js';
 import { GoogleOAuthButton } from '../features/auth/GoogleOAuthButton';
 import { supabase } from '../lib/supabase';
 
@@ -23,8 +24,11 @@ describe('GoogleOAuthButton', () => {
   });
 
   it('triggers supabase.auth.signInWithOAuth with google provider when clicked', async () => {
-    const user = userEvent.setup();
-    (supabase.auth.signInWithOAuth as any).mockResolvedValue({ data: {}, error: null });
+    const user = userEvent.setup({ delay: null });
+    vi.mocked(supabase.auth.signInWithOAuth).mockResolvedValue({
+      data: { provider: 'google', url: 'https://accounts.google.com' },
+      error: null,
+    });
 
     render(<GoogleOAuthButton />);
 
@@ -42,11 +46,11 @@ describe('GoogleOAuthButton', () => {
   });
 
   it('calls onError callback when OAuth returns an error', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     const mockOnError = vi.fn();
-    (supabase.auth.signInWithOAuth as any).mockResolvedValue({
-      data: null,
-      error: { message: 'Provider google is disabled in local environment' },
+    vi.mocked(supabase.auth.signInWithOAuth).mockResolvedValue({
+      data: { provider: 'google', url: null },
+      error: new AuthError('Provider google is disabled in local environment', 400),
     });
 
     render(<GoogleOAuthButton onError={mockOnError} />);

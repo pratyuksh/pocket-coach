@@ -2,7 +2,7 @@ import { useAuth } from './useAuth';
 import { isHeadTrainer, isSuperAdmin, hasRole } from '@pocket-coach/shared-types';
 
 export function usePermissions() {
-  const { roles, profile, user } = useAuth();
+  const { roles = [], profile, user } = useAuth();
 
   const userIsSuperAdmin = isSuperAdmin(roles);
   const userIsHeadTrainer = isHeadTrainer(roles);

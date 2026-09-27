@@ -158,6 +158,33 @@ export interface SubstitutionRequest {
   escalated_at: string | null;
 }
 
+export interface EnrichedSessionAssignment extends SessionAssignment {
+  profile?: Profile | null;
+}
+
+export interface SessionWithAssignments extends Session {
+  location?: Location | null;
+  assignments: EnrichedSessionAssignment[];
+  player_groups?: PlayerGroup[];
+}
+
+export interface BulkAssignParams {
+  season_id: string;
+  profile_id: string;
+  day_of_week?: number | null;
+  location_id?: string | null;
+  track?: AssignmentTrack;
+  session_role?: SessionRole;
+  assigned_by?: string | null;
+}
+
+export interface PersonalStats {
+  completed_sessions: number;
+  total_assigned_sessions: number;
+  primary_role_count: number;
+  assistant_role_count: number;
+}
+
 export interface Notification {
   id: string;
   recipient_id: string;

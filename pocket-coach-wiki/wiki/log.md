@@ -87,4 +87,12 @@
 * Updated Phase 1 implementation plan to a sequential 6-step roadmap (1.1 Foundation, 1.2 Auth & Roles, 1.3 Seasons & Sessions, 1.4 Assignments & Personal View, 1.5 Substitutions, 1.6 Polish & WebCal/PWA).
 * Updated `wiki/index.md` and wiki documentation logs to reflect the re-ordered Phase 1 & Phase 2 roadmap structure.
 
+## 2026-09-27 | phase-1.4-completion-and-1418-coach | Updated 3 pages: codebase/implementation-plan.md, wiki/index.md, wiki/log.md
+* Completed Sub-Phase 1.4 (Trainer Session Assignments & Personal View).
+* Renamed all UI occurrences of "Junior Coach" to "1418 Coach" to clarify youth player coach designation (aged 14 to 18 years old).
+* Enhanced `SessionAssigneeModal` with a dynamic multi-coach assignment list (`+ Add Coach`, `Trash` delete) supporting dynamic numbers of coaches per session.
+* Filtered 1418 Coach dropdown selection strictly to trainers holding the `is_junior_coach: true` profile designation.
+* Updated `SessionCard` to dynamically render all assigned coaches with role badges (`Lead:`, `Assistant:`, or 🌱 `1418 Coach`).
+* Updated Vitest unit test suite (68 tests passing) and marked Sub-Phase 1.4 milestone checkboxes as complete in `codebase/implementation-plan.md`.
+
 <!-- END OF LOG -->

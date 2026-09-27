@@ -5,6 +5,9 @@ import { useLocations } from '../../locations/hooks/useLocations';
 import { useSessions, EnrichedSession } from '../hooks/useSessions';
 import { SessionCard } from './SessionCard';
 import { SessionOverrideModal } from './SessionOverrideModal';
+import { SessionAssigneeModal } from './SessionAssigneeModal';
+import { BulkAssignModal } from './BulkAssignModal';
+import { MySessionsList } from './MySessionsList';
 import { SeasonSetupModal } from '../../seasons/components/SeasonSetupModal';
 import { LocationManagerModal } from '../../locations/components/LocationManagerModal';
 import { usePermissions } from '../../../hooks/usePermissions';
@@ -20,6 +23,8 @@ import {
   Layers,
   Trash2,
   AlertTriangle,
+  Users,
+  User,
 } from 'lucide-react';
 
 // Helper functions for ISO Calendar Week & Month grouping
@@ -62,7 +67,7 @@ interface MonthGroup {
 }
 
 export const SessionScheduleView: React.FC = () => {
-  const { isHeadTrainer, isSuperAdmin } = usePermissions();
+  const { canManageSeasons, isHeadTrainer, isSuperAdmin } = usePermissions();
   const canDeleteSeason = isHeadTrainer || isSuperAdmin;
   const { seasons, activeSeason, refetch: refetchSeasons, deleteSeason } = useSeasons();
   const { locations } = useLocations();
@@ -86,6 +91,9 @@ export const SessionScheduleView: React.FC = () => {
   }, []);
 
   const [selectedMonthFilter, setSelectedMonthFilter] = useState<string>(currentMonthKey);
+  const [activeTab, setActiveTab] = useState<'all' | 'my'>('all');
+  const [assigneeTargetSession, setAssigneeTargetSession] = useState<EnrichedSession | null>(null);
+  const [bulkAssignModalOpen, setBulkAssignModalOpen] = useState(false);
   const [setupModalOpen, setSetupModalOpen] = useState(false);
   const [locationModalOpen, setLocationModalOpen] = useState(false);
   const [overrideTargetSession, setOverrideTargetSession] = useState<EnrichedSession | null>(null);
@@ -255,206 +263,273 @@ export const SessionScheduleView: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
-          <Button variant="outline" size="sm" onClick={() => setLocationModalOpen(true)}>
-            <Building2 className="w-4 h-4 mr-1 text-emerald-500" /> Manage Halls
-          </Button>
-          <Button variant="primary" size="sm" onClick={() => setSetupModalOpen(true)}>
-            <Plus className="w-4 h-4 mr-1" /> Create Season
-          </Button>
-        </div>
-      </div>
-
-      {/* Season Banner & Filter Toolbar */}
-      <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-5 sm:space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
-          <div className="flex items-center gap-3">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              Season:
-            </label>
-            <select
-              value={currentSeasonId || ''}
-              onChange={(e) => handleSeasonChange(e.target.value)}
-              className="px-3 py-1.5 text-sm font-bold rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
-            >
-              {seasons.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name} ({s.start_date} – {s.end_date}) {s.is_active ? '★ Active' : ''}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {selectedSeason && (
-            <div className="flex items-center gap-2">
-              <Badge variant="gradient">
-                <Sparkles className="w-3 h-3 text-emerald-300 mr-1" />
-                {selectedSeason.name}
-              </Badge>
-              <Badge variant="neutral">{sessions.length} Total Sessions</Badge>
-              {canDeleteSeason && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setDeleteConfirmOpen(true)}
-                  title="Delete Season"
-                  className="text-red-500 hover:text-red-600 hover:bg-red-500/10 border-red-500/20"
-                >
-                  <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete Season
-                </Button>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Filter Dropdowns */}
-        <div className="flex flex-wrap items-center gap-3.5 py-0.5">
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
-            <Filter className="w-3.5 h-3.5 text-emerald-500" /> Filter By:
-          </div>
-
-          {/* Hall Location Filter */}
-          <select
-            value={filters.locationId || ''}
-            onChange={(e) => handleLocationFilterChange(e.target.value)}
-            className="px-3 py-1.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
-          >
-            <option value="">All Sports Halls ({locations.length})</option>
-            {locations.map((loc) => (
-              <option key={loc.id} value={loc.id}>
-                📍 {loc.name} {loc.district_area ? `(${loc.district_area})` : ''}
-              </option>
-            ))}
-          </select>
-
-          {/* Weekday Filter */}
-          <select
-            value={filters.dayOfWeek !== undefined ? filters.dayOfWeek : ''}
-            onChange={(e) => handleDayFilterChange(e.target.value)}
-            className="px-3 py-1.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
-          >
-            <option value="">All Weekdays</option>
-            <option value="2">Tuesdays</option>
-            <option value="3">Wednesdays</option>
-            <option value="4">Thursdays</option>
-            <option value="5">Fridays</option>
-          </select>
-
-          {(filters.locationId || filters.dayOfWeek !== undefined) && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                const currentExists = groupedMonths.some((g) => g.monthKey === currentMonthKey);
-                if (groupedMonths.length > 0) {
-                  setSelectedMonthFilter(
-                    currentExists ? currentMonthKey : groupedMonths[0].monthKey,
-                  );
-                }
-                setFilters({ seasonId: currentSeasonId });
-              }}
-              className="text-xs"
-            >
-              <RefreshCw className="w-3 h-3 mr-1" /> Reset Filters
+        {canManageSeasons && (
+          <div className="flex flex-wrap items-center gap-2.5">
+            <Button variant="outline" size="sm" onClick={() => setBulkAssignModalOpen(true)}>
+              <Users className="w-4 h-4 mr-1 text-teal-500" /> Bulk Assign
             </Button>
-          )}
-        </div>
-
-        {/* Month Quick Navigation Tabs */}
-        {groupedMonths.length > 0 && (
-          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-            <span className="text-xs font-semibold text-slate-400 shrink-0 mr-1 flex items-center gap-1">
-              <Calendar className="w-3 h-3 text-emerald-500" /> Month:
-            </span>
-            {groupedMonths.map((m) => (
-              <button
-                key={m.monthKey}
-                onClick={() => setSelectedMonthFilter(m.monthKey)}
-                className={`px-3 py-1 text-xs rounded-xl font-medium shrink-0 transition-all ${
-                  selectedMonthFilter === m.monthKey
-                    ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-500/30 font-bold'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
-                }`}
-              >
-                {m.monthName}
-              </button>
-            ))}
+            <Button variant="outline" size="sm" onClick={() => setLocationModalOpen(true)}>
+              <Building2 className="w-4 h-4 mr-1 text-emerald-500" /> Manage Halls
+            </Button>
+            <Button variant="primary" size="sm" onClick={() => setSetupModalOpen(true)}>
+              <Plus className="w-4 h-4 mr-1" /> Create Season
+            </Button>
           </div>
         )}
       </div>
 
-      {/* Grouped Month & Calendar Week Schedule Grid */}
-      {sessionsLoading ? (
-        <div className="py-16 text-center text-sm text-slate-500">Loading training schedule...</div>
-      ) : visibleMonthGroups.length === 0 ? (
-        <Card className="py-16 text-center space-y-4">
-          <Calendar className="w-10 h-10 text-slate-400 mx-auto" />
-          <h3 className="text-base font-bold text-slate-900 dark:text-white">No Sessions Found</h3>
-          <p className="text-xs text-slate-500 max-w-md mx-auto">
-            No sessions match the selected filters or month. Click "Create Season" to setup a season
-            with default Junior schedule templates.
-          </p>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => setSetupModalOpen(true)}
-            className="mt-2"
-          >
-            <Plus className="w-4 h-4 mr-1" /> Create Season & Generate Sessions
-          </Button>
-        </Card>
+      {/* View Segmented Control Tab Switcher */}
+      <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 w-fit">
+        <button
+          onClick={() => setActiveTab('all')}
+          className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl transition-all ${
+            activeTab === 'all'
+              ? 'bg-white dark:bg-slate-900 text-teal-600 dark:text-teal-400 shadow-sm'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+          }`}
+        >
+          <CalendarDays className="w-4 h-4" /> All Schedule
+        </button>
+        <button
+          onClick={() => setActiveTab('my')}
+          className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl transition-all ${
+            activeTab === 'my'
+              ? 'bg-white dark:bg-slate-900 text-teal-600 dark:text-teal-400 shadow-sm'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+          }`}
+        >
+          <User className="w-4 h-4" /> My Sessions
+        </button>
+      </div>
+
+      {/* Content View: All Schedule vs My Sessions */}
+      {activeTab === 'my' ? (
+        <MySessionsList />
       ) : (
-        <div className="space-y-10 md:space-y-12">
-          {visibleMonthGroups.map((monthGroup) => (
-            <div key={monthGroup.monthKey} className="space-y-6">
-              {/* Month Header Banner */}
-              <div className="flex items-center justify-between p-4 sm:p-5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80">
-                <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-500">
-                    <Calendar className="w-4.5 h-4.5" />
-                  </div>
-                  <h3 className="text-lg font-black text-slate-900 dark:text-white font-heading">
-                    {monthGroup.monthName}
-                  </h3>
-                </div>
-                <Badge variant="neutral">{monthGroup.totalSessions} Sessions</Badge>
+        <>
+          {/* Season Banner & Filter Toolbar */}
+          <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-5 sm:space-y-6">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+              <div className="flex items-center gap-3">
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  Season:
+                </label>
+                <select
+                  value={currentSeasonId || ''}
+                  onChange={(e) => handleSeasonChange(e.target.value)}
+                  className="px-3 py-1.5 text-sm font-bold rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+                >
+                  {seasons.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name} ({s.start_date} – {s.end_date}) {s.is_active ? '★ Active' : ''}
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              {/* Calendar Weeks within Month */}
-              <div className="space-y-7 sm:space-y-8 pl-3 sm:pl-4 border-l-2 border-slate-200 dark:border-slate-800">
-                {monthGroup.weeks.map((weekGroup) => (
-                  <div key={weekGroup.weekNum} className="space-y-4 sm:space-y-5">
-                    {/* Calendar Week (KW) Badge Header */}
-                    <div className="flex items-center gap-2 py-0.5">
-                      <Badge variant="gradient">
-                        <Layers className="w-3 h-3 text-emerald-300 mr-1" />
-                        {weekGroup.weekLabel}
-                      </Badge>
-                      <span className="text-xs text-slate-400 font-medium">
-                        • {weekGroup.sessions.length}{' '}
-                        {weekGroup.sessions.length === 1 ? 'session' : 'sessions'}
-                      </span>
-                    </div>
+              {selectedSeason && (
+                <div className="flex items-center gap-2">
+                  <Badge variant="gradient">
+                    <Sparkles className="w-3 h-3 text-emerald-300 mr-1" />
+                    {selectedSeason.name}
+                  </Badge>
+                  <Badge variant="neutral">{sessions.length} Total Sessions</Badge>
+                  {canDeleteSeason && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setDeleteConfirmOpen(true)}
+                      title="Delete Season"
+                      className="text-red-500 hover:text-red-600 hover:bg-red-500/10 border-red-500/20"
+                    >
+                      <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete Season
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
 
-                    {/* Session Cards Vertical Chronological List */}
-                    <div className="flex flex-col space-y-4 sm:space-y-4.5">
-                      {weekGroup.sessions.map((session) => (
-                        <SessionCard
-                          key={session.id}
-                          session={session}
-                          canEdit={canDeleteSeason}
-                          onEditOverride={(s) => setOverrideTargetSession(s)}
-                          onDeleteSession={canDeleteSeason ? (s) => setSessionToDelete(s) : undefined}
-                        />
-                      ))}
-                    </div>
-                  </div>
+            {/* Filter Dropdowns */}
+            <div className="flex flex-wrap items-center gap-3.5 py-0.5">
+              <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                <Filter className="w-3.5 h-3.5 text-emerald-500" /> Filter By:
+              </div>
+
+              {/* Hall Location Filter */}
+              <select
+                value={filters.locationId || ''}
+                onChange={(e) => handleLocationFilterChange(e.target.value)}
+                className="px-3 py-1.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+              >
+                <option value="">All Sports Halls ({locations.length})</option>
+                {locations.map((loc) => (
+                  <option key={loc.id} value={loc.id}>
+                    📍 {loc.name} {loc.district_area ? `(${loc.district_area})` : ''}
+                  </option>
+                ))}
+              </select>
+
+              {/* Weekday Filter */}
+              <select
+                value={filters.dayOfWeek !== undefined ? filters.dayOfWeek : ''}
+                onChange={(e) => handleDayFilterChange(e.target.value)}
+                className="px-3 py-1.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+              >
+                <option value="">All Weekdays</option>
+                <option value="2">Tuesdays</option>
+                <option value="3">Wednesdays</option>
+                <option value="4">Thursdays</option>
+                <option value="5">Fridays</option>
+              </select>
+
+              {(filters.locationId || filters.dayOfWeek !== undefined) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const currentExists = groupedMonths.some((g) => g.monthKey === currentMonthKey);
+                    if (groupedMonths.length > 0) {
+                      setSelectedMonthFilter(
+                        currentExists ? currentMonthKey : groupedMonths[0].monthKey,
+                      );
+                    }
+                    setFilters({ seasonId: currentSeasonId });
+                  }}
+                  className="text-xs"
+                >
+                  <RefreshCw className="w-3 h-3 mr-1" /> Reset Filters
+                </Button>
+              )}
+            </div>
+
+            {/* Month Quick Navigation Tabs */}
+            {groupedMonths.length > 0 && (
+              <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+                <span className="text-xs font-semibold text-slate-400 shrink-0 mr-1 flex items-center gap-1">
+                  <Calendar className="w-3 h-3 text-emerald-500" /> Month:
+                </span>
+                {groupedMonths.map((m) => (
+                  <button
+                    key={m.monthKey}
+                    onClick={() => setSelectedMonthFilter(m.monthKey)}
+                    className={`px-3 py-1 text-xs rounded-xl font-medium shrink-0 transition-all ${
+                      selectedMonthFilter === m.monthKey
+                        ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-500/30 font-bold'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    {m.monthName}
+                  </button>
                 ))}
               </div>
+            )}
+          </div>
+
+          {/* Grouped Month & Calendar Week Schedule Grid */}
+          {sessionsLoading ? (
+            <div className="py-16 text-center text-sm text-slate-500">
+              Loading training schedule...
             </div>
-          ))}
-        </div>
+          ) : visibleMonthGroups.length === 0 ? (
+            <Card className="py-16 text-center space-y-4">
+              <Calendar className="w-10 h-10 text-slate-400 mx-auto" />
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                No Sessions Found
+              </h3>
+              <p className="text-xs text-slate-500 max-w-md mx-auto">
+                No sessions match the selected filters or month.
+                {canManageSeasons &&
+                  ' Click "Create Season" to setup a season with default Junior schedule templates.'}
+              </p>
+              {canManageSeasons && (
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => setSetupModalOpen(true)}
+                  className="mt-2"
+                >
+                  <Plus className="w-4 h-4 mr-1" /> Create Season & Generate Sessions
+                </Button>
+              )}
+            </Card>
+          ) : (
+            <div className="space-y-10 md:space-y-12">
+              {visibleMonthGroups.map((monthGroup) => (
+                <div key={monthGroup.monthKey} className="space-y-6">
+                  {/* Month Header Banner */}
+                  <div className="flex items-center justify-between p-4 sm:p-5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-500">
+                        <Calendar className="w-4.5 h-4.5" />
+                      </div>
+                      <h3 className="text-lg font-black text-slate-900 dark:text-white font-heading">
+                        {monthGroup.monthName}
+                      </h3>
+                    </div>
+                    <Badge variant="neutral">{monthGroup.totalSessions} Sessions</Badge>
+                  </div>
+
+                  {/* Calendar Weeks within Month */}
+                  <div className="space-y-7 sm:space-y-8 pl-3 sm:pl-4 border-l-2 border-slate-200 dark:border-slate-800">
+                    {monthGroup.weeks.map((weekGroup) => (
+                      <div key={weekGroup.weekNum} className="space-y-4 sm:space-y-5">
+                        {/* Calendar Week (KW) Badge Header */}
+                        <div className="flex items-center gap-2 py-0.5">
+                          <Badge variant="gradient">
+                            <Layers className="w-3 h-3 text-emerald-300 mr-1" />
+                            {weekGroup.weekLabel}
+                          </Badge>
+                          <span className="text-xs text-slate-400 font-medium">
+                            • {weekGroup.sessions.length}{' '}
+                            {weekGroup.sessions.length === 1 ? 'session' : 'sessions'}
+                          </span>
+                        </div>
+
+                        {/* Session Cards Vertical Chronological List */}
+                        <div className="flex flex-col space-y-4 sm:space-y-4.5">
+                          {weekGroup.sessions.map((session) => (
+                            <SessionCard
+                              key={session.id}
+                              session={session}
+                              canEdit={canDeleteSeason}
+                              onEditOverride={(s) => setOverrideTargetSession(s)}
+                              onDeleteSession={
+                                canDeleteSeason ? (s) => setSessionToDelete(s) : undefined
+                              }
+                              onAssignClick={(s) => setAssigneeTargetSession(s)}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
       )}
+
+      {/* Session Assignee Modal */}
+      <SessionAssigneeModal
+        session={assigneeTargetSession}
+        isOpen={Boolean(assigneeTargetSession)}
+        onClose={() => setAssigneeTargetSession(null)}
+        onSaveSuccess={async () => {
+          await refetchSessions();
+        }}
+      />
+
+      {/* Bulk Assign Modal */}
+      <BulkAssignModal
+        isOpen={bulkAssignModalOpen}
+        onClose={() => setBulkAssignModalOpen(false)}
+        seasonId={currentSeasonId}
+        sessions={sessions}
+        onSuccess={async () => {
+          await refetchSessions();
+        }}
+      />
 
       {/* Season Setup Wizard Modal */}
       <SeasonSetupModal
@@ -497,7 +572,10 @@ export const SessionScheduleView: React.FC = () => {
             <div className="space-y-1">
               <h4 className="text-sm font-bold font-heading">Permanently Delete Season?</h4>
               <p className="text-xs opacity-90">
-                Are you sure you want to delete <span className="font-bold">{selectedSeason?.name}</span>? This action cannot be undone and will permanently delete all training sessions and assignments associated with this season.
+                Are you sure you want to delete{' '}
+                <span className="font-bold">{selectedSeason?.name}</span>? This action cannot be
+                undone and will permanently delete all training sessions and assignments associated
+                with this season.
               </p>
             </div>
           </div>
@@ -539,10 +617,14 @@ export const SessionScheduleView: React.FC = () => {
           <div className="flex items-start gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400">
             <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
             <div className="space-y-1">
-              <h4 className="text-sm font-bold font-heading">Permanently Delete Training Session?</h4>
+              <h4 className="text-sm font-bold font-heading">
+                Permanently Delete Training Session?
+              </h4>
               <p className="text-xs opacity-90">
                 Are you sure you want to delete the training session on{' '}
-                <span className="font-bold">{sessionToDelete?.session_date}</span> ({sessionToDelete?.start_time.slice(0, 5)} – {sessionToDelete?.end_time.slice(0, 5)})? This action cannot be undone.
+                <span className="font-bold">{sessionToDelete?.session_date}</span> (
+                {sessionToDelete?.start_time.slice(0, 5)} – {sessionToDelete?.end_time.slice(0, 5)}
+                )? This action cannot be undone.
               </p>
             </div>
           </div>
@@ -570,4 +652,3 @@ export const SessionScheduleView: React.FC = () => {
     </div>
   );
 };
-

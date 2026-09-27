@@ -239,7 +239,7 @@ export const TrainerRoster: React.FC = () => {
                   {t.is_junior_coach && (
                     <Badge variant="success">
                       <Award className="w-3 h-3 text-emerald-500" />
-                      <span>Junior Coach</span>
+                      <span>1418 Coach</span>
                     </Badge>
                   )}
                 </div>

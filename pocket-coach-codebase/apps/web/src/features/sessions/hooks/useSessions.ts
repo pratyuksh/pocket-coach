@@ -1,10 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../../lib/supabase';
-import type { Session, Location, PlayerGroup } from '@pocket-coach/shared-types';
+import type {
+  Session,
+  Location,
+  PlayerGroup,
+  EnrichedSessionAssignment,
+} from '@pocket-coach/shared-types';
 
 export interface EnrichedSession extends Session {
   location?: Location | null;
   player_groups?: PlayerGroup[];
+  assignments?: EnrichedSessionAssignment[];
 }
 
 export interface SessionFilterOptions {
@@ -33,6 +39,10 @@ export function useSessions(initialFilters?: SessionFilterOptions) {
           location:locations(*),
           session_player_groups(
             player_group:player_groups(*)
+          ),
+          assignments:session_assignments(
+            *,
+            profile:profiles!profile_id(*)
           )
         `,
         )
@@ -71,6 +81,10 @@ export function useSessions(initialFilters?: SessionFilterOptions) {
         player_groups: (s.session_player_groups || [])
           .map((spg: any) => spg.player_group)
           .filter(Boolean),
+        assignments: (s.assignments || []).map((a: any) => ({
+          ...a,
+          profile: a.profile || null,
+        })),
       }));
 
       setSessions(enriched);
@@ -104,6 +118,10 @@ export function useSessions(initialFilters?: SessionFilterOptions) {
           location:locations(*),
           session_player_groups(
             player_group:player_groups(*)
+          ),
+          assignments:session_assignments(
+            *,
+            profile:profiles!profile_id(*)
           )
         `,
         )
@@ -117,6 +135,10 @@ export function useSessions(initialFilters?: SessionFilterOptions) {
         player_groups: (data.session_player_groups || [])
           .map((spg: any) => spg.player_group)
           .filter(Boolean),
+        assignments: (data.assignments || []).map((a: any) => ({
+          ...a,
+          profile: a.profile || null,
+        })),
       };
 
       setSessions((prev) => prev.map((s) => (s.id === sessionId ? updatedEnriched : s)));
@@ -150,4 +172,3 @@ export function useSessions(initialFilters?: SessionFilterOptions) {
     deleteSession,
   };
 }
-
