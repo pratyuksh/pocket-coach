@@ -1,12 +1,13 @@
 import React from 'react';
 import { Card, Badge, Button } from '../../../components/ui';
 import type { EnrichedSession } from '../hooks/useSessions';
-import { Clock, MapPin, Edit2, AlertCircle } from 'lucide-react';
+import { Clock, MapPin, Edit2, Trash2, AlertCircle } from 'lucide-react';
 
 interface SessionCardProps {
   session: EnrichedSession;
   canEdit?: boolean;
   onEditOverride?: (session: EnrichedSession) => void;
+  onDeleteSession?: (session: EnrichedSession) => void;
 }
 
 const WEEKDAY_NAMES = [
@@ -23,6 +24,7 @@ export const SessionCard: React.FC<SessionCardProps> = ({
   session,
   canEdit = true,
   onEditOverride,
+  onDeleteSession,
 }) => {
   const weekdayName = WEEKDAY_NAMES[session.day_of_week] || 'Weekday';
   const startTime = session.start_time.slice(0, 5);
@@ -92,21 +94,36 @@ export const SessionCard: React.FC<SessionCardProps> = ({
           )}
         </div>
 
-        {/* Right Action: Edit Button */}
-        {canEdit && onEditOverride && (
-          <div className="ml-auto shrink-0">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => onEditOverride(session)}
-              title="Override Session Details"
-            >
-              <Edit2 className="w-3.5 h-3.5" />
-            </Button>
+        {/* Right Action: Edit & Delete Buttons */}
+        {canEdit && (onEditOverride || onDeleteSession) && (
+          <div className="ml-auto shrink-0 flex items-center gap-1.5">
+            {onEditOverride && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => onEditOverride(session)}
+                title="Override Session Details"
+              >
+                <Edit2 className="w-3.5 h-3.5" />
+              </Button>
+            )}
+            {onDeleteSession && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => onDeleteSession(session)}
+                title="Delete Session"
+                className="text-red-500 hover:text-red-600 hover:bg-red-500/10 border-red-500/20"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </Button>
+            )}
           </div>
         )}
       </div>
     </Card>
   );
 };
+

@@ -7,6 +7,8 @@ import { SessionCard } from './SessionCard';
 import { SessionOverrideModal } from './SessionOverrideModal';
 import { SeasonSetupModal } from '../../seasons/components/SeasonSetupModal';
 import { LocationManagerModal } from '../../locations/components/LocationManagerModal';
+import { usePermissions } from '../../../hooks/usePermissions';
+import { Modal } from '../../../components/ui';
 import {
   CalendarDays,
   Plus,
@@ -16,6 +18,8 @@ import {
   Sparkles,
   RefreshCw,
   Layers,
+  Trash2,
+  AlertTriangle,
 } from 'lucide-react';
 
 // Helper functions for ISO Calendar Week & Month grouping
@@ -58,7 +62,9 @@ interface MonthGroup {
 }
 
 export const SessionScheduleView: React.FC = () => {
-  const { seasons, activeSeason, refetch: refetchSeasons } = useSeasons();
+  const { isHeadTrainer, isSuperAdmin } = usePermissions();
+  const canDeleteSeason = isHeadTrainer || isSuperAdmin;
+  const { seasons, activeSeason, refetch: refetchSeasons, deleteSeason } = useSeasons();
   const { locations } = useLocations();
 
   const [selectedSeasonId, setSelectedSeasonId] = useState<string | undefined>(undefined);
@@ -71,6 +77,7 @@ export const SessionScheduleView: React.FC = () => {
     setFilters,
     refetch: refetchSessions,
     updateSessionOverride,
+    deleteSession,
   } = useSessions({ seasonId: currentSeasonId });
 
   const currentMonthKey = useMemo(() => {
@@ -82,6 +89,13 @@ export const SessionScheduleView: React.FC = () => {
   const [setupModalOpen, setSetupModalOpen] = useState(false);
   const [locationModalOpen, setLocationModalOpen] = useState(false);
   const [overrideTargetSession, setOverrideTargetSession] = useState<EnrichedSession | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const [sessionToDelete, setSessionToDelete] = useState<EnrichedSession | null>(null);
+  const [deletingSession, setDeletingSession] = useState(false);
+  const [sessionDeleteError, setSessionDeleteError] = useState<string | null>(null);
 
   // Sync active season when loaded
   React.useEffect(() => {
@@ -93,6 +107,37 @@ export const SessionScheduleView: React.FC = () => {
   const handleSeasonChange = (seasonId: string) => {
     setSelectedSeasonId(seasonId);
     setFilters((prev) => ({ ...prev, seasonId }));
+  };
+
+  const handleDeleteSeasonConfirm = async () => {
+    if (!currentSeasonId) return;
+    try {
+      setDeleting(true);
+      setDeleteError(null);
+      await deleteSeason(currentSeasonId);
+      setSelectedSeasonId(undefined);
+      setDeleteConfirmOpen(false);
+      await refetchSeasons();
+      await refetchSessions();
+    } catch (err: any) {
+      setDeleteError(err.message || 'Failed to delete season');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleDeleteSingleSessionConfirm = async () => {
+    if (!sessionToDelete) return;
+    try {
+      setDeletingSession(true);
+      setSessionDeleteError(null);
+      await deleteSession(sessionToDelete.id);
+      setSessionToDelete(null);
+    } catch (err: any) {
+      setSessionDeleteError(err.message || 'Failed to delete session');
+    } finally {
+      setDeletingSession(false);
+    }
   };
 
   const handleLocationFilterChange = (locationId: string) => {
@@ -247,6 +292,17 @@ export const SessionScheduleView: React.FC = () => {
                 {selectedSeason.name}
               </Badge>
               <Badge variant="neutral">{sessions.length} Total Sessions</Badge>
+              {canDeleteSeason && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setDeleteConfirmOpen(true)}
+                  title="Delete Season"
+                  className="text-red-500 hover:text-red-600 hover:bg-red-500/10 border-red-500/20"
+                >
+                  <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete Season
+                </Button>
+              )}
             </div>
           )}
         </div>
@@ -386,8 +442,9 @@ export const SessionScheduleView: React.FC = () => {
                         <SessionCard
                           key={session.id}
                           session={session}
-                          canEdit={true}
+                          canEdit={canDeleteSeason}
                           onEditOverride={(s) => setOverrideTargetSession(s)}
+                          onDeleteSession={canDeleteSeason ? (s) => setSessionToDelete(s) : undefined}
                         />
                       ))}
                     </div>
@@ -421,6 +478,96 @@ export const SessionScheduleView: React.FC = () => {
           await updateSessionOverride(sessionId, updates);
         }}
       />
+
+      {/* Delete Season Confirmation Dialog */}
+      <Modal
+        isOpen={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        title="Delete Season"
+      >
+        <div className="space-y-4 py-2">
+          {deleteError && (
+            <div className="p-3 text-xs font-medium text-red-600 bg-red-500/10 border border-red-500/20 rounded-lg">
+              {deleteError}
+            </div>
+          )}
+
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400">
+            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <h4 className="text-sm font-bold font-heading">Permanently Delete Season?</h4>
+              <p className="text-xs opacity-90">
+                Are you sure you want to delete <span className="font-bold">{selectedSeason?.name}</span>? This action cannot be undone and will permanently delete all training sessions and assignments associated with this season.
+              </p>
+            </div>
+          </div>
+
+          <div className="pt-3 flex justify-end gap-2 border-t border-slate-200 dark:border-slate-800">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setDeleteConfirmOpen(false)}
+              disabled={deleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="danger"
+              isLoading={deleting}
+              onClick={handleDeleteSeasonConfirm}
+            >
+              Delete Season
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Delete Single Session Confirmation Dialog */}
+      <Modal
+        isOpen={Boolean(sessionToDelete)}
+        onClose={() => setSessionToDelete(null)}
+        title="Delete Session"
+      >
+        <div className="space-y-4 py-2">
+          {sessionDeleteError && (
+            <div className="p-3 text-xs font-medium text-red-600 bg-red-500/10 border border-red-500/20 rounded-lg">
+              {sessionDeleteError}
+            </div>
+          )}
+
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400">
+            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <h4 className="text-sm font-bold font-heading">Permanently Delete Training Session?</h4>
+              <p className="text-xs opacity-90">
+                Are you sure you want to delete the training session on{' '}
+                <span className="font-bold">{sessionToDelete?.session_date}</span> ({sessionToDelete?.start_time.slice(0, 5)} – {sessionToDelete?.end_time.slice(0, 5)})? This action cannot be undone.
+              </p>
+            </div>
+          </div>
+
+          <div className="pt-3 flex justify-end gap-2 border-t border-slate-200 dark:border-slate-800">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setSessionToDelete(null)}
+              disabled={deletingSession}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="danger"
+              isLoading={deletingSession}
+              onClick={handleDeleteSingleSessionConfirm}
+            >
+              Delete Session
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
+

@@ -173,6 +173,18 @@ export function useSeasons() {
     }
   };
 
+  const deleteSeason = async (seasonId: string): Promise<void> => {
+    try {
+      setError(null);
+      const { error: delErr } = await supabase.from('seasons').delete().eq('id', seasonId);
+      if (delErr) throw delErr;
+      await fetchSeasons();
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete season');
+      throw err;
+    }
+  };
+
   return {
     seasons,
     activeSeason,
@@ -181,6 +193,7 @@ export function useSeasons() {
     error,
     refetch: fetchSeasons,
     createSeason,
+    deleteSeason,
     generateSessions,
   };
 }

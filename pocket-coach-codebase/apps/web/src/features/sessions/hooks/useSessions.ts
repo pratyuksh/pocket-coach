@@ -127,6 +127,18 @@ export function useSessions(initialFilters?: SessionFilterOptions) {
     }
   };
 
+  const deleteSession = async (sessionId: string): Promise<void> => {
+    try {
+      setError(null);
+      const { error: delErr } = await supabase.from('sessions').delete().eq('id', sessionId);
+      if (delErr) throw delErr;
+      setSessions((prev) => prev.filter((s) => s.id !== sessionId));
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete session');
+      throw err;
+    }
+  };
+
   return {
     sessions,
     loading,
@@ -135,5 +147,7 @@ export function useSessions(initialFilters?: SessionFilterOptions) {
     setFilters,
     refetch: fetchSessions,
     updateSessionOverride,
+    deleteSession,
   };
 }
+
