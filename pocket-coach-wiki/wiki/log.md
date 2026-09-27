@@ -82,4 +82,9 @@
 * Enhanced schedule layout with ISO Calendar Week (KW) and Month grouping, filter dropdowns, and optimized vertical element spacing.
 * Added complete test suite (52 Vitest unit tests, 7 Playwright E2E tests) and established GitHub Actions CI pipeline (`.github/workflows/ci.yml`).
 
+## 2026-09-27 | phase-1-roadmap-reordering | Updated 3 pages: codebase/implementation-plan.md, wiki/index.md, wiki/log.md
+* Deferred Sub-Phase 1.4 (Availability Surveys & Matrix Dashboard) to Phase 2 (Sub-Phase 2.1) to prioritize Trainer Session Assignments (Sub-Phase 1.4) and Substitutions (Sub-Phase 1.5).
+* Updated Phase 1 implementation plan to a sequential 6-step roadmap (1.1 Foundation, 1.2 Auth & Roles, 1.3 Seasons & Sessions, 1.4 Assignments & Personal View, 1.5 Substitutions, 1.6 Polish & WebCal/PWA).
+* Updated `wiki/index.md` and wiki documentation logs to reflect the re-ordered Phase 1 & Phase 2 roadmap structure.
+
 <!-- END OF LOG -->

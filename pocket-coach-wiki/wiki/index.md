@@ -24,7 +24,7 @@
 |---|---|---|
 | [[codebase/data-privacy-gdpr]] | GDPR compliance strategy, data residency, sub-processor agreements, and data erasure | - |
 | [[codebase/feasibility-and-costs]] | Technical feasibility of the requirements and operational hosting cost estimations | - |
-| [[codebase/implementation-plan]] | Testable 7-step Phase 1 implementation plan with hall locations, default templates, migration order, component changes, and milestone criteria | - |
+| [[codebase/implementation-plan]] | Testable 6-step Phase 1 implementation plan (Availability deferred to Phase 2), migration order, component changes, and milestone criteria | - |
 | [[codebase/risk-analysis]] | Primary project planning risks, user adoption hurdles, and mitigation strategies | - |
 
 ## Codebase — Architecture
