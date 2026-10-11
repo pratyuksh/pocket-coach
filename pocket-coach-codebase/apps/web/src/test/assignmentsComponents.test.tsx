@@ -7,63 +7,33 @@ import { PersonalStatsCard } from '../features/sessions/components/PersonalStats
 import type { EnrichedSession } from '../features/sessions/hooks/useSessions';
 
 // Mocks
-const mockAssignTrainer = vi.fn().mockResolvedValue({ id: 'asg-1' });
-const mockRemoveAssignment = vi.fn().mockResolvedValue(undefined);
-const mockBulkAssign = vi.fn().mockResolvedValue(24);
-
-vi.mock('../lib/supabase', () => ({
-  supabase: {
-    from: vi.fn(),
-    auth: { signInWithOAuth: vi.fn() },
-  },
-}));
-
-vi.mock('../features/sessions/hooks/useSessionAssignments', () => ({
-  useSessionAssignments: () => ({
+// Hook mocks must return referentially stable values (like the real hooks backed by
+// useState). Returning fresh object/array literals per call re-triggers effects such as
+// SessionAssigneeModal's `useEffect(..., [assignments])` on every render, causing an
+// infinite synchronous render loop that hangs the test run.
+const mocks = vi.hoisted(() => ({
+  assignTrainer: vi.fn(),
+  removeAssignment: vi.fn(),
+  bulkAssign: vi.fn(),
+  sessionAssignments: {
     assignments: [],
     loading: false,
     error: null,
-    refetch: vi.fn(),
-  }),
-}));
-
-vi.mock('../features/sessions/hooks/useAssignTrainer', () => ({
-  useAssignTrainer: () => ({
-    assignTrainer: mockAssignTrainer,
-    removeAssignment: mockRemoveAssignment,
-    loading: false,
-    error: null,
-  }),
-}));
-
-vi.mock('../features/sessions/hooks/useBulkAssignTrainer', () => ({
-  useBulkAssignTrainer: () => ({
-    bulkAssign: mockBulkAssign,
-    loading: false,
-    error: null,
-  }),
-}));
-
-vi.mock('../features/trainers/hooks/useTrainers', () => ({
-  useTrainers: () => ({
+    refetch: () => {},
+  },
+  trainers: {
     trainers: [
       { id: 'usr-1', display_name: 'Trainer One', email: 'one@club.de', is_junior_coach: false },
       { id: 'usr-2', display_name: 'Coach Alex', email: 'alex@club.de', is_junior_coach: true },
     ],
     loading: false,
     error: null,
-  }),
-}));
-
-vi.mock('../features/locations/hooks/useLocations', () => ({
-  useLocations: () => ({
+  },
+  locations: {
     locations: [{ id: 'loc-1', name: 'Sporthalle Borrweg' }],
     loading: false,
-  }),
-}));
-
-vi.mock('../features/sessions/hooks/useMySessions', () => ({
-  useMySessions: () => ({
+  },
+  mySessions: {
     mySessions: [
       {
         assignment_id: 'asg-1',
@@ -85,11 +55,8 @@ vi.mock('../features/sessions/hooks/useMySessions', () => ({
     ],
     loading: false,
     error: null,
-  }),
-}));
-
-vi.mock('../features/sessions/hooks/usePersonalStats', () => ({
-  usePersonalStats: () => ({
+  },
+  personalStats: {
     stats: {
       completed_sessions: 14,
       total_assigned_sessions: 36,
@@ -98,18 +65,63 @@ vi.mock('../features/sessions/hooks/usePersonalStats', () => ({
     },
     loading: false,
     error: null,
-  }),
+  },
+  auth: { user: { id: 'usr-admin' } },
+}));
+
+const assignTrainerResult = {
+  assignTrainer: mocks.assignTrainer,
+  removeAssignment: mocks.removeAssignment,
+  loading: false,
+  error: null,
+};
+const bulkAssignResult = { bulkAssign: mocks.bulkAssign, loading: false, error: null };
+
+vi.mock('../lib/supabase', () => ({
+  supabase: {
+    from: vi.fn(),
+    auth: { signInWithOAuth: vi.fn() },
+  },
+}));
+
+vi.mock('../features/sessions/hooks/useSessionAssignments', () => ({
+  useSessionAssignments: () => mocks.sessionAssignments,
+}));
+
+vi.mock('../features/sessions/hooks/useAssignTrainer', () => ({
+  useAssignTrainer: () => assignTrainerResult,
+}));
+
+vi.mock('../features/sessions/hooks/useBulkAssignTrainer', () => ({
+  useBulkAssignTrainer: () => bulkAssignResult,
+}));
+
+vi.mock('../features/trainers/hooks/useTrainers', () => ({
+  useTrainers: () => mocks.trainers,
+}));
+
+vi.mock('../features/locations/hooks/useLocations', () => ({
+  useLocations: () => mocks.locations,
+}));
+
+vi.mock('../features/sessions/hooks/useMySessions', () => ({
+  useMySessions: () => mocks.mySessions,
+}));
+
+vi.mock('../features/sessions/hooks/usePersonalStats', () => ({
+  usePersonalStats: () => mocks.personalStats,
 }));
 
 vi.mock('../hooks/useAuth', () => ({
-  useAuth: () => ({
-    user: { id: 'usr-admin' },
-  }),
+  useAuth: () => mocks.auth,
 }));
 
 describe('Sub-Phase 1.4 UI Components', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.assignTrainer.mockResolvedValue({ id: 'asg-1' });
+    mocks.removeAssignment.mockResolvedValue(undefined);
+    mocks.bulkAssign.mockResolvedValue(24);
   });
 
   const sampleSession: EnrichedSession = {
@@ -152,7 +164,7 @@ describe('Sub-Phase 1.4 UI Components', () => {
         fireEvent.click(screen.getByRole('button', { name: /Save Assignments/i }));
       });
 
-      expect(mockAssignTrainer).toHaveBeenCalledWith({
+      expect(mocks.assignTrainer).toHaveBeenCalledWith({
         session_id: 'sess-1',
         profile_id: 'usr-1',
         track: 'regular',
@@ -185,7 +197,7 @@ describe('Sub-Phase 1.4 UI Components', () => {
         fireEvent.click(screen.getByRole('button', { name: /Execute Bulk Assign/i }));
       });
 
-      expect(mockBulkAssign).toHaveBeenCalledWith({
+      expect(mocks.bulkAssign).toHaveBeenCalledWith({
         season_id: 'season-1',
         profile_id: 'usr-1',
         day_of_week: null,
