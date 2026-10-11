@@ -4,7 +4,7 @@
 
 **Sources**: None
 
-**Last updated**: 2026-07-18
+**Last updated**: 2026-10-11
 
 ---
 
@@ -56,7 +56,7 @@ A user can hold multiple roles simultaneously (e.g., a person can be both a Trai
 
 | Label / Tag | Scope | Description |
 |---|---|---|
-| **14/18 Coach** | Profile label | Applied to a trainer who is a junior player (U14 or U18 age group) assisting the regular trainers. Visible to other trainers on the session view. |
+| **14/18 Coach** | Profile label | Applied to a trainer who is a junior player (U14 or U18 age group) assisting the regular trainers. Visible to other trainers on the session view. Managed by Super-admins only: set when inviting a trainer, changed later in the Role Manager; read-only on the trainer's own settings page. |
 | **Assistant-coach** | Session-level tag | Any trainer can be tagged as assistant-coach for a specific session to clarify their supporting role. |
 
 > **Example combinations:** A person can be a Trainer + Head-trainer. Another can be a Trainer + Super-admin. A junior player is a Trainer with the 14/18 Coach label. All of them can be assigned to sessions and participate on the court.
@@ -77,7 +77,7 @@ A user can hold multiple roles simultaneously (e.g., a person can be both a Trai
 - *Note: Apple Sign-In (OAuth) is postponed to a later phase to keep initial developer account costs at $0.*
 
 ### Account Management
-- Trainers can update their display name and profile picture.
+- Trainers can update their display name and profile picture. Their email, active status and 14/18 Coach label can only be changed by a Super-admin.
 - Trainers can add a free-text **"Responsibility / Speciality"** field to their profile (e.g., "Trainer Allocation", "Training Content & Planning"). This field is visible to all coaching staff and serves as an informal indicator of a trainer's area of focus — it carries no permission implications.
 - Super-admin can assign one or more roles to any trainer (e.g., grant Head-trainer on top of their base Trainer role).
 - Super-admin can revoke elevated roles at any time (the base Trainer role always remains).

@@ -99,4 +99,15 @@
 * Updated the "Testing Infrastructure" line in `codebase/implementation-plan.md` from the stale 39-test Vitest / 5-test Playwright counts to the current 68-test Vitest suite (13 files) and 8-test Playwright E2E suite (6 files), as of Sub-Phase 1.4.
 * Counts verified by running `vitest run` (13 files, 68 tests passing) and `playwright test --list` (8 tests in 6 files).
 
+## 2026-10-11 | phase-1-4-hardening | Added 1 page: codebase/known-issues.md | Updated 10 pages: codebase/architecture/database-schema.md, codebase/architecture/auth-and-onboarding.md, codebase/architecture/substitution-flow.md, codebase/risk-analysis.md, codebase/implementation-plan.md, requirements/sessions-and-assignment.md, requirements/views-and-notifications.md, requirements/overview-roles-auth.md, wiki/index.md, wiki/log.md
+* Documented the Sub-Phase 1.4 review and hardening pass (code commit `00b0de9`, migrations `20261011000000`–`07`), grounded in the migrations and the web app code.
+* `database-schema.md`: replaced the stale RLS matrix with the policies actually enforced (the previous last row was also corrupted); added sections for role helper functions, `SECURITY DEFINER` function authorization, the `protect_profile_admin_fields` trigger, the unique active-assignment index, the pgTAP permission tests (`pnpm test:db`), and the migration history. Corrected the table count to 16.
+* `auth-and-onboarding.md`: documented the current invite implementation (isolated auth client, temporary password, `base64(email)` link) against the target design, its known limitations, the registration and profile access rules, the Super-admin-managed 14/18 Coach label, and the calendar feed implementation status.
+* `risk-analysis.md`: added risk 8 (authorization bypass in the database layer; fixed, with standing rules) and risk 9 (weak invitation and open registration; open).
+* `implementation-plan.md`: added Sub-Phase 1.4b with delivered work and milestones; replaced non-existent migration filenames (`01_profiles.sql`, `08_assignments.sql`, `09_substitutions.sql`, `10_`/`11_`, `07_availability.sql`) with the real ones (all base tables come from the initial schema); corrected component names (`SessionAssigneeModal`, `InviteModal`, `useAuth.tsx`); fixed the broken Table of Contents link for 1.3; recorded open design decisions for 1.5; updated test counts to 76 Vitest / 10 Playwright / 77 pgTAP checks.
+* Requirements pages: recorded the implementation decisions that bulk assignment is additive and upcoming-only, season regeneration is refused once sessions are in use, regular trainers default to "My Sessions" while still able to read all assignments, and the 14/18 Coach label is Super-admin managed.
+* `substitution-flow.md`: added the authorization requirements for Sub-Phase 1.5.
+* Created `codebase/known-issues.md` as a living list of open problems (security, correctness, missing features, testing, plan gaps for 1.5/1.6) with a record of resolved items.
+* Not verified in this pass: a from-scratch run of all migrations on an empty local database (CI will do this on the next push).
+
 <!-- END OF LOG -->

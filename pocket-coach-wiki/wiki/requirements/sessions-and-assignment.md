@@ -4,7 +4,7 @@
 
 **Sources**: None
 
-**Last updated**: 2026-07-18
+**Last updated**: 2026-10-11
 
 ---
 
@@ -27,6 +27,7 @@ A **training session** represents one training day.
 
 - Sessions are automatically generated for each **configured training day slot** of the week (as defined in the season setup) for every week in the season.
 - Each session inherits the **default time slot and sports hall location** for its weekday configuration. Individual sessions can **override the default time or location** if an exception occurs (e.g., holiday or facility conflict).
+- **Regeneration guard** *(implementation decision, 2026-10-11)*: generating a season's sessions deletes and recreates all of them, so it is refused once any session of the season has a trainer assignment or a time override. Changing the weekly slots of a season already in use needs a separate "add missing sessions" action, which is not built yet (see [[codebase/known-issues]]).
 - Standard default junior schedule:
   - **Tuesday 17:30 – 19:00**: All Groups (`Kids / Basic`, `Advanced-1`, `Advanced-2`) @ *Sporthalle Schulhaus Apfelbaum (Oerlikon)*
   - **Wednesday 17:30 – 18:30**: Beginner Level (`Kids / Basic`) @ *Sporthalle Borrweg (Friesenberg)*
@@ -86,6 +87,8 @@ Each session has **two independent allocation tracks**, managed separately:
 ### General
 - Assignments are made in rounds, aligned with the availability survey periods (see [Availability Survey](#availability-survey)). After each survey is completed for a date range, the Head-trainer assigns trainers for the sessions in that period.
 - Assignments can be done in bulk (e.g., for an entire survey period) or per individual session.
+- **Bulk assignment is additive and upcoming-only** *(implementation decision, 2026-10-11)*: it adds the chosen trainer to every matching session from today onward (by weekday and/or hall) and skips sessions where that trainer is already assigned. It never replaces a trainer already assigned to the same track and never changes past sessions, so the record of who coached earlier sessions stays intact.
+- A trainer can be actively assigned to a given session only once, and a session's track holds several trainers (2–3 regular, 1–2 14/18 Coaches). Enforcing these per-track limits in the database is still open ([[codebase/known-issues]]).
 - All assigned trainers are notified (see [Views, Dashboards & Notifications](./views-and-notifications.md#notifications)).
 
 ---

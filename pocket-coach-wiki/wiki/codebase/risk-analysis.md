@@ -4,7 +4,7 @@
 
 **Sources**: None
 
-**Last updated**: 2026-07-18
+**Last updated**: 2026-10-11
 
 ---
 
@@ -19,6 +19,8 @@
 | **5. Real-Time Availability Latency**| Medium | Medium | Use WebSocket or PostgreSQL real-time subscriptions to keep the availability matrix synchronized. |
 | **6. Escalation Cron Failures** | Low | High | Use monitored serverless scheduler tasks or robust Postgres pg_cron executions for the 48h gap alert. |
 | **7. PWA/Mobile OAuth Redirects** | Medium | Medium | Configure custom URL schemes and App/Universal Links for Capacitor redirect handling. |
+| **8. Authorization Bypass in Database Layer** | Medium (found and fixed in Phase 1.4) | High | Treat the database as the security boundary: tight RLS on every table, role checks inside every `SECURITY DEFINER` function, `EXECUTE` revoked from `anon`, and pgTAP permission tests in CI. |
+| **9. Weak Invitation & Open Registration** | High (open) | High | Replace the temporary-password invite with `admin.inviteUserByEmail()` and single-use tokens; decide whether public signup should be disabled; create profiles via an `auth.users` trigger. |
 
 ---
 
@@ -52,8 +54,17 @@
 * **Description**: OAuth providers (Google, Apple) redirect users back to the app after login. Redirecting back to a native shell app (Capacitor) or an installed PWA can fail or create redirect loops.
 * **Mitigation**: Set up custom URL schemes (e.g., `pocketcoach://`) and configure App Links (Android) and Universal Links (iOS) to handle authorization callback routing cleanly.
 
+### 8. Authorization Bypass in the Database Layer
+* **Description**: The web app talks to the database directly with the public anon key, so every rule enforced only in the UI can be bypassed. Review of Sub-Phase 1.4 found real instances: `SECURITY DEFINER` functions (`generate_season_sessions`, `bulk_assign_trainer`) that bypass RLS had no role check and were callable by anyone, including logged-out callers; read policies written as `auth.role() = 'authenticated' OR true` were always true; an `auth.role() = 'anon'` insert fallback let anyone grant themselves `super_admin`; and several tables still had `FOR ALL USING (true)` development policies.
+* **Mitigation**: All of the above were fixed in migrations `20261011000000`–`07` (see [[codebase/architecture/database-schema#migration-history]]). Standing rules: (1) every `SECURITY DEFINER` function checks `auth.uid()` against the role helpers and revokes `EXECUTE` from `anon`/`PUBLIC`; (2) never record client-supplied identity (such as `assigned_by`), use `auth.uid()`; (3) RLS cannot restrict individual columns, so admin-managed profile fields are protected by a trigger; (4) permission regressions are caught by the pgTAP suite (`pnpm test:db`), which runs in CI and includes logged-out, trainer, Head-trainer and Super-admin cases. New tables must ship with policies and test cases in the same sub-phase.
+
+### 9. Weak Invitation & Open Registration
+* **Description**: Invited accounts are created with a fixed temporary password and an invite link that is only `base64(email)`, so anyone who knows an invited email can complete or take over that account before the invitee does. `/register` is open to anyone. Registration also relies on receiving a session straight after `signUp`, which stops working once email confirmation is enabled.
+* **Mitigation**: Move the invite to a server-side flow (`admin.inviteUserByEmail()` from an Edge Function) with single-use tokens, and decide whether public signup should be disabled. Create the profile and base role through a trigger on `auth.users`. The temporary password is a known, accepted shortcut for local development only. Tracked in [[codebase/known-issues]] and described in [[codebase/architecture/auth-and-onboarding]].
+
 ## Related pages
 
+- [[known-issues]]
 - [[feasibility-and-costs]]
 - [[data-privacy-gdpr]]
 - [[../requirements/readme]]

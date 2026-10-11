@@ -1,10 +1,10 @@
 # Implementation Plan (Phase 1)
 
-**Summary**: Sequential, testable 6-step implementation plan for PocketCoach Phase 1 (Sessions & Trainer Management), covering sub-phases 1.1 through 1.6 with explicit component changes, database migrations, and testable milestones for each phase. Availability Surveys & Matrix Dashboard are deferred to Phase 2.
+**Summary**: Sequential, testable implementation plan for PocketCoach Phase 1 (Sessions & Trainer Management), covering sub-phases 1.1 through 1.6 plus the 1.4b security and integrity hardening pass, with explicit component changes, database migrations, and testable milestones for each phase. Sub-Phases 1.1–1.4 are implemented. Availability Surveys & Matrix Dashboard are deferred to Phase 2.
 
 **Sources**: None
 
-**Last updated**: 2026-09-27
+**Last updated**: 2026-10-11
 
 ---
 
@@ -12,8 +12,9 @@
 - [Overview & Workflow](#overview--workflow)
 - [Sub-Phase 1.1: Project Setup & Monorepo Foundation](#sub-phase-11-project-setup--monorepo-foundation)
 - [Sub-Phase 1.2: Authentication, User Profiles & Role Management](#sub-phase-12-authentication-user-profiles--role-management)
-- [Sub-Phase 1.3: Seasons, Training Days & Automatic Session Generation](#sub-phase-13-seasons-training-days--automatic-session-generation)
+- [Sub-Phase 1.3: Seasons, Training Days, Hall Locations & Automatic Session Generation](#sub-phase-13-seasons-training-days-hall-locations--automatic-session-generation)
 - [Sub-Phase 1.4: Trainer Session Assignments & Personal View](#sub-phase-14-trainer-session-assignments--personal-view)
+- [Sub-Phase 1.4b: Security & Integrity Hardening](#sub-phase-14b-security--integrity-hardening)
 - [Sub-Phase 1.5: Smart Substitutions & Race-Condition Guard](#sub-phase-15-smart-substitutions--race-condition-guard)
 - [Sub-Phase 1.6: Notifications, Calendar Sync, Offline & i18n Polish](#sub-phase-16-notifications-calendar-sync-offline--i18n-polish)
 - [Phase 2: Availability Surveys & Matrix Dashboard](#phase-2-availability-surveys--matrix-dashboard)
@@ -23,14 +24,15 @@
 
 ## Overview & Workflow
 
-The Phase 1 implementation is broken down into **6 incremental sub-phases**. Each sub-phase produces a fully compiled, testable version of the application before proceeding to the next.
+The Phase 1 implementation is broken down into **6 incremental sub-phases**, plus a **1.4b hardening pass** inserted after the review of 1.4. Each sub-phase produces a fully compiled, testable version of the application before proceeding to the next. Open problems are tracked in [[codebase/known-issues]].
 
 ```mermaid
 flowchart TD
     SP1["Sub-Phase 1.1: Foundation & Monorepo"] --> SP2["Sub-Phase 1.2: Auth, Profiles & Roles"]
     SP2 --> SP3["Sub-Phase 1.3: Seasons & Session Generation"]
     SP3 --> SP4["Sub-Phase 1.4: Trainer Session Assignments"]
-    SP4 --> SP5["Sub-Phase 1.5: Substitutions & Conflict Guard"]
+    SP4 --> SP4B["Sub-Phase 1.4b: Security & Integrity Hardening"]
+    SP4B --> SP5["Sub-Phase 1.5: Substitutions & Conflict Guard"]
     SP5 --> SP6["Sub-Phase 1.6: Notifications, Calendar, Offline & i18n"]
 ```
 
@@ -72,15 +74,14 @@ flowchart TD
 #### Proposed Changes
 
 ##### Database Migrations (`packages/supabase/migrations/`)
-- `01_profiles.sql`: Create `profiles` table (`id`, `display_name`, `email`, `avatar_url`, `specialty`, `is_junior_coach`, `is_active`, `preferred_language`, `calendar_token`)
-- `02_user_roles.sql`: Create `user_roles` table (`id`, `profile_id`, `role`, `granted_at`, `granted_by`)
+- `20260818000000_initial_schema.sql`: Creates all 14 base tables, including `profiles` (`id`, `display_name`, `email`, `avatar_url`, `specialty`, `is_junior_coach`, `is_active`, `preferred_language`, `calendar_token`) and `user_roles` (`id`, `profile_id`, `role`, `granted_at`, `granted_by`), as well as the tables used by later phases (`session_assignments`, `substitution_requests`, `notifications`, `device_tokens`, `availability_*`), initially with open development policies. Later sub-phases tighten these rather than creating new tables.
 - `20260913000000_tighten_auth_rls.sql`: Strict Row-Level Security (RLS) policies for `profiles` and `user_roles` using `is_super_admin` `SECURITY DEFINER` helper function
 
 ##### Web Application (`apps/web/src/features/`)
-- `features/auth/`: `LoginForm`, `RegisterForm`, `InviteForm`, `GoogleOAuthButton`
+- `features/auth/`: `LoginForm`, `InviteModal`, `GoogleOAuthButton`; registration and invite-completion pages (`LoginPage`, `RegisterPage`, `InvitePage`) live in `pages/Auth.tsx`
 - `features/trainers/`: `TrainerRoster`, `TrainerProfileEditor`, `RoleManagerModal`
 - `lib/supabase.ts`: Supabase client setup with auth session listener
-- `hooks/useAuth.ts`, `hooks/usePermissions.ts`: Permission evaluation hooks
+- `hooks/useAuth.tsx`, `hooks/usePermissions.ts`: Permission evaluation hooks
 
 #### Google OAuth Note
 - **Local Dev vs Production Configuration**: `GoogleOAuthButton` triggers `supabase.auth.signInWithOAuth({ provider: 'google' })`. To enable live external Google Sign-In redirects locally, Google OAuth Client ID and Secret must be added to `packages/supabase/config.toml` under `[auth.external.google]`. Unit tests (`GoogleOAuthButton.test.tsx`) mock and verify provider parameter dispatch cleanly.
@@ -91,7 +92,7 @@ flowchart TD
 - **Preview Page Shells**: Page structures for Training Sessions (`/sessions`), Availability Survey Matrix (`/availability`), and Substitution Gaps (`/substitutions`).
 - **Glassmorphism Design System & Theme Engine**: CSS token variables (`tokens.css`, `global.css`), dark/light mode toggle (`useTheme.tsx`), and UI primitives (`Button`, `Card`, `Badge`, `Modal`, `Toast`, `ThemeToggle`).
 - **Developer Ergonomics**: Demo account 1-tap quick fill buttons (`LoginForm.tsx`), base64 setup link generator (`InviteModal.tsx`), and root helper script `pnpm supabase:reset`.
-- **Testing Infrastructure**: Comprehensive 68-test Vitest suite across 13 files (`apps/web/src/test/`) and 8-test Playwright E2E suite across 6 files (`apps/web/e2e/`), as of Sub-Phase 1.4.
+- **Testing Infrastructure** (as of the 1.4b hardening pass): 76-test Vitest suite across 14 files (`apps/web/src/test/`), 10-test Playwright E2E suite across 7 files (`apps/web/e2e/`), and 77 pgTAP database permission checks across 2 files (`packages/supabase/tests/`, run with `pnpm test:db`; CI runs them before the Playwright suite).
 
 #### Testable Milestone 1.2
 - [x] Super-admin logs in and invites a new trainer via email (`/trainers`).
@@ -99,7 +100,7 @@ flowchart TD
 - [x] Invited trainer opens invitation link (`/invite/:token`), completes registration, and gets the base **Trainer** role automatically.
 - [x] Trainer edits display name, avatar, and free-text "Responsibility / Speciality" in `/settings`.
 - [x] Super-admin grants **Head-trainer** role to a user; elevated permissions unlock immediately without re-login.
-- [x] Trainer views personal WebCal feed link and regenerates calendar token in `/settings`.
+- [x] Trainer views personal WebCal feed link and regenerates calendar token in `/settings`. *(The feed URL does not resolve until the `calendar-feed` Edge Function ships in Sub-Phase 1.6; see [[codebase/known-issues]].)*
 - [x] Postgres database enforces strict role-based RLS policies for `profiles` and `user_roles`.
 
 ---
@@ -115,11 +116,11 @@ flowchart TD
   - Create `locations` table (`id`, `name`, `district_area`, `is_active`) and seed default 3 halls (*Sporthalle Schulhaus Apfelbaum (Oerlikon)*, *Sporthalle Borrweg (Friesenberg)*, *Sporthalle Wolfsblick (Zürich-Affoltern)*).
   - Create `season_templates` table (`id`, `name`, `description`, `is_default`, `template_data`) and seed `Standard Junior Season` schedule template.
   - Add `location_id` foreign key to `training_days` and `sessions`.
-  - Database stored procedure `generate_season_sessions(p_season_id UUID)` to auto-populate `sessions` (including date, times, location, and player groups) for all configured training day slots in the season date range.
+  - Database stored procedure `generate_season_sessions(p_season_id UUID)` to auto-populate `sessions` (including date, times, location, and player groups) for all configured training day slots in the season date range. Hardened in 1.4b: Head-trainer+ only, and refuses to regenerate once sessions have assignments or overrides.
 
 ##### Web Application (`apps/web/src/features/`)
 - `features/locations/`: `LocationManagerModal` (view/edit hall locations per season).
-- `features/seasons/`: `SeasonSetupModal` (wizard supporting 1-click `Standard Junior Season` template application, location select per slot, and custom schedule adjustment).
+- `features/seasons/`: `SeasonSetupModal` (wizard supporting 1-click `Standard Junior Season` template application, location select per slot, and custom schedule adjustment), `TemplateSelector`, `TrainingDayRow`; seasons and individual sessions can also be deleted by Head-trainer+.
 - `features/sessions/`: `SessionScheduleView` (chronological session schedule filterable by Hall Location, Day of Week, and Group), `SessionCard` (location badge & group tags), `SessionOverrideModal` (single session time/location/group override).
 
 #### Standard Default Junior Schedule
@@ -145,19 +146,53 @@ flowchart TD
 #### Proposed Changes
 
 ##### Database Migrations (`packages/supabase/migrations/`)
-- `08_assignments.sql`: Create `session_assignments` (`id`, `session_id`, `profile_id`, `track`, `session_role`, `status`, `is_substitute`, `assigned_at`, `assigned_by`)
+- `session_assignments` (`id`, `session_id`, `profile_id`, `track`, `session_role`, `status`, `is_substitute`, `assigned_at`, `assigned_by`) already exists from the initial schema.
+- `20260927000001_session_assignments_rls_and_helpers.sql`: Role-based RLS for `session_assignments`, `is_head_trainer()` helper, and the `bulk_assign_trainer()` procedure.
 
 ##### Web Application (`apps/web/src/features/`)
 - `features/sessions/`:
-  - `SessionCardAssigneeModal`: Select a session card on `/sessions` to view, assign, or unassign Primary Trainer (Track 1) and Junior/Assistant Coach (Track 2).
-  - `BulkAssignModal`: Select a trainer and recurring weekday/location pattern (e.g. "Assign Trainer A to all Friday sessions at Schulhaus Apfelbaum") to batch-assign in 1 click.
-  - `MySessionsList`: Chronological view of user's own upcoming assigned sessions.
+  - `SessionAssigneeModal`: Select a session card on `/sessions` to view, assign, or unassign Primary Trainer (Track 1) and Junior/Assistant Coach (Track 2).
+  - `BulkAssignModal`: Select a trainer and recurring weekday/location pattern (e.g. "Assign Trainer A to all Friday sessions at Schulhaus Apfelbaum") to batch-assign in 1 click. Additive and upcoming-only after 1.4b.
+  - `MySessionsList`: Chronological view of user's own upcoming assigned sessions. Regular trainers land on this view by default; Head-trainers and Super-admins land on the full schedule.
   - `PersonalStatsCard`: Breakdown by role (Trainer, Assistant-coach, 14/18 Coach, Total) showing Completed vs. Total Assigned.
 
 #### Testable Milestone 1.4
 - [x] Head-trainer assigns regular trainers and 14/18 coaches via direct session card detail modals and the Bulk Assign tool.
 - [x] Assigned trainers navigate to "My Sessions" and see their schedule highlighted.
 - [x] Personal session stats update dynamically on the trainer's profile page and Trainer Roster.
+
+---
+
+### Sub-Phase 1.4b: Security & Integrity Hardening
+
+**Goal**: Close the authorization and data-integrity problems found when reviewing Sub-Phases 1.2–1.4 before building the substitution workflow on top of them. Status: **implemented 2026-10-11**. The rules and rationale are documented in [[codebase/architecture/database-schema]] (policies, functions, triggers, constraints, migration history), [[codebase/architecture/auth-and-onboarding]] and [[codebase/risk-analysis]] (risk 8).
+
+#### Delivered
+
+##### Database Migrations (`packages/supabase/migrations/`)
+- `20261011000000_secure_definer_functions.sql`: Head-trainer+ check, `search_path`, and revoked `EXECUTE` from `anon`/`PUBLIC` on `generate_season_sessions` and `bulk_assign_trainer`; `assigned_by` taken from `auth.uid()`.
+- `20261011000001_tighten_player_group_links_rls.sql`, `20261011000002_restrict_reads_to_authenticated.sql`: closed open and always-true policies.
+- `20261011000003_remove_anon_insert_fallback.sql`: removed the anonymous insert fallback that allowed self-granting any role.
+- `20261011000004_protect_profile_admin_fields.sql`, `20261011000007_restrict_profile_self_insert.sql`: Super-admin-only email, active status and 14/18 Coach label; plain self-created profiles.
+- `20261011000005_assignment_integrity.sql`: unique active assignment per trainer per session; additive, upcoming-only bulk assign; regeneration guard.
+- `20261011000006_tighten_substitution_notification_availability_rls.sql`: policies for `substitution_requests`, `notifications`, `availability_surveys`, `availability_responses` (and `is_survey_open()`), ahead of Sub-Phases 1.5, 1.6 and 2.1.
+
+##### Web Application
+- `InviteModal` creates the account on an isolated auth client (`createIsolatedAuthClient()`), preserving the admin's session and saving the invitee's role.
+- `useAssignTrainer` updates a specific assignment by id; `usePersonalStats` ignores `replaced` assignments and uses the local date (`lib/dates.ts`).
+- `RoleManagerModal` gains a 14/18 Coach toggle (Super-admin only); the Settings checkbox is read-only for everyone else.
+
+##### Tests
+- pgTAP suite (`packages/supabase/tests/`, `pnpm test:db`) added to CI; new Vitest cases; Playwright `invite-registration` and trainer default-view tests.
+
+#### Testable Milestone 1.4b
+- [x] `pnpm test:db` passes: logged-out callers, trainers, Head-trainers and Super-admins get exactly the access in the RLS matrix.
+- [x] Super-admin invites a Head-trainer with the 14/18 Coach label, stays logged in, and the invitee completes `/invite/:token` with the role and label in effect.
+- [x] A trainer cannot change their own email, active status or 14/18 label; a Super-admin can.
+- [x] Bulk assign adds trainers to upcoming sessions only; regenerating a used season is refused.
+
+#### Still open after 1.4b
+Tracked in [[codebase/known-issues]]: invite hardening (shared temporary password, guessable link, open signup, email-confirmation trigger), per-track assignment limits, 14/18 track-versus-label check, assignee swap, atomic role save, and the missing season-creation E2E test. The per-track limits and the track check should land before or with Sub-Phase 1.5.
 
 ---
 
@@ -168,9 +203,10 @@ flowchart TD
 #### Proposed Changes
 
 ##### Database Migrations & Functions (`packages/supabase/`)
-- `09_substitutions.sql`: Create `substitution_requests` (`id`, `session_id`, `original_trainer_id`, `volunteer_id`, `track`, `status`, `created_at`, `filled_at`, `escalated_at`)
-- `functions/volunteer_substitution.sql`: PostgreSQL stored function using `SELECT FOR UPDATE` to lock request row, check no double-booking for volunteer, update original assignment status to `replaced`, mark request `filled`, and insert new volunteer assignment (`status='active'`, `is_substitute=true`).
+- `substitution_requests` (`id`, `session_id`, `original_trainer_id`, `volunteer_id`, `track`, `status`, `created_at`, `filled_at`, `escalated_at`) already exists from the initial schema; its RLS was set in 1.4b (trainers may open a request only for themselves; filling and escalation must go through server-side functions).
+- New migration adding the `volunteer_substitution` stored function. As a `SECURITY DEFINER` function it must check the caller via `auth.uid()` and revoke `EXECUTE` from `anon` (risk 8 in [[codebase/risk-analysis]]). It uses `SELECT FOR UPDATE` to lock the request row, check no double-booking for volunteer, update original assignment status to `replaced`, mark request `filled`, and insert new volunteer assignment (`status='active'`, `is_substitute=true`).
 - `pg_cron` schedule: Hourly check firing Edge Function `escalation-check` for gaps open within 48h.
+- **Open design decisions** (see [[codebase/known-issues]]): double-booking definition, cross-track volunteering, volunteering for one's own gap, past sessions, the dependency of escalation notifications on 1.6, and which page hosts `HomeGapBanner`.
 
 ##### Web Application (`apps/web/src/features/`)
 - `features/substitutions/`:
@@ -194,8 +230,7 @@ flowchart TD
 #### Proposed Changes
 
 ##### Database Migrations (`packages/supabase/migrations/`)
-- `10_device_tokens.sql`: Create `device_tokens` (`id`, `profile_id`, `token`, `platform`)
-- `11_notifications.sql`: Create `notifications` (`id`, `recipient_id`, `event_type`, `payload`, `is_read`)
+- `device_tokens` and `notifications` already exist from the initial schema. `notifications` policies were set in 1.4b (recipients read, mark read and delete their own; no client inserts, rows are created by the `send-notification` Edge Function with the service role). `device_tokens` has RLS enabled but **no policies yet**, so clients cannot access it; add own-token policies in a new migration.
 
 ##### Supabase Edge Functions (`packages/supabase/functions/`)
 - `send-notification/`: Central push + in-app dispatcher for 7 event types
@@ -224,8 +259,8 @@ flowchart TD
 #### Proposed Changes
 
 ##### Database Migrations (`packages/supabase/migrations/`)
-- `07_availability.sql`: Create `availability_surveys` (`id`, `season_id`, `name`, `range_start`, `range_end`, `status`) and `availability_responses` (`id`, `survey_id`, `profile_id`, `session_id`, `state`)
-- RLS policy: Restrict response updates to when `AVAILABILITY_SURVEYS.status = 'open'`.
+- `availability_surveys` (`id`, `season_id`, `name`, `range_start`, `range_end`, `status`) and `availability_responses` (`id`, `survey_id`, `profile_id`, `session_id`, `state`) already exist from the initial schema.
+- RLS (done in 1.4b via `is_survey_open()`): trainers insert, update and delete only their own responses while the survey is `open`; Head-trainer+ see and manage all responses.
 
 ##### Web Application (`apps/web/src/features/`)
 - `features/availability/`:
@@ -246,6 +281,7 @@ flowchart TD
 | **1.2 Auth & Roles** | Invite flow, OAuth, role grant | Inbucket (`http://localhost:54324`) → Register → Login → Elevate Role |
 | **1.3 Sessions** | Season setup, auto session gen | Create Season → Verify DB `sessions` generated for weekdays |
 | **1.4 Assignments** | 2-track assignment, trainer stats | Card detail modal & Bulk Assign → Verify My Sessions & Stats |
+| **1.4b Hardening** | RLS matrix, function authorization, invite flow | `pnpm test:db` + Playwright `invite-registration` |
 | **1.5 Substitutions** | Flag absent, volunteer, atomic lock | Home gap banner → Concurrent volunteer test → Verify RLS & transaction |
 | **1.6 Polish** | PWA, offline, push, calendar, i18n | PWA banner → Airplane mode → WebCal feed & reset → Language toggle |
 | **2.1 Availability** | Survey lifecycle, real-time matrix | Open survey → Sticky grid + month filter → Live updates → Close survey |
@@ -258,3 +294,5 @@ flowchart TD
 - [[codebase/architecture/notification-system]]
 - [[codebase/architecture/offline-and-pwa]]
 - [[codebase/architecture/substitution-flow]]
+- [[codebase/known-issues]]
+- [[codebase/risk-analysis]]

@@ -82,8 +82,18 @@ A `pg_cron` job runs hourly, checking for substitution requests where:
 
 When triggered, the cron fires a Supabase Edge Function that broadcasts an escalation notification to all Head-trainers and Super-admins for manual follow-up. This is monitored for failures as described in Risk 6 of [[codebase/risk-analysis]].
 
+## Authorization Requirements
+
+Set in Sub-Phase 1.4b so the workflow in 1.5 builds on enforced rules (see [[codebase/architecture/database-schema#row-level-security]]):
+
+- Any authenticated trainer can read substitution requests (open gaps are visible to everyone).
+- A trainer can create a request only for themselves, as `open`, without a volunteer. Clients cannot set `volunteer_id` or `status = 'filled'` directly; Head-trainer+ may update or delete requests.
+- Volunteering and escalation therefore run in server-side functions. Because `SECURITY DEFINER` functions bypass RLS, the volunteer function must itself verify the caller with `auth.uid()` and have `EXECUTE` revoked from `anon` and `PUBLIC` (risk 8 in [[codebase/risk-analysis]]).
+- Open decisions for the function (double-booking definition, cross-track volunteering, own gap, past sessions, notification dependency) are listed in [[codebase/known-issues]].
+
 ## Related pages
 
+- [[codebase/known-issues]]
 - [[codebase/architecture/system-architecture]]
 - [[codebase/architecture/notification-system]]
 - [[codebase/architecture/database-schema]]

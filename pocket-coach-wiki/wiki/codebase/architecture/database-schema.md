@@ -1,10 +1,10 @@
 # Database Schema
 
-**Summary**: PostgreSQL database schema for PocketCoach Phase 1 covering 14 core tables, the ER diagram, column definitions, Row-Level Security policies, and Phase 2 extension points for deferred tables.
+**Summary**: PostgreSQL database schema for PocketCoach Phase 1 covering 16 tables, the ER diagram, column definitions, the enforced Row-Level Security policies, database functions, triggers and constraints, the migration history, and Phase 2 extension points for deferred tables.
 
 **Sources**: None
 
-**Last updated**: 2026-08-18
+**Last updated**: 2026-10-11
 
 ---
 
@@ -12,12 +12,14 @@
 - [ER Diagram](#er-diagram)
 - [Phase 2 Extension Points](#phase-2-extension-points)
 - [Row-Level Security](#row-level-security)
+- [Functions, Triggers & Constraints](#functions-triggers--constraints)
+- [Migration History](#migration-history)
 
 ---
 
 ## ER Diagram
 
-The schema covers 14 core tables. Phase 2 tables (`training_blocks`, `block_weeks`, `global_themes`, `season_themes`, `training_plan_notes`, `post_session_comments`) are documented as extension points below.
+The schema covers 16 tables. Phase 2 tables (`training_blocks`, `block_weeks`, `global_themes`, `season_themes`, `training_plan_notes`, `post_session_comments`) are documented as extension points below.
 
 ```mermaid
 erDiagram
@@ -216,29 +218,98 @@ The existing `sessions.block_week_id` column (nullable) is the sole join point f
 
 ## Row-Level Security
 
-All tables have RLS enabled. `Head-trainer+` = Head-trainer or Super-admin.
+All tables have RLS enabled. `Head-trainer+` = Head-trainer or Super-admin (the `is_head_trainer()` helper also returns true for Super-admins). The matrix below reflects the policies **enforced by the migrations as of 2026-10-11**. Anonymous (logged-out) callers have no access to any table.
 
 | Table | SELECT | INSERT | UPDATE | DELETE |
 |---|---|---|---|---|
-| `profiles` | All authenticated | Own profile | Own profile | Super-admin |
-| `user_roles` | All authenticated | Super-admin | Super-admin | Super-admin |
-| `device_tokens` | Own tokens | Own tokens | Own tokens | Own tokens |
-| `seasons` | All authenticated | Head-trainer+ | Head-trainer+ | Super-admin |
+| `profiles` | All authenticated | Own profile, as a plain profile only (not 14/18 Coach, active, email = own login email); Super-admin: any | Own profile (admin-managed fields protected by trigger); Super-admin: any | Super-admin |
+| `user_roles` | All authenticated | Super-admin; or own base `trainer` role | Super-admin | Super-admin |
+| `device_tokens` | No client access yet (RLS on, no policies); own-token policies arrive with Sub-Phase 1.6 | — | — | — |
+| `locations` | All authenticated | Head-trainer+ | Head-trainer+ | Head-trainer+ |
+| `season_templates` | All authenticated | Head-trainer+ | Head-trainer+ | Head-trainer+ |
+| `seasons` | All authenticated | Head-trainer+ | Head-trainer+ | Head-trainer+ |
 | `training_days` | All authenticated | Head-trainer+ | Head-trainer+ | Head-trainer+ |
 | `training_day_player_groups` | All authenticated | Head-trainer+ | Head-trainer+ | Head-trainer+ |
-| `player_groups` | All authenticated | Head-trainer+ | Head-trainer+ | Super-admin |
-| `sessions` | All authenticated | System-generated | Head-trainer+ | Super-admin |
+| `player_groups` | All authenticated | Head-trainer+ | Head-trainer+ | Head-trainer+ |
+| `sessions` | All authenticated | Head-trainer+ (also created by `generate_season_sessions`) | Head-trainer+ | Head-trainer+ |
 | `session_player_groups` | All authenticated | Head-trainer+ | Head-trainer+ | Head-trainer+ |
-| `session_assignments` | All authenticated | Head-trainer+ | Head-trainer+ | Head-trainer+ |
-| `availability_surveys` | All authenticated | Head-trainer+ | Head-trainer+ | Super-admin |
-| `availability_responses` | All authenticated | Own responses (when survey `open`) | Own responses (when survey `open`) | — |
-| `substitution_requests` | All authenticated | Own (flag unavail.) | Volunteer (fill gap) / Own (cancel) | — |
-| `notifications` | Own only | System (Edge Fn) | Own (mark read) | — |rk read) | — |
+| `session_assignments` | All authenticated (trainers may see each other's assignments) | Head-trainer+ | Head-trainer+ | Head-trainer+ |
+| `availability_surveys` | All authenticated | Head-trainer+ | Head-trainer+ | Head-trainer+ |
+| `availability_responses` | Own responses; Head-trainer+: all (matrix) | Own responses while the survey is `open`; Head-trainer+: any | Own responses while the survey is `open`; Head-trainer+: any | Own responses while the survey is `open`; Head-trainer+: any |
+| `substitution_requests` | All authenticated | Own request only (`original_trainer_id` = caller, still `open`, no volunteer); Head-trainer+: any | Head-trainer+ (volunteering and escalation go through server-side functions in Sub-Phase 1.5) | Head-trainer+ |
+| `notifications` | Own only | None from clients; created server-side (Edge Function, Sub-Phase 1.6) | Own (mark read) | Own |
+
+> **Design note — trainers see all assignments.** `session_assignments` is deliberately readable by every authenticated user so trainers can see who else is assigned. The trainer's *default view* shows only their own sessions (see [[requirements/views-and-notifications]]); the full schedule is one tap away.
+
+> **Design note — Super-admin vs. Head-trainer deletes.** The original design reserved some deletes (seasons, sessions, player groups, surveys) for Super-admins. The implementation lets Head-trainer+ delete them, matching the delete-season / delete-session workflow in the web app.
+
+---
+
+## Functions, Triggers & Constraints
+
+### Role helper functions
+
+| Function | Purpose |
+|---|---|
+| `is_super_admin(user_id)` | `SECURITY DEFINER`, true if the user holds `super_admin`. `SECURITY DEFINER` avoids policy recursion on `user_roles`. |
+| `is_head_trainer(user_id)` | `SECURITY DEFINER`, true if the user holds `head_trainer` or `super_admin`. |
+| `is_survey_open(survey_id)` | `SECURITY DEFINER`, true if the survey's status is `open`. Used by `availability_responses` policies. |
+
+### Server-side functions
+
+`SECURITY DEFINER` functions run with the owner's privileges and **bypass RLS**, so each must authorize the caller itself. Both functions below require `is_head_trainer(auth.uid())`, raise SQLSTATE `42501` otherwise, pin `search_path = public`, and have `EXECUTE` revoked from `PUBLIC` and `anon` (granted to `authenticated` only).
+
+| Function | Behaviour |
+|---|---|
+| `generate_season_sessions(season_id)` | Generates one session (with its player-group links) for every configured training-day slot in the season's date range. **Refuses to run (SQLSTATE `55000`) if any session of the season already has an assignment or a time override**, because it deletes and recreates all sessions of the season. |
+| `bulk_assign_trainer(season_id, profile_id, day_of_week, location_id, track, session_role, assigned_by)` | Adds the trainer to every matching **upcoming** session (session date today or later, Europe/Zurich), filtered by weekday and/or hall. **Additive**: it never replaces an existing assignee on the track, and skips sessions where the trainer is already actively assigned. Returns the number of sessions affected. The `assigned_by` argument is **ignored**; the caller's `auth.uid()` is always recorded. |
+
+### Triggers
+
+| Trigger | Table | Behaviour |
+|---|---|---|
+| `protect_profile_admin_fields` | `profiles` (before update) | Only Super-admins may change `email`, `is_active`, `is_junior_coach` (the 14/18 Coach label) or `id`. Other users get SQLSTATE `42501`. Re-saving unchanged values is allowed, so normal profile saves still work. Contexts without a JWT subject (service role, migrations) are unrestricted. |
+
+### Constraints
+
+| Constraint | Meaning |
+|---|---|
+| `uq_session_assignments_active_profile` — unique index on `session_assignments (session_id, profile_id) WHERE status = 'active'` | A trainer can hold at most one active assignment per session. Uniqueness is per trainer, not per track, because a track holds several trainers (2–3 regular, 1–2 14/18 Coaches). |
+
+> **Not yet enforced:** the per-track limits (2–3 regular trainers, 1–2 14/18 Coaches) and the rule that only trainers with the 14/18 Coach label may be assigned to the `junior_coach` track. See [[codebase/known-issues]].
+
+### Automated permission tests
+
+The policies, functions, triggers and constraints above are covered by pgTAP tests in `packages/supabase/tests/` (`permissions.test.sql`, `feature_tables_rls.test.sql`; 77 checks). Run them with `pnpm test:db`; CI runs them before the Playwright suite. The tests exercise anonymous callers (with the `anon` JWT claim PostgREST sends), a regular trainer, a Head-trainer and a Super-admin.
+
+---
+
+## Migration History
+
+Migrations live in `packages/supabase/migrations/`. All 14 base tables were created in the initial migration; later sub-phases tighten their policies and add functions rather than creating new tables.
+
+| Migration | Purpose |
+|---|---|
+| `20260818000000_initial_schema` | Base tables (profiles, roles, device tokens, seasons, training days, player groups, sessions, session assignments, availability, substitution requests, notifications) with open development RLS policies |
+| `20260913000000_tighten_auth_rls` | Role-based RLS for `profiles` and `user_roles`; `is_super_admin()` |
+| `20260927000000_seasons_locations_and_templates` | `locations`, `season_templates`, `location_id` on training days and sessions, `generate_season_sessions()` |
+| `20260927000001_session_assignments_rls_and_helpers` | `session_assignments` RLS, `is_head_trainer()`, `bulk_assign_trainer()` |
+| `20260927000002_tighten_seasons_and_sessions_rls` | Head-trainer+ write policies for seasons, sessions, locations, training days, player groups, templates |
+| `20261011000000_secure_definer_functions` | Role checks and privilege revocation on `generate_season_sessions` / `bulk_assign_trainer` |
+| `20261011000001_tighten_player_group_links_rls` | Locks down the two player-group link tables |
+| `20261011000002_restrict_reads_to_authenticated` | Replaces always-true read policies (`... OR true`) so reads require a login |
+| `20261011000003_remove_anon_insert_fallback` | Removes the anonymous insert fallback on `profiles` / `user_roles` that allowed self-granting any role |
+| `20261011000004_protect_profile_admin_fields` | `protect_profile_admin_fields` trigger |
+| `20261011000005_assignment_integrity` | Unique active-assignment index, additive/upcoming-only bulk assign, regeneration guard |
+| `20261011000006_tighten_substitution_notification_availability_rls` | Policies and `is_survey_open()` for substitutions, notifications, availability |
+| `20261011000007_restrict_profile_self_insert` | Self-created profiles must be plain profiles with the user's own email |
 
 ## Related pages
 
 - [[codebase/architecture/system-architecture]]
 - [[codebase/architecture/auth-and-onboarding]]
 - [[codebase/data-privacy-gdpr]]
+- [[codebase/known-issues]]
+- [[codebase/architecture/substitution-flow]]
 - [[requirements/overview-roles-auth]]
 - [[requirements/sessions-and-assignment]]

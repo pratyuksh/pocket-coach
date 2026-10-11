@@ -4,7 +4,7 @@
 
 **Sources**: None
 
-**Last updated**: 2026-07-18
+**Last updated**: 2026-10-11
 
 ---
 
@@ -57,6 +57,8 @@ The dashboard includes:
 ## Trainer Personal View ("My Sessions")
 
 Every trainer has a personal view that gives them a clear picture of their own involvement in the season. This view is accessible to **all users** (Trainers, Head-trainers, and Super-admins).
+
+**Default view** *(implementation decision, 2026-10-11)*: the sessions page opens on **My Sessions** for regular trainers and on the full **All Schedule** for Head-trainers and Super-admins. Trainers may switch to the full schedule at any time to see which other trainers are assigned to a session; that information is useful for coordination but is deliberately kept out of a trainer's main view.
 
 ### Upcoming Sessions
 - A chronological list of all sessions the trainer is **assigned to**, starting from today.
