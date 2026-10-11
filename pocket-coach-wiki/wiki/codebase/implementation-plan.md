@@ -32,7 +32,7 @@ Each sub-phase ends in a compiled, tested application. Sub-Phase numbers 1.5 and
 
 | Step | Sub-phase | Delivers | Size |
 |---|---|---|---|
-| 0 | **Gate** | `pnpm supabase:reset && pnpm test:db` from an empty database; CI green | S |
+| 0 | **Gate** ✅ done 2026-10-11 | `pnpm supabase:reset && pnpm test:db` from an empty database; local CI checks green | S |
 | 1 | **1.4c** Data foundations | Staffing targets, publishing, hall details, per-track limits, atomic save functions | M |
 | 2 | **1.4d** Modernist UI, shell & localization | New look, navigation, all existing screens restyled, EN/DE, light mode only | L |
 | 3 | **1.6a** Notifications, PWA shell, invites | Notification bell and push, install banner, server-side invites, invite-only access | M–L |
@@ -43,7 +43,7 @@ Each sub-phase ends in a compiled, tested application. Sub-Phase numbers 1.5 and
 
 ```mermaid
 flowchart TD
-    DONE["Delivered: 1.1 – 1.4b"] --> G["Gate: fresh-database run"]
+    DONE["Delivered: 1.1 – 1.4b"] --> G["Gate: fresh-database run (done)"]
     G --> S14C["1.4c Data foundations"]
     S14C --> S14D["1.4d Modernist UI, shell & localization"]
     S14D --> S16A["1.6a Notifications, PWA shell, invites"]
@@ -267,7 +267,7 @@ Assigned to sessions (sent on publish, one grouped notification per publish), ro
 
 The plan has no production checklist yet. Before real users:
 
-- [ ] Fresh-database run passes (Gate, step 0) and CI is green.
+- [x] Fresh-database run passes (Gate, step 0, 2026-10-11). Re-run after each new migration batch; the remote CI run on push is still to be observed.
 - [ ] 1.6a done: server-side invites, public signup disabled, no temporary password.
 - [ ] Fonts self-hosted; GDPR items in [[codebase/data-privacy-gdpr]] (EU hosting in Frankfurt, data-processing agreements, erasure) verified for the production project.
 - [ ] Production Supabase project, Google OAuth credentials, FCM project and Edge Function secrets configured.
@@ -301,7 +301,8 @@ Season planning with blocks and themes, session notes (Tiptap), email fallback f
 | C1 per-track limits; C2 track versus label; C3 assignee swap; C4 atomic role save | 1.4c |
 | C5 calendar feed link | 1.6b |
 | T1 season-creation and multi-trainer E2E tests | 1.4d |
-| T2 fresh-database run | Gate (step 0) |
+| T2 fresh-database run | Gate (step 0), done 2026-10-11 |
+| T4 long policy names on `availability_responses` | Before 2.1 (small migration) |
 | F1, F2, T3 | Backlog |
 
 ---
@@ -329,7 +330,7 @@ Items beyond the five decisions, proposed so work can start; each should be conf
 | Sub-Phase | Core capability | Verification |
 |---|---|---|
 | **1.1–1.4b** | Delivered | `pnpm test`, `pnpm test:e2e`, `pnpm test:db` |
-| **Gate** | Clean migrations | `pnpm supabase:reset && pnpm test:db` |
+| **Gate** | Clean migrations (done 2026-10-11: 13 migrations applied, 77 pgTAP checks, 76 unit and 10 E2E tests passed) | `pnpm supabase:reset && pnpm test:db` |
 | **1.4c Data** | Targets, limits, publishing, atomic saves | pgTAP + updated Playwright |
 | **1.4d UI** | Modernist look, EN/DE, light only | Playwright at 390 and 1280 px, missing-key test, no Google Fonts requests |
 | **1.6a Notifications** | Bell, push, PWA, invite-only | Publish → notification; invite → set password; signup rejected |

@@ -49,8 +49,8 @@ Each open issue has a scheduled sub-phase; see [[codebase/implementation-plan#wh
 | # | Issue | Notes |
 |---|---|---|
 | T1 | No end-to-end test covers creating a season (Sub-Phase 1.3) or assigning several trainers to one session in the UI. | |
-| T2 | The migrations were applied incrementally to a local database; a from-scratch run (`pnpm supabase:reset && pnpm test:db`) has not been confirmed locally. | CI starts from an empty database on the next push. |
 | T3 | ESLint reports 73 `no-explicit-any` warnings (0 errors), mostly in older code and tests. | Technical debt; not blocking. |
+| T4 | Three policy names on `availability_responses` exceed Postgres' 63-character limit and are silently shortened (for example "…insert availability response"). | Harmless today; shorten them in a migration before Sub-Phase 2.1 so names match the code. |
 
 ---
 
@@ -93,6 +93,7 @@ Resolved during the Sub-Phase 1.4 hardening pass (2026-10-11). Details are in [[
 | 14/18 label could not be changed after the invite | Super-admin toggle in the Role Manager |
 | No test of the invite registration page | Playwright `invite-registration` test |
 | No automated check of database permissions | pgTAP suite (`pnpm test:db`) running in CI |
+| Migrations never verified from scratch (T2) | Gate run on 2026-10-11: `pnpm supabase:reset` applied all 13 migrations and the seed to an empty database; 77 pgTAP checks, 76 unit tests and 10 end-to-end tests passed. The remote CI run on the next push is still to be observed. |
 
 ## Related pages
 

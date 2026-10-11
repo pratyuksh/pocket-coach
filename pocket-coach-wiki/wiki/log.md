@@ -123,4 +123,9 @@
 * Clarified from the design prototype that every user can toggle between English and German. Added to the plan: the toggle on the login and invite screens and in Settings (applies immediately, saved in `profiles.preferred_language` after sign-in); translated error messages via stable database error codes (1.4c, 1.4d); in-app notifications translated in the viewer's language and push text generated in the recipient's language (1.6a); invitee language on the invitation with English and German invite email templates (1.6a); calendar feed text in the trainer's language and a two-language sign-off walkthrough (1.6b).
 * Two details to confirm were added: the default language for unsupported browser languages, and whether hall notes are stored once or per language.
 
+## 2026-10-11 | gate-done | Updated 3 pages: codebase/implementation-plan.md, codebase/known-issues.md, wiki/log.md
+* Marked step 0 (Gate) of the implementation plan as done: `pnpm supabase:reset` applied all 13 migrations and `seed.sql` to an empty local database; `pnpm test:db` passed 77 of 77 checks; format, typecheck, 76 unit tests and 10 end-to-end tests passed; lint reported 0 errors and the existing 73 warnings. The remote GitHub CI run has not been observed yet.
+* `known-issues.md`: moved T2 (fresh-database run) to Recently Resolved; added T4 (three `availability_responses` policy names are truncated at Postgres' 63-character limit; shorten before Sub-Phase 2.1).
+* The reset also cleared local test users created by earlier invite and end-to-end runs.
+
 <!-- END OF LOG -->
