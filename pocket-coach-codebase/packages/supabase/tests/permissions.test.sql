@@ -7,7 +7,7 @@ BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET search_path = public, extensions;
 
-SELECT plan(52);
+SELECT plan(54);
 
 -- Fixtures (created as postgres, bypassing RLS)
 INSERT INTO public.seasons (id, name, start_date, end_date)
@@ -22,8 +22,8 @@ INSERT INTO public.training_day_player_groups (training_day_id, player_group_id)
 VALUES ('22222222-2222-2222-2222-222222222222', '33333333-3333-3333-3333-333333333333');
 -- Placeholder session + assignment so anon read checks run against non-empty tables
 -- (removed by generate_season_sessions below)
-INSERT INTO public.sessions (id, season_id, session_date, day_of_week, start_time, end_time)
-VALUES ('55555555-5555-5555-5555-555555555555', '11111111-1111-1111-1111-111111111111', '2026-11-03', 2, '17:30', '19:00');
+INSERT INTO public.sessions (id, season_id, session_date, day_of_week, start_time, end_time, published_at)
+VALUES ('55555555-5555-5555-5555-555555555555', '11111111-1111-1111-1111-111111111111', '2026-11-03', 2, '17:30', '19:00', now());
 INSERT INTO public.session_assignments (session_id, profile_id, track, session_role)
 VALUES ('55555555-5555-5555-5555-555555555555', '00000000-0000-0000-0000-000000000003', 'regular', 'primary');
 
@@ -82,11 +82,11 @@ SELECT pg_temp.act_as('00000000-0000-0000-0000-000000000003');
 
 SELECT throws_ok(
     $$ SELECT public.generate_season_sessions('11111111-1111-1111-1111-111111111111') $$,
-    '42501', 'Only Head-trainers or Super-admins can generate season sessions',
+    '42501', 'not_authorized',
     'trainer cannot generate season sessions');
 SELECT throws_ok(
     $$ SELECT public.bulk_assign_trainer('11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-000000000003') $$,
-    '42501', 'Only Head-trainers or Super-admins can bulk assign trainers',
+    '42501', 'not_authorized',
     'trainer cannot bulk assign');
 SELECT isnt_empty(
     $$ SELECT 1 FROM public.training_day_player_groups $$,
@@ -195,6 +195,10 @@ SELECT is(
        JOIN public.sessions s ON s.id = spg.session_id
       WHERE s.season_id = '11111111-1111-1111-1111-111111111111'), 1,
     'generated session copies its player group link');
+-- Generated sessions are drafts; publish so that trainers can see them in later checks
+SELECT is(
+    public.publish_sessions('11111111-1111-1111-1111-111111111111', '2026-11-02', '2026-11-08'),
+    '{"published": 1}'::jsonb, 'head-trainer publishes the generated session');
 
 -- A past session in the same season must not be touched by bulk assign
 RESET ROLE;
@@ -288,6 +292,16 @@ SELECT lives_ok(
     $$ INSERT INTO public.user_roles (profile_id, role)
        VALUES ('00000000-0000-0000-0000-000000000003', 'head_trainer') $$,
     'super-admin can grant roles');
+-- A label change is blocked while the person has upcoming active assignments on their track
+SELECT throws_ok(
+    $$ UPDATE public.profiles SET is_junior_coach = TRUE
+        WHERE id = '00000000-0000-0000-0000-000000000003' $$,
+    '23514', 'label_change_blocked',
+    'super-admin cannot change the label while upcoming assignments exist');
+RESET ROLE;
+DELETE FROM public.session_assignments WHERE profile_id = '00000000-0000-0000-0000-000000000003';
+SET LOCAL ROLE authenticated;
+SELECT pg_temp.act_as('00000000-0000-0000-0000-000000000001');
 SELECT lives_ok(
     $$ UPDATE public.profiles SET is_junior_coach = TRUE, is_active = FALSE
         WHERE id = '00000000-0000-0000-0000-000000000003' $$,

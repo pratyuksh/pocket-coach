@@ -14,6 +14,11 @@ export const LocationManagerModal: React.FC<LocationManagerModalProps> = ({ isOp
   const { locations, loading, error, addLocation, updateLocation } = useLocations();
   const [newHallName, setNewHallName] = useState('');
   const [newDistrict, setNewDistrict] = useState('');
+  const [newAddress, setNewAddress] = useState('');
+  const [newNote, setNewNote] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editAddress, setEditAddress] = useState('');
+  const [editNote, setEditNote] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -24,9 +29,14 @@ export const LocationManagerModal: React.FC<LocationManagerModalProps> = ({ isOp
     try {
       setSubmitting(true);
       setFormError(null);
-      await addLocation(newHallName.trim(), newDistrict.trim() || undefined);
+      await addLocation(newHallName.trim(), newDistrict.trim() || undefined, {
+        address: newAddress,
+        trainer_note: newNote,
+      });
       setNewHallName('');
       setNewDistrict('');
+      setNewAddress('');
+      setNewNote('');
     } catch (err: any) {
       setFormError(err.message || 'Failed to add hall location');
     } finally {
@@ -39,6 +49,25 @@ export const LocationManagerModal: React.FC<LocationManagerModalProps> = ({ isOp
       await updateLocation(id, { is_active: !currentActive });
     } catch (err: any) {
       console.error('Failed to toggle location active status', err);
+    }
+  };
+
+  const startEditing = (id: string, address: string | null, note: string | null) => {
+    setEditingId(id);
+    setEditAddress(address ?? '');
+    setEditNote(note ?? '');
+  };
+
+  const handleSaveDetails = async (id: string) => {
+    try {
+      setFormError(null);
+      await updateLocation(id, {
+        address: editAddress.trim() || null,
+        trainer_note: editNote.trim() || null,
+      });
+      setEditingId(null);
+    } catch (err: any) {
+      setFormError(err.message || 'Failed to save hall details');
     }
   };
 
@@ -93,6 +122,40 @@ export const LocationManagerModal: React.FC<LocationManagerModalProps> = ({ isOp
                 />
               </div>
             </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label
+                  htmlFor="new-hall-address"
+                  className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1"
+                >
+                  Address
+                </label>
+                <input
+                  id="new-hall-address"
+                  type="text"
+                  value={newAddress}
+                  onChange={(e) => setNewAddress(e.target.value)}
+                  placeholder="Street, postcode, city"
+                  className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="new-hall-note"
+                  className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1"
+                >
+                  Note for trainers
+                </label>
+                <input
+                  id="new-hall-note"
+                  type="text"
+                  value={newNote}
+                  onChange={(e) => setNewNote(e.target.value)}
+                  placeholder="e.g. Entrance, parking, key"
+                  className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+                />
+              </div>
+            </div>
             <div className="flex justify-end">
               <Button
                 type="submit"
@@ -135,17 +198,78 @@ export const LocationManagerModal: React.FC<LocationManagerModalProps> = ({ isOp
                           {loc.district_area}
                         </div>
                       )}
+                      {editingId === loc.id ? (
+                        <div className="mt-2 space-y-2">
+                          <input
+                            type="text"
+                            aria-label={`Address of ${loc.name}`}
+                            value={editAddress}
+                            onChange={(e) => setEditAddress(e.target.value)}
+                            placeholder="Street, postcode, city"
+                            className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+                          />
+                          <input
+                            type="text"
+                            aria-label={`Note for trainers at ${loc.name}`}
+                            value={editNote}
+                            onChange={(e) => setEditNote(e.target.value)}
+                            placeholder="e.g. Entrance, parking, key"
+                            className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+                          />
+                          <div className="flex gap-2">
+                            <Button
+                              type="button"
+                              variant="primary"
+                              size="sm"
+                              onClick={() => handleSaveDetails(loc.id)}
+                            >
+                              Save details
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setEditingId(null)}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          {loc.address && (
+                            <div className="text-xs text-slate-500 dark:text-slate-400">
+                              {loc.address}
+                            </div>
+                          )}
+                          {loc.trainer_note && (
+                            <div className="text-xs italic text-slate-500 dark:text-slate-400">
+                              {loc.trainer_note}
+                            </div>
+                          )}
+                        </>
+                      )}
                     </div>
                   </div>
                   {canManageSeasons && (
-                    <Button
-                      type="button"
-                      variant={loc.is_active ? 'outline' : 'primary'}
-                      size="sm"
-                      onClick={() => handleToggleActive(loc.id, loc.is_active)}
-                    >
-                      {loc.is_active ? 'Deactivate' : 'Activate'}
-                    </Button>
+                    <div className="flex flex-col gap-1.5 shrink-0">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => startEditing(loc.id, loc.address, loc.trainer_note)}
+                      >
+                        Edit details
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={loc.is_active ? 'outline' : 'primary'}
+                        size="sm"
+                        onClick={() => handleToggleActive(loc.id, loc.is_active)}
+                      >
+                        {loc.is_active ? 'Deactivate' : 'Activate'}
+                      </Button>
+                    </div>
                   )}
                 </div>
               ))}

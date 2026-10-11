@@ -80,6 +80,14 @@ export const SessionCard: React.FC<SessionCardProps> = ({
 
         {/* Player Groups Column (Fixed width for column-level vertical alignment across rows) */}
         <div className="flex flex-wrap items-center gap-1.5 md:w-56 lg:w-64 md:shrink-0">
+          {!session.published_at && (
+            <Badge
+              variant="info"
+              title="Only Head-trainers can see this session until it is published"
+            >
+              Draft
+            </Badge>
+          )}
           {session.is_time_overridden && (
             <Badge variant="warning">
               <AlertCircle className="w-3 h-3 mr-1 text-amber-500" /> Overridden

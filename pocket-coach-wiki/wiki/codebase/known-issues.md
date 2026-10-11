@@ -31,10 +31,6 @@ Each open issue has a scheduled sub-phase; see [[codebase/implementation-plan#wh
 
 | # | Issue | Notes |
 |---|---|---|
-| C1 | **Per-track assignment limits are not enforced.** Nothing stops more than 3 regular trainers or more than 2 14/18 Coaches on one session. | Requirement: 2–3 regular, 1–2 14/18 Coaches ([[requirements/sessions-and-assignment]]). |
-| C2 | **The 14/18 track is not checked against the label.** `bulk_assign_trainer` accepts any track, so a trainer without the 14/18 Coach label can be bulk-assigned to the `junior_coach` track. The per-session modal picks the track from the label, but the database does not verify it. | Add a check in the database (function or trigger). |
-| C3 | **Swapping two trainers between two rows fails.** With A in row 1 and B in row 2 of the assignee modal, changing them to B and A violates the unique active-assignment index because rows are saved one at a time. | Workaround: remove and re-add. Fix by saving all rows in one database call. |
-| C4 | **Saving roles is not atomic.** `RoleManagerModal` deletes all of a user's roles and then inserts the new set. If the insert fails the user is left with no roles. A Super-admin can also remove their own Super-admin role. | Replace with a single database function; block removing one's own Super-admin role. |
 | C5 | **Calendar feed link does not work.** Settings builds the URL from the web app's origin and the `calendar-feed` Edge Function does not exist yet. | Delivered in Sub-Phase 1.6; milestone 1.2 should note this. |
 
 ### Missing features introduced by recent behaviour changes
@@ -69,13 +65,13 @@ Found while reviewing the earlier plan for 1.5 and 1.6; most were settled by the
 | "Home screen" ambiguous | Settled: gaps appear on the trainer Home and the Gaps page; the dashboard is the Head-trainer home. A separate banner is still to confirm ([[codebase/implementation-plan#details-to-confirm]]). |
 | Phase 2.1 "live updates" without Realtime | Open: handled when 2.1 is built ([[codebase/risk-analysis]], risk 5). |
 
-Other details still to confirm with the club (staffing targets, label exclusivity, unpublish, undo, invite expiry, notification preference semantics) are listed in the plan.
+Other details still to confirm (hard caps, label exclusivity, undo, invite expiry, notification preference semantics, language defaults) are listed in the plan; staffing targets, label-change blocking and unpublish were decided.
 
 ---
 
 ## Recently Resolved
 
-Resolved during the Sub-Phase 1.4 hardening pass (2026-10-11). Details are in [[codebase/architecture/database-schema]] and [[codebase/architecture/auth-and-onboarding]].
+Resolved during the Sub-Phase 1.4 hardening pass and Sub-Phase 1.4c (2026-10-11). Details are in [[codebase/architecture/database-schema]] and [[codebase/architecture/auth-and-onboarding]].
 
 | Issue | Resolution |
 |---|---|
@@ -94,6 +90,10 @@ Resolved during the Sub-Phase 1.4 hardening pass (2026-10-11). Details are in [[
 | No test of the invite registration page | Playwright `invite-registration` test |
 | No automated check of database permissions | pgTAP suite (`pnpm test:db`) running in CI |
 | Migrations never verified from scratch (T2) | Gate run on 2026-10-11: `pnpm supabase:reset` applied all 13 migrations and the seed to an empty database; 77 pgTAP checks, 76 unit tests and 10 end-to-end tests passed. The remote CI run on the next push is still to be observed. |
+| Per-track limits not enforced (C1) | Database trigger: at most 3 active regular trainers and 2 active 14/18 coaches per session (Sub-Phase 1.4c) |
+| 14/18 track not checked against the label (C2) | The `junior_coach` track is only for 14/18 coaches, who can only work that track; label changes are blocked while upcoming assignments exist on the track that would become invalid |
+| Swapping two trainers between rows failed (C3) | `set_session_assignments` saves the whole assignee list in one transaction, keyed by trainer |
+| Role save not atomic; a Super-admin could remove their own role (C4) | `set_user_roles` replaces delete-then-insert; refuses to remove the caller's own Super-admin role |
 
 ## Related pages
 

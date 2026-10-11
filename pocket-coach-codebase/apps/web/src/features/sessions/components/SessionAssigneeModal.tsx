@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Badge } from '../../../components/ui';
 import type { EnrichedSession } from '../hooks/useSessions';
 import { useSessionAssignments } from '../hooks/useSessionAssignments';
-import { useAssignTrainer } from '../hooks/useAssignTrainer';
+import { useAssignTrainer, type SessionAssignmentRow } from '../hooks/useAssignTrainer';
 import { useTrainers } from '../../trainers/hooks/useTrainers';
-import { useAuth } from '../../../hooks/useAuth';
 import { Calendar, Clock, MapPin, Plus, Trash2 } from 'lucide-react';
 
 interface SessionAssigneeModalProps {
@@ -26,10 +25,9 @@ export const SessionAssigneeModal: React.FC<SessionAssigneeModalProps> = ({
   onClose,
   onSaveSuccess,
 }) => {
-  const { user } = useAuth();
   const { assignments, loading: assignmentsLoading, refetch } = useSessionAssignments(session?.id);
   const { trainers, loading: trainersLoading } = useTrainers();
-  const { assignTrainer, removeAssignment, loading: saving, error: saveError } = useAssignTrainer();
+  const { saveAssignments, loading: saving, error: saveError } = useAssignTrainer();
 
   const [coachRows, setCoachRows] = useState<AssignedCoachRow[]>([]);
   const [localError, setLocalError] = useState<string | null>(null);
@@ -97,37 +95,23 @@ export const SessionAssigneeModal: React.FC<SessionAssigneeModalProps> = ({
     try {
       setLocalError(null);
 
-      // Determine assignments to remove
-      const activeIds = coachRows.map((r) => r.assignmentId).filter(Boolean);
-      const toRemove = assignments.filter((a) => !activeIds.includes(a.id));
-
-      for (const rem of toRemove) {
-        await removeAssignment(rem.id);
-      }
-
-      // Upsert assigned rows
-      for (const row of coachRows) {
-        if (!row.profileId) continue;
-
-        const isJunior = row.roleTag === 'junior_coach';
-        const track = isJunior ? 'junior_coach' : 'regular';
-        const session_role = row.roleTag === 'primary' ? 'primary' : 'assistant_coach';
-
-        await assignTrainer({
-          assignment_id: row.assignmentId,
-          session_id: session.id,
+      // One atomic save: the database removes trainers that are no longer listed and
+      // enforces the track limits and the 14/18 track rule.
+      const rows: SessionAssignmentRow[] = coachRows
+        .filter((row) => row.profileId)
+        .map((row) => ({
           profile_id: row.profileId,
-          track,
-          session_role,
-          assigned_by: user?.id,
-        });
-      }
+          track: row.roleTag === 'junior_coach' ? 'junior_coach' : 'regular',
+          session_role: row.roleTag === 'primary' ? 'primary' : 'assistant_coach',
+        }));
+
+      await saveAssignments(session.id, rows);
 
       await refetch();
       if (onSaveSuccess) onSaveSuccess();
       onClose();
-    } catch (err: any) {
-      setLocalError(err.message || 'Failed to update session assignments');
+    } catch (err: unknown) {
+      setLocalError(err instanceof Error ? err.message : 'Failed to update session assignments');
     }
   };
 

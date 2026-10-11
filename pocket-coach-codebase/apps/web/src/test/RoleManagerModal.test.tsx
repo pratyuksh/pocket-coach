@@ -3,43 +3,18 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { RoleManagerModal } from '../features/trainers/RoleManagerModal';
 
-const mockDelete = vi.fn();
-const mockInsert = vi.fn();
 const mockSelect = vi.fn();
-const mockProfileUpdate = vi.fn();
+const mockRpc = vi.fn();
 
 vi.mock('../lib/supabase', () => ({
   supabase: {
     from: (table: string) => {
       if (table === 'user_roles') {
-        return {
-          select: () => ({
-            eq: () => mockSelect(),
-          }),
-          delete: () => ({
-            eq: () => {
-              mockDelete();
-              return Promise.resolve({ error: null });
-            },
-          }),
-          insert: (records: any[]) => {
-            mockInsert(records);
-            return Promise.resolve({ error: null });
-          },
-        };
-      }
-      if (table === 'profiles') {
-        return {
-          update: (data: Record<string, unknown>) => ({
-            eq: (col: string, val: string) => {
-              mockProfileUpdate(data, col, val);
-              return Promise.resolve({ error: null });
-            },
-          }),
-        };
+        return { select: () => ({ eq: () => mockSelect() }) };
       }
       return {};
     },
+    rpc: (...args: unknown[]) => mockRpc(...args),
   },
 }));
 
@@ -64,6 +39,7 @@ describe('RoleManagerModal', () => {
       data: [{ role: 'trainer' }, { role: 'head_trainer' }],
       error: null,
     });
+    mockRpc.mockResolvedValue({ data: null, error: null });
   });
 
   it('renders modal with trainer details and roles', async () => {
@@ -76,7 +52,7 @@ describe('RoleManagerModal', () => {
     });
   });
 
-  it('toggles elevated roles and saves updated role list', async () => {
+  it('toggles elevated roles and saves them in one set_user_roles call', async () => {
     const user = userEvent.setup({ delay: null });
     const mockOnSuccess = vi.fn();
     const mockOnClose = vi.fn();
@@ -98,23 +74,20 @@ describe('RoleManagerModal', () => {
     const superAdminCard = screen.getByText('Super Admin').closest('div');
     if (superAdminCard) await user.click(superAdminCard);
 
-    // Save changes
-    const saveBtn = screen.getByRole('button', { name: /save changes/i });
-    await user.click(saveBtn);
+    await user.click(screen.getByRole('button', { name: /save changes/i }));
 
     await waitFor(() => {
-      expect(mockDelete).toHaveBeenCalled();
-      expect(mockInsert).toHaveBeenCalledWith(
-        expect.arrayContaining([
-          expect.objectContaining({ profile_id: 'trainer-456', role: 'trainer' }),
-          expect.objectContaining({ profile_id: 'trainer-456', role: 'head_trainer' }),
-          expect.objectContaining({ profile_id: 'trainer-456', role: 'super_admin' }),
-        ]),
-      );
+      expect(mockRpc).toHaveBeenCalledTimes(1);
+      expect(mockRpc).toHaveBeenCalledWith('set_user_roles', {
+        p_profile_id: 'trainer-456',
+        p_roles: expect.arrayContaining(['head_trainer', 'super_admin']),
+        p_is_junior_coach: false,
+      });
       expect(mockOnSuccess).toHaveBeenCalled();
       expect(mockOnClose).toHaveBeenCalled();
     });
   });
+
   it('lets a Super-admin set the 14/18 Coach label and saves it with the roles', async () => {
     const user = userEvent.setup({ delay: null });
     render(<RoleManagerModal isOpen={true} onClose={vi.fn()} trainer={sampleTrainer} />);
@@ -127,23 +100,44 @@ describe('RoleManagerModal', () => {
     await user.click(screen.getByRole('button', { name: /save changes/i }));
 
     await waitFor(() => {
-      expect(mockProfileUpdate).toHaveBeenCalledWith(
-        expect.objectContaining({ is_junior_coach: true }),
-        'id',
-        'trainer-456',
+      expect(mockRpc).toHaveBeenCalledWith(
+        'set_user_roles',
+        expect.objectContaining({ p_profile_id: 'trainer-456', p_is_junior_coach: true }),
       );
-      expect(mockInsert).toHaveBeenCalled();
     });
   });
 
-  it('does not touch the profile when the label is unchanged', async () => {
+  it('shows a readable message and stays open when the label change is blocked', async () => {
     const user = userEvent.setup({ delay: null });
-    render(<RoleManagerModal isOpen={true} onClose={vi.fn()} trainer={sampleTrainer} />);
+    const mockOnClose = vi.fn();
+    mockRpc.mockResolvedValue({
+      data: null,
+      error: { message: 'label_change_blocked', code: '23514' },
+    });
 
-    await screen.findByRole('checkbox', { name: /14\/18 coach/i });
+    render(<RoleManagerModal isOpen={true} onClose={mockOnClose} trainer={sampleTrainer} />);
+
+    await user.click(await screen.findByRole('checkbox', { name: /14\/18 coach/i }));
     await user.click(screen.getByRole('button', { name: /save changes/i }));
 
-    await waitFor(() => expect(mockInsert).toHaveBeenCalled());
-    expect(mockProfileUpdate).not.toHaveBeenCalled();
+    expect(
+      await screen.findByText(/cannot change while this person has upcoming/i),
+    ).toBeInTheDocument();
+    expect(mockOnClose).not.toHaveBeenCalled();
+  });
+
+  it('shows a readable message when removing your own Super-admin role is refused', async () => {
+    const user = userEvent.setup({ delay: null });
+    mockRpc.mockResolvedValue({
+      data: null,
+      error: { message: 'cannot_remove_own_super_admin', code: '42501' },
+    });
+
+    render(<RoleManagerModal isOpen={true} onClose={vi.fn()} trainer={sampleTrainer} />);
+
+    await screen.findByText('Head Trainer');
+    await user.click(screen.getByRole('button', { name: /save changes/i }));
+
+    expect(await screen.findByText(/cannot remove your own Super-admin role/i)).toBeInTheDocument();
   });
 });

@@ -4,6 +4,7 @@ import { useBulkAssignTrainer } from '../hooks/useBulkAssignTrainer';
 import { useTrainers } from '../../trainers/hooks/useTrainers';
 import { useLocations } from '../../locations/hooks/useLocations';
 import { useAuth } from '../../../hooks/useAuth';
+import { describeDbError } from '../../../lib/dbErrors';
 import type { EnrichedSession } from '../hooks/useSessions';
 import type { AssignmentTrack, SessionRole } from '@pocket-coach/shared-types';
 import { Layers, Filter, Sparkles } from 'lucide-react';
@@ -77,7 +78,7 @@ export const BulkAssignModal: React.FC<BulkAssignModalProps> = ({
       if (onSuccess) onSuccess();
       onClose();
     } catch (err: any) {
-      setLocalError(err.message || 'Failed to bulk assign trainer');
+      setLocalError(describeDbError(err, 'Failed to bulk assign trainer'));
     }
   };
 
@@ -122,7 +123,13 @@ export const BulkAssignModal: React.FC<BulkAssignModalProps> = ({
           </label>
           <select
             value={selectedTrainerId}
-            onChange={(e) => setSelectedTrainerId(e.target.value)}
+            onChange={(e) => {
+              const id = e.target.value;
+              setSelectedTrainerId(id);
+              // The track follows the 14/18 label: coaches only work the 14/18 track
+              const picked = trainers.find((t) => t.id === id);
+              if (picked) setTrack(picked.is_junior_coach ? 'junior_coach' : 'regular');
+            }}
             required
             className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
           >
@@ -145,7 +152,11 @@ export const BulkAssignModal: React.FC<BulkAssignModalProps> = ({
             <select
               value={track}
               onChange={(e) => setTrack(e.target.value as AssignmentTrack)}
-              className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+              disabled={Boolean(selectedTrainerId)}
+              title={
+                selectedTrainerId ? "The track follows the trainer's 14/18 Coach label" : undefined
+              }
+              className="w-full px-3.5 py-2 text-xs disabled:opacity-60 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
             >
               <option value="regular">Regular Track (Primary)</option>
               <option value="junior_coach">1418 Coach Track (Support)</option>

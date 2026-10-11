@@ -12,8 +12,7 @@ import type { EnrichedSession } from '../features/sessions/hooks/useSessions';
 // SessionAssigneeModal's `useEffect(..., [assignments])` on every render, causing an
 // infinite synchronous render loop that hangs the test run.
 const mocks = vi.hoisted(() => ({
-  assignTrainer: vi.fn(),
-  removeAssignment: vi.fn(),
+  saveAssignments: vi.fn(),
   bulkAssign: vi.fn(),
   sessionAssignments: {
     assignments: [],
@@ -70,8 +69,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 const assignTrainerResult = {
-  assignTrainer: mocks.assignTrainer,
-  removeAssignment: mocks.removeAssignment,
+  saveAssignments: mocks.saveAssignments,
   loading: false,
   error: null,
 };
@@ -119,8 +117,7 @@ vi.mock('../hooks/useAuth', () => ({
 describe('Sub-Phase 1.4 UI Components', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.assignTrainer.mockResolvedValue({ id: 'asg-1' });
-    mocks.removeAssignment.mockResolvedValue(undefined);
+    mocks.saveAssignments.mockResolvedValue(1);
     mocks.bulkAssign.mockResolvedValue(24);
   });
 
@@ -134,11 +131,16 @@ describe('Sub-Phase 1.4 UI Components', () => {
     end_time: '19:00:00',
     location_id: 'loc-1',
     is_time_overridden: false,
+    required_regular: 3,
+    required_junior: 1,
+    published_at: '2026-09-27T00:00:00Z',
     created_at: '2026-09-27T00:00:00Z',
     location: {
       id: 'loc-1',
       name: 'Sporthalle Borrweg',
       district_area: null,
+      address: null,
+      trainer_note: null,
       is_active: true,
       created_at: '',
     },
@@ -164,13 +166,9 @@ describe('Sub-Phase 1.4 UI Components', () => {
         fireEvent.click(screen.getByRole('button', { name: /Save Assignments/i }));
       });
 
-      expect(mocks.assignTrainer).toHaveBeenCalledWith({
-        session_id: 'sess-1',
-        profile_id: 'usr-1',
-        track: 'regular',
-        session_role: 'primary',
-        assigned_by: 'usr-admin',
-      });
+      expect(mocks.saveAssignments).toHaveBeenCalledWith('sess-1', [
+        { profile_id: 'usr-1', track: 'regular', session_role: 'primary' },
+      ]);
       expect(onClose).toHaveBeenCalled();
     });
   });

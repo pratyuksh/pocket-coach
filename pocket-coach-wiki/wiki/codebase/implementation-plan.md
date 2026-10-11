@@ -1,6 +1,6 @@
 # Implementation Plan (Phase 1)
 
-**Summary**: Streamlined, testable implementation plan for PocketCoach Phase 1 (Sessions & Trainer Management). Sub-Phases 1.1–1.4b are delivered and summarized; the remaining work is reordered around the Modernist UI design and five product decisions taken on 2026-10-11 (no survey yet, coverage-based gaps, published assignments, session log for later payouts, light mode only). Availability Surveys & Matrix Dashboard stay in Phase 2.
+**Summary**: Streamlined, testable implementation plan for PocketCoach Phase 1 (Sessions & Trainer Management). Sub-Phases 1.1–1.4c are delivered and summarized; the remaining work is reordered around the Modernist UI design and five product decisions taken on 2026-10-11 (no survey yet, coverage-based gaps, published assignments, session log for later payouts, light mode only). Availability Surveys & Matrix Dashboard stay in Phase 2.
 
 **Sources**: `pocke-coach-design-prototype/PocketCoach.dc.html` (design prototype, read 2026-10-11)
 
@@ -11,7 +11,7 @@
 ## Table of Contents
 - [Overview & Execution Order](#overview--execution-order)
 - [Decisions of 2026-10-11](#decisions-of-2026-10-11)
-- [Delivered: Sub-Phases 1.1–1.4b](#delivered-sub-phases-1114b)
+- [Delivered: Sub-Phases 1.1–1.4c](#delivered-sub-phases-1114c)
 - [Design Reference](#design-reference)
 - [Sub-Phase 1.4c: Data Foundations](#sub-phase-14c-data-foundations)
 - [Sub-Phase 1.4d: Modernist UI, App Shell & Localization](#sub-phase-14d-modernist-ui-app-shell--localization)
@@ -33,7 +33,7 @@ Each sub-phase ends in a compiled, tested application. Sub-Phase numbers 1.5 and
 | Step | Sub-phase | Delivers | Size |
 |---|---|---|---|
 | 0 | **Gate** ✅ done 2026-10-11 | `pnpm supabase:reset && pnpm test:db` from an empty database; local CI checks green | S |
-| 1 | **1.4c** Data foundations | Staffing targets, publishing, hall details, per-track limits, atomic save functions | M |
+| 1 | **1.4c** Data foundations ✅ done 2026-10-11 | Staffing targets, publishing, hall details, per-track limits, atomic save functions | M |
 | 2 | **1.4d** Modernist UI, shell & localization | New look, navigation, all existing screens restyled, EN/DE, light mode only | L |
 | 3 | **1.6a** Notifications, PWA shell, invites | Notification bell and push, install banner, server-side invites, invite-only access | M–L |
 | 4 | **1.5** Substitutions & coverage gaps | Gaps, flag, volunteer, 48 h escalation, session log | L |
@@ -43,8 +43,8 @@ Each sub-phase ends in a compiled, tested application. Sub-Phase numbers 1.5 and
 
 ```mermaid
 flowchart TD
-    DONE["Delivered: 1.1 – 1.4b"] --> G["Gate: fresh-database run (done)"]
-    G --> S14C["1.4c Data foundations"]
+    DONE["Delivered: 1.1 – 1.4c"] --> G["Gate: fresh-database run (done)"]
+    G --> S14C["1.4c Data foundations (done)"]
     S14C --> S14D["1.4d Modernist UI, shell & localization"]
     S14D --> S16A["1.6a Notifications, PWA shell, invites"]
     S16A --> S15["1.5 Substitutions & coverage gaps"]
@@ -70,10 +70,13 @@ flowchart TD
 | 3 | **Assignments are published.** Trainers see only published sessions. | `sessions.published_at`, a publish action, and trainer-side read rules (1.4c). Notifications go out on publish. |
 | 4 | **Session log and counts matter for later pay-outs.** "Report a mistake" is not needed now. | One shared definition of "completed" (`session_log` view, 1.5); read-only log in the profile. CSV export, audit trail and mistake reporting are deferred ([Phase 2 and Later](#phase-2-and-later)). |
 | 5 | **Light mode only for now.** | Remove the theme toggle and dark styles in 1.4d. |
+| 6 | **Staffing targets:** 1 14/18 coach on every slot; 2 regular trainers on Wednesday (both slots), 3 on Tuesday, Thursday and Friday. | Seeded into the template and existing slots in 1.4c. |
+| 7 | **A 14/18 label change is blocked** while the person has upcoming active assignments on the other track. | Enforced in `set_user_roles` (1.4c). |
+| 8 | **Unpublish is included.** | `unpublish_sessions` in 1.4c, limited to sessions that have not started and have no substitution activity. |
 
 ---
 
-## Delivered: Sub-Phases 1.1–1.4b
+## Delivered: Sub-Phases 1.1–1.4c
 
 Schema, policies, functions and migration names are documented in [[codebase/architecture/database-schema]]; the invite flow in [[codebase/architecture/auth-and-onboarding]].
 
@@ -84,8 +87,9 @@ Schema, policies, functions and migration names are documented in [[codebase/arc
 | **1.3 Seasons & sessions** | Halls, season templates (*Standard Junior Season*), season wizard, automatic session generation with hall and player groups, schedule view with filters, per-session override, season and session deletion. The default weekly slots are listed in [[requirements/sessions-and-assignment]]. |
 | **1.4 Assignments** | Per-session assignee modal (regular and 14/18 tracks), bulk assign, My Sessions list, personal stats, trainers default to My Sessions. |
 | **1.4b Hardening** | Authorization checks on all database functions, closed open policies, no anonymous role grants, profile-field protection, unique active assignment, additive upcoming-only bulk assign, regeneration guard, isolated-client invites, pgTAP permission suite in CI. |
+| **1.4c Data foundations** | Staffing targets per slot (Tue, Thu, Fri 3 + 1; Wednesday 2 + 1), hard limits of 3 regular and 2 14/18 per session, 14/18 track tied to the label, blocked label changes, atomic `set_session_assignments` and `set_user_roles`, publishing with `publish_sessions` / `unpublish_sessions` and a Publish dialog, Draft badge, hall address and note, translatable error codes. Details: [[codebase/architecture/database-schema]]. |
 
-Acceptance criteria for all of the above are met. Test counts at the end of 1.4b: 76 Vitest (14 files), 10 Playwright (7 files), 77 pgTAP checks (`pnpm test:db`, run in CI before the Playwright suite).
+Acceptance criteria for all of the above are met. Test counts at the end of 1.4c: 88 Vitest (16 files), 11 Playwright (8 files), 138 pgTAP checks across 4 files (`pnpm test:db`, run in CI before the Playwright suite).
 
 ---
 
@@ -114,32 +118,35 @@ The visual and navigation target is the **Modernist ledger** prototype in `pocke
 
 ## Sub-Phase 1.4c: Data Foundations
 
-**Goal**: Add the data the redesigned screens and the substitution flow depend on, and close four known issues, before any UI is rebuilt.
+**Goal**: Add the data the redesigned screens and the substitution flow depend on, and close four known issues, before any UI is rebuilt. **Status: delivered 2026-10-11** in migrations `20261012000000`–`02`; see [[codebase/architecture/database-schema]] for the rules as built.
 
 #### Database (`packages/supabase/migrations/`)
-- **Staffing targets**: `required_regular` and `required_junior` on `training_days`, copied to `sessions` at generation (overridable per session). Template data carries them. Starting values from the prototype, to be confirmed with the club: all-group slots 3 + 2, Wednesday Kids/Basic 2 + 1, Wednesday Advanced 3 + 1.
-- **Per-track limits** (known issue C1): a trigger rejects more than 3 active regular trainers or 2 active 14/18 coaches on a session.
-- **Track versus label** (C2): the `junior_coach` track accepts only profiles with the 14/18 label, and those profiles can only be on that track. Enforced in `bulk_assign_trainer` and by trigger.
+- **Staffing targets**: `required_regular` and `required_junior` on `training_days`, copied to `sessions` at generation (overridable per session). Template data carries them. **Confirmed values (decision 6)**: Tuesday, Thursday and Friday 3 regular + 1 14/18; both Wednesday slots 2 regular + 1 14/18. Existing training days and sessions are updated to these values by weekday.
+- **Per-track limits** (known issue C1): a trigger rejects more than 3 active regular trainers or 2 active 14/18 coaches on a session (the maxima from the requirements; the targets above are what counts as fully staffed). Only active assignments count, so a substitute can be added for a flagged trainer. `bulk_assign_trainer` skips sessions that are already full.
+- **Track versus label** (C2): the `junior_coach` track accepts only profiles with the 14/18 label, and those profiles can only be on that track. Enforced in `bulk_assign_trainer` and by trigger. Changing a person's label is refused while they have upcoming active assignments on the other track (decision 7).
 - **Publishing**: `sessions.published_at` (null means draft). `publish_sessions(season_id, from_date, to_date)` is Head-trainer+ only. Existing sessions are backfilled as published. Generated sessions start as drafts.
+- **Unpublish** (decision 8): `unpublish_sessions(season_id, from_date, to_date)`, Head-trainer+ only. It returns published sessions to draft only if they have not started (Europe/Zurich) and have no substitution requests; other sessions in the range are skipped and the app reports how many. From 1.6a on, unpublishing does not recall notifications already sent.
 - **Read rules**: trainers see only published rows of `sessions`, `session_player_groups`, `session_assignments` and (through the session) `substitution_requests`; Head-trainer+ see everything.
 - **Halls**: `locations.address` and `locations.trainer_note`.
 - **Translatable errors**: new and changed functions raise stable error codes (an SQLSTATE plus a short code) instead of English sentences, so the app can show them in the user's language (see 1.4d).
-- **Atomic saves** (C3, C4): `set_session_assignments(session_id, rows)` saves all assignee rows in one transaction, so swapping two trainers works; `set_user_roles(profile_id, roles, is_junior_coach)` replaces the delete-then-insert role save and refuses to remove the caller's own Super-admin role. Both are `SECURITY DEFINER` with the authorization pattern from [[codebase/architecture/database-schema]].
+- **Atomic saves** (C3, C4): `set_session_assignments(session_id, rows)` saves all assignee rows in one transaction, so swapping two trainers works; `set_user_roles(profile_id, roles, is_junior_coach)` replaces the delete-then-insert role save and refuses to remove the caller's own Super-admin role and to change the 14/18 label as described above. Both are `SECURITY DEFINER` with the authorization pattern from [[codebase/architecture/database-schema]].
 
 #### Web application
 - Hooks and modals switch to the new functions; the assignee modal and role manager keep their current look until 1.4d.
-- Head-trainer Sessions view shows a draft marker and a "Publish" action.
+- Head-trainer Sessions view shows a draft marker and "Publish" / "Unpublish" actions for a date range, reporting how many sessions were skipped.
 
 #### Tests
-- pgTAP: limits, track and label rules, publish visibility for trainers versus Head-trainers, atomic functions, anonymous access. Existing fixtures publish their sessions.
+- pgTAP: limits, track and label rules (including the blocked label change), publish and unpublish rules and visibility for trainers versus Head-trainers, atomic functions, anonymous access. Existing fixtures publish their sessions.
 - Vitest and Playwright updated for the draft/published split.
 
 #### Testable Milestone 1.4c
-- [ ] A fourth regular trainer, or a 14/18 coach on the regular track, is rejected.
-- [ ] Two trainers can swap rows in the assignee modal.
-- [ ] Draft sessions are invisible to trainers and visible to Head-trainers; publishing a week makes them visible to trainers.
-- [ ] A Super-admin cannot remove their own Super-admin role.
-- [ ] `pnpm test:db` passes from an empty database.
+- [x] A fourth regular trainer, or a 14/18 coach on the regular track, is rejected.
+- [x] Two trainers can swap rows in the assignee modal (database level: one atomic save; the swap is tested in pgTAP).
+- [x] Draft sessions are invisible to trainers and visible to Head-trainers; publishing a week makes them visible to trainers (pgTAP and the Playwright `publishing` flow).
+- [x] A Super-admin cannot remove their own Super-admin role, and cannot change a label while the person has upcoming assignments on the other track.
+- [x] Unpublishing a future week hides it from trainers again; sessions that have started or have substitution requests are skipped.
+- [x] Tuesday, Thursday and Friday sessions need 3 + 1, Wednesday sessions 2 + 1 (template and existing slots).
+- [x] `pnpm test:db` passes from an empty database (2026-10-11: `pnpm supabase:reset` applied all 16 migrations and the seed; 138 pgTAP checks and 11 Playwright tests passed).
 
 ---
 
@@ -298,7 +305,7 @@ Season planning with blocks and themes, session notes (Tiptap), email fallback f
 | Issue ([[codebase/known-issues]]) | Scheduled in |
 |---|---|
 | S1 temporary password and guessable link; S2 public signup; S3 registration with email confirmation | 1.6a |
-| C1 per-track limits; C2 track versus label; C3 assignee swap; C4 atomic role save | 1.4c |
+| C1 per-track limits; C2 track versus label; C3 assignee swap; C4 atomic role save | 1.4c, done 2026-10-11 |
 | C5 calendar feed link | 1.6b |
 | T1 season-creation and multi-trainer E2E tests | 1.4d |
 | T2 fresh-database run | Gate (step 0), done 2026-10-11 |
@@ -309,19 +316,18 @@ Season planning with blocks and themes, session notes (Tiptap), email fallback f
 
 ## Details to Confirm
 
-Items beyond the five decisions, proposed so work can start; each should be confirmed with the club or the developer.
+Items beyond the decisions above, proposed so work can start; each should be confirmed with the club or the developer.
 
-1. **Staffing targets**: the prototype's 3 + 2, 2 + 1 and 3 + 1 values are mock data.
-2. **Label exclusivity**: the design keeps 14/18 coaches on the junior track only, and everyone else on the regular track.
-3. **Unpublish**: the plan has no unpublish; withdrawing a published assignment is an edit that notifies the trainer.
-4. **Grouped publish notification**: one notification per publish rather than one per session.
-5. **Undo**: whether the four-second Undo needs dedicated cancel functions or can be dropped.
-6. **Escalation record**: a small de-duplication table versus reusing `substitution_requests`.
-7. **Invite expiry**: the design shows an invite expiring after about nine days; the actual period is a Supabase setting.
-8. **Notification preferences**: whether switching a type off disables push only (in-app entries always kept) or both.
-9. **Open gaps on Home**: the design shows open gaps on the trainer Home; confirm no separate banner is wanted.
-10. **Default language** for visitors with an unsupported browser language (proposed: German).
-11. **Hall notes**: the prototype's seed notes exist in both languages, but its editor saves one text; confirm whether a note should be stored once or per language.
+1. **Hard caps** *(implemented as assumed)*: 3 regular and 2 14/18 per session (the requirement maxima) are enforced as limits even though the targets are lower; confirm with the club.
+2. **Label exclusivity** *(implemented as assumed)*: 14/18 coaches only on the junior track and everyone else only on the regular track (implied by decision 7); confirm.
+3. **Grouped publish notification**: one notification per publish rather than one per session.
+4. **Undo**: whether the four-second Undo needs dedicated cancel functions or can be dropped.
+5. **Escalation record**: a small de-duplication table versus reusing `substitution_requests`.
+6. **Invite expiry**: the design shows an invite expiring after about nine days; the actual period is a Supabase setting.
+7. **Notification preferences**: whether switching a type off disables push only (in-app entries always kept) or both.
+8. **Open gaps on Home**: the design shows open gaps on the trainer Home; confirm no separate banner is wanted.
+9. **Default language** for visitors with an unsupported browser language (proposed: German).
+10. **Hall notes**: the prototype's seed notes exist in both languages, but its editor saves one text; confirm whether a note should be stored once or per language.
 
 ---
 
@@ -331,7 +337,7 @@ Items beyond the five decisions, proposed so work can start; each should be conf
 |---|---|---|
 | **1.1–1.4b** | Delivered | `pnpm test`, `pnpm test:e2e`, `pnpm test:db` |
 | **Gate** | Clean migrations (done 2026-10-11: 13 migrations applied, 77 pgTAP checks, 76 unit and 10 E2E tests passed) | `pnpm supabase:reset && pnpm test:db` |
-| **1.4c Data** | Targets, limits, publishing, atomic saves | pgTAP + updated Playwright |
+| **1.4c Data** (done) | Targets, limits, publishing, atomic saves | pgTAP (`data_foundations`, `publishing`) + Playwright `publishing` flow |
 | **1.4d UI** | Modernist look, EN/DE, light only | Playwright at 390 and 1280 px, missing-key test, no Google Fonts requests |
 | **1.6a Notifications** | Bell, push, PWA, invite-only | Publish → notification; invite → set password; signup rejected |
 | **1.5 Substitutions** | Gaps, flag, volunteer, escalation, log | pgTAP + two-connection concurrency test + Playwright |

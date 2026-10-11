@@ -19,6 +19,16 @@ export interface SlotConfig {
   default_end_time: string;
   location_id: string | null;
   player_group_names: string[];
+  required_regular: number;
+  required_junior: number;
+}
+
+/** Default trainers needed for a weekday: Wednesday 2 regular, every other day 3; one 14/18 coach. */
+export function defaultTargets(dayOfWeek: number): {
+  required_regular: number;
+  required_junior: number;
+} {
+  return { required_regular: dayOfWeek === 3 ? 2 : 3, required_junior: 1 };
 }
 
 interface TrainingDayRowProps {
@@ -122,6 +132,47 @@ export const TrainingDayRow: React.FC<TrainingDayRowProps> = ({
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
+      </div>
+
+      {/* Required trainers per track */}
+      <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex flex-wrap items-center gap-4">
+        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1">
+          <Users className="w-3 h-3 text-emerald-500" /> Trainers needed:
+        </span>
+        <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+          Regular
+          <input
+            type="number"
+            min={0}
+            max={3}
+            aria-label="Regular trainers needed"
+            value={slot.required_regular}
+            onChange={(e) =>
+              onChange({
+                ...slot,
+                required_regular: Math.min(3, Math.max(0, parseInt(e.target.value, 10) || 0)),
+              })
+            }
+            className="w-16 px-2 py-1 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-mono focus:ring-2 focus:ring-emerald-500 outline-none"
+          />
+        </label>
+        <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+          14/18 coaches
+          <input
+            type="number"
+            min={0}
+            max={2}
+            aria-label="14/18 coaches needed"
+            value={slot.required_junior}
+            onChange={(e) =>
+              onChange({
+                ...slot,
+                required_junior: Math.min(2, Math.max(0, parseInt(e.target.value, 10) || 0)),
+              })
+            }
+            className="w-16 px-2 py-1 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-mono focus:ring-2 focus:ring-emerald-500 outline-none"
+          />
+        </label>
       </div>
 
       {/* Attending Player Groups */}

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../../lib/supabase';
+import { describeDbError } from '../../../lib/dbErrors';
 import type {
   Session,
   Location,
@@ -149,6 +150,51 @@ export function useSessions(initialFilters?: SessionFilterOptions) {
     }
   };
 
+  /** Makes the drafts in a date range visible to trainers. Returns how many were published. */
+  const publishRange = async (seasonId: string, from: string, to: string): Promise<number> => {
+    try {
+      setError(null);
+      const { data, error: rpcErr } = await supabase.rpc('publish_sessions', {
+        p_season_id: seasonId,
+        p_from: from,
+        p_to: to,
+      });
+      if (rpcErr) throw rpcErr;
+      await fetchSessions();
+      return (data as { published: number }).published;
+    } catch (err: unknown) {
+      const message = describeDbError(err, 'Failed to publish sessions');
+      setError(message);
+      throw new Error(message);
+    }
+  };
+
+  /**
+   * Returns published sessions in a range to draft. Sessions that have started or have
+   * substitution requests are skipped; the result says how many of each.
+   */
+  const unpublishRange = async (
+    seasonId: string,
+    from: string,
+    to: string,
+  ): Promise<{ unpublished: number; skipped: number }> => {
+    try {
+      setError(null);
+      const { data, error: rpcErr } = await supabase.rpc('unpublish_sessions', {
+        p_season_id: seasonId,
+        p_from: from,
+        p_to: to,
+      });
+      if (rpcErr) throw rpcErr;
+      await fetchSessions();
+      return data as { unpublished: number; skipped: number };
+    } catch (err: unknown) {
+      const message = describeDbError(err, 'Failed to unpublish sessions');
+      setError(message);
+      throw new Error(message);
+    }
+  };
+
   const deleteSession = async (sessionId: string): Promise<void> => {
     try {
       setError(null);
@@ -169,6 +215,8 @@ export function useSessions(initialFilters?: SessionFilterOptions) {
     setFilters,
     refetch: fetchSessions,
     updateSessionOverride,
+    publishRange,
+    unpublishRange,
     deleteSession,
   };
 }

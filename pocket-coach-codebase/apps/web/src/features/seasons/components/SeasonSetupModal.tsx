@@ -3,7 +3,7 @@ import { Modal, Button, Badge } from '../../../components/ui';
 import { useSeasons } from '../hooks/useSeasons';
 import { useLocations } from '../../locations/hooks/useLocations';
 import { TemplateSelector } from './TemplateSelector';
-import { TrainingDayRow, SlotConfig } from './TrainingDayRow';
+import { TrainingDayRow, SlotConfig, defaultTargets } from './TrainingDayRow';
 import { LocationManagerModal } from '../../locations/components/LocationManagerModal';
 import type { SeasonTemplate } from '@pocket-coach/shared-types';
 import {
@@ -83,6 +83,9 @@ export const SeasonSetupModal: React.FC<SeasonSetupModalProps> = ({
               default_end_time: td.default_end_time,
               location_id: matchedLocation ? matchedLocation.id : locations[0]?.id || null,
               player_group_names: td.groups,
+              required_regular:
+                td.required_regular ?? defaultTargets(td.day_of_week).required_regular,
+              required_junior: td.required_junior ?? defaultTargets(td.day_of_week).required_junior,
             };
           });
           setSlots(prefilledSlots);
@@ -128,6 +131,7 @@ export const SeasonSetupModal: React.FC<SeasonSetupModalProps> = ({
         default_end_time: '19:00:00',
         location_id: locations[0]?.id || null,
         player_group_names: groups.map((g) => g.name),
+        ...defaultTargets(2),
       },
     ]);
   };
@@ -157,6 +161,8 @@ export const SeasonSetupModal: React.FC<SeasonSetupModalProps> = ({
           default_end_time: s.default_end_time,
           location_id: s.location_id,
           player_group_names: s.player_group_names,
+          required_regular: s.required_regular,
+          required_junior: s.required_junior,
         })),
       });
 
@@ -436,6 +442,10 @@ export const SeasonSetupModal: React.FC<SeasonSetupModalProps> = ({
                           )}
                           <span className="text-slate-400">|</span>
                           <span>{s.player_group_names.join(', ')}</span>
+                          <span className="text-slate-400">|</span>
+                          <span>
+                            {s.required_regular} + {s.required_junior} trainers
+                          </span>
                         </div>
                       </div>
                     );

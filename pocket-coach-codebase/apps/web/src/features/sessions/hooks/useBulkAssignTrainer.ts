@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../../../lib/supabase';
+import { describeDbError } from '../../../lib/dbErrors';
 import type { BulkAssignParams } from '@pocket-coach/shared-types';
 
 export function useBulkAssignTrainer() {
@@ -24,8 +25,9 @@ export function useBulkAssignTrainer() {
       if (rpcErr) throw rpcErr;
       return (data as number) || 0;
     } catch (err: any) {
-      setError(err.message || 'Failed to bulk assign trainer');
-      throw err;
+      const message = describeDbError(err, 'Failed to bulk assign trainer');
+      setError(message);
+      throw new Error(message);
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Badge } from '../../components/ui';
 import { supabase } from '../../lib/supabase';
+import { describeDbError } from '../../lib/dbErrors';
 import type { Profile, UserRole } from '@pocket-coach/shared-types';
 import { Shield, ShieldAlert, Check, Sprout } from 'lucide-react';
 
@@ -63,37 +64,22 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({
     setError(null);
 
     try {
-      // The 14/18 Coach profile label is Super-admin managed
-      if (isJuniorCoach !== trainer.is_junior_coach) {
-        const { error: labelErr } = await supabase
-          .from('profiles')
-          .update({ is_junior_coach: isJuniorCoach, updated_at: new Date().toISOString() })
-          .eq('id', trainer.id);
+      // One atomic database call: roles and the Super-admin-managed 14/18 Coach label are saved
+      // together, or not at all (the base Trainer role is always kept, you cannot remove your own
+      // Super-admin role, and the label cannot change while upcoming assignments are on the
+      // track the change would make invalid).
+      const { error: rpcErr } = await supabase.rpc('set_user_roles', {
+        p_profile_id: trainer.id,
+        p_roles: currentRoles,
+        p_is_junior_coach: isJuniorCoach,
+      });
 
-        if (labelErr) throw labelErr;
-      }
-
-      // Clear existing roles
-      await supabase.from('user_roles').delete().eq('profile_id', trainer.id);
-
-      // Always include base 'trainer' role plus elevated roles
-      const finalRoles = Array.from(new Set(['trainer', ...currentRoles]));
-
-      const roleRecords = finalRoles.map((role) => ({
-        profile_id: trainer.id,
-        role,
-      }));
-
-      const { error: insertErr } = await supabase.from('user_roles').insert(roleRecords);
-
-      if (insertErr) {
-        throw insertErr;
-      }
+      if (rpcErr) throw rpcErr;
 
       onSuccess?.();
       onClose();
-    } catch (err: any) {
-      setError(err?.message || 'Failed to update roles');
+    } catch (err: unknown) {
+      setError(describeDbError(err, 'Failed to update roles'));
     } finally {
       setSaving(false);
     }

@@ -11,8 +11,8 @@ SELECT plan(25);
 -- Fixtures (created as postgres, bypassing RLS)
 INSERT INTO public.seasons (id, name, start_date, end_date)
 VALUES ('11111111-1111-1111-1111-111111111111', 'Test Season', '2099-11-02', '2099-11-08');
-INSERT INTO public.sessions (id, season_id, session_date, day_of_week, start_time, end_time)
-VALUES ('55555555-5555-5555-5555-555555555555', '11111111-1111-1111-1111-111111111111', '2099-11-03', 2, '17:30', '19:00');
+INSERT INTO public.sessions (id, season_id, session_date, day_of_week, start_time, end_time, published_at)
+VALUES ('55555555-5555-5555-5555-555555555555', '11111111-1111-1111-1111-111111111111', '2099-11-03', 2, '17:30', '19:00', now());
 INSERT INTO public.substitution_requests (id, session_id, original_trainer_id, track)
 VALUES ('77777777-7777-7777-7777-777777777777', '55555555-5555-5555-5555-555555555555',
         '00000000-0000-0000-0000-000000000004', 'junior_coach');

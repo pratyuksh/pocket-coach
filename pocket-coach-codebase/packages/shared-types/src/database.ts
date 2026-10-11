@@ -36,6 +36,8 @@ export interface Location {
   id: string;
   name: string;
   district_area: string | null;
+  address: string | null;
+  trainer_note: string | null;
   is_active: boolean;
   created_at: string;
 }
@@ -52,6 +54,10 @@ export interface SeasonTemplateData {
     default_end_time: string;
     location_name: string;
     groups: string[];
+    /** Trainers required on the regular track (absent in older templates: defaults to 3) */
+    required_regular?: number;
+    /** 14/18 coaches required (absent in older templates: defaults to 1) */
+    required_junior?: number;
   }>;
 }
 
@@ -80,6 +86,8 @@ export interface TrainingDay {
   day_of_week: number; // 0=Sun .. 6=Sat
   default_start_time: string;
   default_end_time: string;
+  required_regular: number;
+  required_junior: number;
 }
 
 export interface TrainingDayPlayerGroup {
@@ -106,6 +114,12 @@ export interface Session {
   start_time: string;
   end_time: string;
   is_time_overridden: boolean;
+  /** Trainers required on the regular track (coverage gap when fewer are active) */
+  required_regular: number;
+  /** 14/18 coaches required */
+  required_junior: number;
+  /** When the session was published to trainers; null while it is a draft */
+  published_at: string | null;
   created_at: string;
 }
 

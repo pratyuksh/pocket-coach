@@ -69,163 +69,64 @@ describe('Sub-Phase 1.4 Custom React Data Hooks', () => {
   });
 
   describe('useAssignTrainer', () => {
-    it('assigns trainer by inserting a new record if none exists', async () => {
-      mockSupabaseFrom.mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
-        insert: vi.fn().mockReturnValue({
-          select: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: {
-                id: 'asg-new',
-                session_id: 'sess-1',
-                profile_id: 'usr-2',
-                track: 'regular',
-                session_role: 'primary',
-                profile: { id: 'usr-2', display_name: 'Coach Alex' },
-              },
-              error: null,
-            }),
-          }),
-        }),
-      });
+    const rows = [
+      { profile_id: 'usr-2', track: 'regular' as const, session_role: 'primary' as const },
+      { profile_id: 'usr-3', track: 'regular' as const, session_role: 'assistant_coach' as const },
+    ];
+
+    it('saves the whole assignee list with one set_session_assignments call', async () => {
+      mockSupabaseRpc.mockResolvedValue({ data: 2, error: null });
 
       const { result } = renderHook(() => useAssignTrainer());
 
-      let createdAssignment: any;
+      let count: number | undefined;
       await act(async () => {
-        createdAssignment = await result.current.assignTrainer({
-          session_id: 'sess-1',
-          profile_id: 'usr-2',
-          track: 'regular',
-          session_role: 'primary',
-        });
+        count = await result.current.saveAssignments('sess-1', rows);
       });
 
-      expect(createdAssignment.id).toBe('asg-new');
-      expect(createdAssignment.profile.display_name).toBe('Coach Alex');
+      expect(mockSupabaseRpc).toHaveBeenCalledWith('set_session_assignments', {
+        p_session_id: 'sess-1',
+        p_rows: rows,
+      });
+      expect(count).toBe(2);
+      expect(result.current.error).toBeNull();
     });
 
-    it('updates the given assignment by id without resetting its status', async () => {
-      const mockUpdate = vi.fn();
-      const mockEq = vi.fn();
-      mockSupabaseFrom.mockReturnValue({
-        update: mockUpdate.mockReturnValue({
-          eq: mockEq.mockReturnValue({
-            select: vi.fn().mockReturnValue({
-              single: vi.fn().mockResolvedValue({
-                data: {
-                  id: 'asg-existing',
-                  session_id: 'sess-1',
-                  profile_id: 'usr-3',
-                  track: 'regular',
-                  session_role: 'primary',
-                  profile: { id: 'usr-3', display_name: 'Coach Taylor' },
-                },
-                error: null,
-              }),
-            }),
-          }),
-        }),
+    it('translates a database error code into a readable message', async () => {
+      mockSupabaseRpc.mockResolvedValue({
+        data: null,
+        error: { message: 'assignment_limit_reached', code: '23514' },
       });
 
       const { result } = renderHook(() => useAssignTrainer());
 
-      let updatedAssignment: any;
-      await act(async () => {
-        updatedAssignment = await result.current.assignTrainer({
-          assignment_id: 'asg-existing',
-          session_id: 'sess-1',
-          profile_id: 'usr-3',
-          track: 'regular',
-          session_role: 'primary',
-        });
-      });
-
-      expect(mockEq).toHaveBeenCalledWith('id', 'asg-existing');
-      expect(mockUpdate.mock.calls[0][0]).not.toHaveProperty('status');
-      expect(updatedAssignment.id).toBe('asg-existing');
-      expect(updatedAssignment.profile.display_name).toBe('Coach Taylor');
-    });
-
-    it('reports a clear error when the trainer is already assigned to the session', async () => {
-      mockSupabaseFrom.mockReturnValue({
-        insert: vi.fn().mockReturnValue({
-          select: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: null,
-              error: { code: '23505', message: 'duplicate key value violates unique constraint' },
-            }),
-          }),
-        }),
-      });
-
-      const { result } = renderHook(() => useAssignTrainer());
-
-      await act(async () => {
-        await result.current
-          .assignTrainer({
-            session_id: 'sess-1',
-            profile_id: 'usr-2',
-            track: 'regular',
-            session_role: 'primary',
-          })
-          .catch(() => {});
-      });
-
-      expect(result.current.error).toBe('This trainer is already assigned to this session');
-    });
-
-    it('removes an assignment when removeAssignment is called', async () => {
-      mockSupabaseFrom.mockReturnValue({
-        delete: vi.fn().mockReturnValue({
-          eq: vi.fn().mockResolvedValue({ error: null }),
-        }),
-      });
-
-      const { result } = renderHook(() => useAssignTrainer());
-
-      await act(async () => {
-        await result.current.removeAssignment('asg-1');
-      });
-
-      expect(mockSupabaseFrom).toHaveBeenCalledWith('session_assignments');
-    });
-
-    it('captures error when assignment update fails', async () => {
-      mockSupabaseFrom.mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
-        insert: vi.fn().mockReturnValue({
-          select: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: null,
-              error: { message: 'RLS Permission Denied' },
-            }),
-          }),
-        }),
-      });
-
-      const { result } = renderHook(() => useAssignTrainer());
-
-      let caughtErr: any = null;
+      let caught: Error | null = null;
       await act(async () => {
         try {
-          await result.current.assignTrainer({
-            session_id: 'sess-1',
-            profile_id: 'usr-2',
-            track: 'regular',
-            session_role: 'primary',
-          });
+          await result.current.saveAssignments('sess-1', rows);
         } catch (err) {
-          caughtErr = err;
+          caught = err as Error;
         }
       });
 
-      expect(caughtErr?.message).toBe('RLS Permission Denied');
-      expect(result.current.error).toBe('RLS Permission Denied');
+      expect(caught).not.toBeNull();
+      expect((caught as unknown as Error).message).toMatch(/maximum number of trainers/);
+      expect(result.current.error).toMatch(/maximum number of trainers/);
+    });
+
+    it('reports a duplicate trainer from the unique active-assignment index', async () => {
+      mockSupabaseRpc.mockResolvedValue({
+        data: null,
+        error: { message: 'assignment_duplicate', code: '23505' },
+      });
+
+      const { result } = renderHook(() => useAssignTrainer());
+
+      await act(async () => {
+        await result.current.saveAssignments('sess-1', rows).catch(() => {});
+      });
+
+      expect(result.current.error).toBe('This trainer is already assigned to this session.');
     });
   });
 

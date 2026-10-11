@@ -99,7 +99,7 @@ These rules are enforced in the database (see [[codebase/architecture/database-s
 
 Logged-out callers (including anyone holding the public anon key) can neither read nor write profiles or roles. An earlier policy fallback that let anonymous callers insert profiles and roles during invite setup allowed anyone to grant themselves `super_admin`; it was removed in migration `20261011000003`.
 
-The **14/18 Coach label** is managed by Super-admins only: it is set when inviting a trainer and can be changed later in the **Role Manager** modal on the trainer roster. It is read-only on a trainer's own settings page.
+The **14/18 Coach label** is managed by Super-admins only: it is set when inviting a trainer and can be changed later in the **Role Manager** modal on the trainer roster. It is read-only on a trainer's own settings page. The Role Manager saves roles and label with one atomic call (`set_user_roles`): the base Trainer role is always kept, a Super-admin cannot remove their own Super-admin role, and a label change is refused while the person has upcoming active assignments on the track the change would invalidate (error code `label_change_blocked`).
 
 ---
 

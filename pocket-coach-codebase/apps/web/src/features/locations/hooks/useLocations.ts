@@ -29,12 +29,23 @@ export function useLocations() {
     fetchLocations();
   }, [fetchLocations]);
 
-  const addLocation = async (name: string, districtArea?: string) => {
+  const addLocation = async (
+    name: string,
+    districtArea?: string,
+    details?: { address?: string; trainer_note?: string },
+  ) => {
     try {
       setError(null);
       const { data, error: insertErr } = await supabase
         .from('locations')
-        .insert([{ name: name.trim(), district_area: districtArea?.trim() || null }])
+        .insert([
+          {
+            name: name.trim(),
+            district_area: districtArea?.trim() || null,
+            address: details?.address?.trim() || null,
+            trainer_note: details?.trainer_note?.trim() || null,
+          },
+        ])
         .select()
         .single();
 

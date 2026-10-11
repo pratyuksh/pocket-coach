@@ -58,6 +58,8 @@ erDiagram
         uuid id PK
         text name "Sporthalle Schulhaus Apfelbaum, etc."
         text district_area "Oerlikon, Friesenberg, Zürich-Affoltern"
+        text address "street, postcode, city (entered by the club)"
+        text trainer_note "entrance, parking, key"
         boolean is_active
         timestamptz created_at
     }
@@ -87,6 +89,8 @@ erDiagram
         smallint day_of_week "0=Sun .. 6=Sat"
         time default_start_time
         time default_end_time
+        smallint required_regular "0-3, trainers needed"
+        smallint required_junior "0-2, 14/18 coaches needed"
     }
 
     TRAINING_DAY_PLAYER_GROUPS {
@@ -113,6 +117,9 @@ erDiagram
         time start_time
         time end_time
         boolean is_time_overridden
+        smallint required_regular "copied from the training day"
+        smallint required_junior "copied from the training day"
+        timestamptz published_at "null = draft, visible to Head-trainer+ only"
         timestamptz created_at
     }
 
@@ -218,7 +225,7 @@ The existing `sessions.block_week_id` column (nullable) is the sole join point f
 
 ## Row-Level Security
 
-All tables have RLS enabled. `Head-trainer+` = Head-trainer or Super-admin (the `is_head_trainer()` helper also returns true for Super-admins). The matrix below reflects the policies **enforced by the migrations as of 2026-10-11**. Anonymous (logged-out) callers have no access to any table.
+All tables have RLS enabled. `Head-trainer+` = Head-trainer or Super-admin (the `is_head_trainer()` helper also returns true for Super-admins). The matrix below reflects the policies **enforced by the migrations as of Sub-Phase 1.4c**. Anonymous (logged-out) callers have no access to any table. "Published" means `sessions.published_at` is set.
 
 | Table | SELECT | INSERT | UPDATE | DELETE |
 |---|---|---|---|---|
@@ -231,15 +238,15 @@ All tables have RLS enabled. `Head-trainer+` = Head-trainer or Super-admin (the 
 | `training_days` | All authenticated | Head-trainer+ | Head-trainer+ | Head-trainer+ |
 | `training_day_player_groups` | All authenticated | Head-trainer+ | Head-trainer+ | Head-trainer+ |
 | `player_groups` | All authenticated | Head-trainer+ | Head-trainer+ | Head-trainer+ |
-| `sessions` | All authenticated | Head-trainer+ (also created by `generate_season_sessions`) | Head-trainer+ | Head-trainer+ |
-| `session_player_groups` | All authenticated | Head-trainer+ | Head-trainer+ | Head-trainer+ |
-| `session_assignments` | All authenticated (trainers may see each other's assignments) | Head-trainer+ | Head-trainer+ | Head-trainer+ |
+| `sessions` | Published sessions; Head-trainer+: all, including drafts | Head-trainer+ (also created by `generate_season_sessions`, as drafts) | Head-trainer+ | Head-trainer+ |
+| `session_player_groups` | Of published sessions; Head-trainer+: all | Head-trainer+ | Head-trainer+ | Head-trainer+ |
+| `session_assignments` | Of published sessions (trainers may see each other's assignments); Head-trainer+: all | Head-trainer+ | Head-trainer+ | Head-trainer+ |
 | `availability_surveys` | All authenticated | Head-trainer+ | Head-trainer+ | Head-trainer+ |
 | `availability_responses` | Own responses; Head-trainer+: all (matrix) | Own responses while the survey is `open`; Head-trainer+: any | Own responses while the survey is `open`; Head-trainer+: any | Own responses while the survey is `open`; Head-trainer+: any |
-| `substitution_requests` | All authenticated | Own request only (`original_trainer_id` = caller, still `open`, no volunteer); Head-trainer+: any | Head-trainer+ (volunteering and escalation go through server-side functions in Sub-Phase 1.5) | Head-trainer+ |
+| `substitution_requests` | Of published sessions; Head-trainer+: all | Own request only (`original_trainer_id` = caller, still `open`, no volunteer); Head-trainer+: any | Head-trainer+ (volunteering and escalation go through server-side functions in Sub-Phase 1.5) | Head-trainer+ |
 | `notifications` | Own only | None from clients; created server-side (Edge Function, Sub-Phase 1.6) | Own (mark read) | Own |
 
-> **Design note — trainers see all assignments.** `session_assignments` is deliberately readable by every authenticated user so trainers can see who else is assigned. The trainer's *default view* shows only their own sessions (see [[requirements/views-and-notifications]]); the full schedule is one tap away.
+> **Design note — trainers see all published assignments.** `session_assignments` of published sessions is deliberately readable by every authenticated user so trainers can see who else is assigned; draft sessions and their assignments are visible to Head-trainer+ only. The trainer's *default view* shows only their own sessions (see [[requirements/views-and-notifications]]); the full schedule is one tap away.
 
 > **Design note — Super-admin vs. Head-trainer deletes.** The original design reserved some deletes (seasons, sessions, player groups, surveys) for Super-admins. The implementation lets Head-trainer+ delete them, matching the delete-season / delete-session workflow in the web app.
 
@@ -257,18 +264,26 @@ All tables have RLS enabled. `Head-trainer+` = Head-trainer or Super-admin (the 
 
 ### Server-side functions
 
-`SECURITY DEFINER` functions run with the owner's privileges and **bypass RLS**, so each must authorize the caller itself. Both functions below require `is_head_trainer(auth.uid())`, raise SQLSTATE `42501` otherwise, pin `search_path = public`, and have `EXECUTE` revoked from `PUBLIC` and `anon` (granted to `authenticated` only).
+`SECURITY DEFINER` functions run with the owner's privileges and **bypass RLS**, so each must authorize the caller itself. Every function below requires `is_head_trainer(auth.uid())` (`set_user_roles`: Super-admin), raises SQLSTATE `42501` with the code `not_authorized` otherwise, pins `search_path = public`, and has `EXECUTE` revoked from `PUBLIC` and `anon` (granted to `authenticated` only).
+
+**Stable error codes.** Functions raise exceptions whose **message is a stable code** (for example `assignment_limit_reached`), never an English sentence, so the app can translate it. Codes: `not_authorized`, `season_not_found`, `season_in_use`, `session_not_found`, `profile_not_found`, `invalid_input`, `invalid_range`, `assignment_limit_reached`, `assignment_duplicate`, `track_label_mismatch`, `label_change_blocked`, `cannot_remove_own_super_admin`. The app maps them in `lib/dbErrors.ts` (moved into the EN/DE catalogs in 1.4d).
 
 | Function | Behaviour |
 |---|---|
-| `generate_season_sessions(season_id)` | Generates one session (with its player-group links) for every configured training-day slot in the season's date range. **Refuses to run (SQLSTATE `55000`) if any session of the season already has an assignment or a time override**, because it deletes and recreates all sessions of the season. |
-| `bulk_assign_trainer(season_id, profile_id, day_of_week, location_id, track, session_role, assigned_by)` | Adds the trainer to every matching **upcoming** session (session date today or later, Europe/Zurich), filtered by weekday and/or hall. **Additive**: it never replaces an existing assignee on the track, and skips sessions where the trainer is already actively assigned. Returns the number of sessions affected. The `assigned_by` argument is **ignored**; the caller's `auth.uid()` is always recorded. |
+| `generate_season_sessions(season_id)` | Generates one session (with its player-group links and the staffing targets from the training day) for every configured training-day slot in the season's date range. Generated sessions are **drafts**. **Refuses to run (`season_in_use`, SQLSTATE `55000`) if any session of the season already has an assignment or a time override**, because it deletes and recreates all sessions of the season. |
+| `bulk_assign_trainer(season_id, profile_id, day_of_week, location_id, track, session_role, assigned_by)` | Adds the trainer to every matching **upcoming** session (session date today or later, Europe/Zurich), filtered by weekday and/or hall. **Additive**: it never replaces an existing assignee on the track, and skips sessions where the trainer is already actively assigned. **Skips sessions that are already full** on the track and refuses a track that does not match the trainer's 14/18 label (`track_label_mismatch`). Returns the number of sessions affected. The `assigned_by` argument is **ignored**; the caller's `auth.uid()` is always recorded. |
+| `set_session_assignments(session_id, rows)` | Saves a session's whole assignee list in one transaction. `rows` is `[{profile_id, track, session_role}]`. Active assignments not listed are removed; listed trainers are added or updated; flagged-absent and replaced rows (substitution history) are never touched. Keyed by trainer, so two trainers can swap roles. Locks the session row. Returns the number of active assignments. |
+| `set_user_roles(profile_id, roles, is_junior_coach)` | **Super-admin only.** Atomically replaces a user's roles (the base `trainer` role is always kept; only differences are written) and, if given, the 14/18 label. Refuses to remove the caller's own Super-admin role (`cannot_remove_own_super_admin`). A blocked label change (below) rolls back the role change too. |
+| `publish_sessions(season_id, from, to)` | Sets `published_at` on the drafts in the date range. Returns `{"published": n}`. |
+| `unpublish_sessions(season_id, from, to)` | Returns published sessions in the range to draft, **only** if they have not started (Europe/Zurich) and have no substitution requests. Returns `{"unpublished": n, "skipped": m}`. Does not recall notifications already sent (from 1.6a on). |
 
 ### Triggers
 
 | Trigger | Table | Behaviour |
 |---|---|---|
 | `protect_profile_admin_fields` | `profiles` (before update) | Only Super-admins may change `email`, `is_active`, `is_junior_coach` (the 14/18 Coach label) or `id`. Other users get SQLSTATE `42501`. Re-saving unchanged values is allowed, so normal profile saves still work. Contexts without a JWT subject (service role, migrations) are unrestricted. |
+| `protect_profile_admin_fields_label_guard` | `profiles` (before update of `is_junior_coach`) | Applies to every writer, including direct updates: the label cannot change while the person has an upcoming active assignment on the track the change would make invalid (`label_change_blocked`). The name sorts after `protect_profile_admin_fields` on purpose: BEFORE triggers fire alphabetically, so a non-admin gets `not_authorized` rather than learning about assignments. |
+| `enforce_assignment_rules` | `session_assignments` (before insert or update) | For active assignments: the track must match the profile's label (`track_label_mismatch`; the `junior_coach` track is only for 14/18 coaches, who can only work that track) and a session may have at most **3 active regular trainers and 2 active 14/18 coaches** (`assignment_limit_reached`). Flagged-absent and replaced rows do not count, so a substitute can be added. The session row is locked while counting, so concurrent writers cannot exceed the limit. |
 
 ### Constraints
 
@@ -276,11 +291,11 @@ All tables have RLS enabled. `Head-trainer+` = Head-trainer or Super-admin (the 
 |---|---|
 | `uq_session_assignments_active_profile` — unique index on `session_assignments (session_id, profile_id) WHERE status = 'active'` | A trainer can hold at most one active assignment per session. Uniqueness is per trainer, not per track, because a track holds several trainers (2–3 regular, 1–2 14/18 Coaches). |
 
-> **Not yet enforced:** the per-track limits (2–3 regular trainers, 1–2 14/18 Coaches) and the rule that only trainers with the 14/18 Coach label may be assigned to the `junior_coach` track. See [[codebase/known-issues]].
+> **Staffing targets versus limits.** The limits above (3 and 2) are maxima. What counts as fully staffed is the session's `required_regular` / `required_junior` (confirmed values: Tue, Thu, Fri 3 + 1; both Wednesday slots 2 + 1). A published session below its target has a coverage gap ([[codebase/architecture/substitution-flow]]).
 
 ### Automated permission tests
 
-The policies, functions, triggers and constraints above are covered by pgTAP tests in `packages/supabase/tests/` (`permissions.test.sql`, `feature_tables_rls.test.sql`; 77 checks). Run them with `pnpm test:db`; CI runs them before the Playwright suite. The tests exercise anonymous callers (with the `anon` JWT claim PostgREST sends), a regular trainer, a Head-trainer and a Super-admin.
+The policies, functions, triggers and constraints above are covered by pgTAP tests in `packages/supabase/tests/` (`permissions.test.sql`, `feature_tables_rls.test.sql`, `data_foundations.test.sql`, `publishing.test.sql`; 138 checks). Run them with `pnpm test:db`; CI runs them before the Playwright suite. The tests exercise anonymous callers (with the `anon` JWT claim PostgREST sends), a regular trainer, a Head-trainer and a Super-admin.
 
 ---
 
@@ -303,6 +318,9 @@ Migrations live in `packages/supabase/migrations/`. All 14 base tables were crea
 | `20261011000005_assignment_integrity` | Unique active-assignment index, additive/upcoming-only bulk assign, regeneration guard |
 | `20261011000006_tighten_substitution_notification_availability_rls` | Policies and `is_survey_open()` for substitutions, notifications, availability |
 | `20261011000007_restrict_profile_self_insert` | Self-created profiles must be plain profiles with the user's own email |
+| `20261012000000_staffing_targets_hall_details_error_codes` | `required_regular` / `required_junior` on training days and sessions (backfilled and added to the template), `locations.address` and `trainer_note`, stable error codes in `generate_season_sessions` |
+| `20261012000001_assignment_rules_and_atomic_saves` | `enforce_assignment_rules` and label-change guard triggers, new `bulk_assign_trainer`, `set_session_assignments`, `set_user_roles` |
+| `20261012000002_publishing` | `sessions.published_at` (existing sessions backfilled as published), published-only read policies, `publish_sessions`, `unpublish_sessions` |
 
 ## Related pages
 

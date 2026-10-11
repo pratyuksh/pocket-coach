@@ -7,6 +7,7 @@ import { SessionCard } from './SessionCard';
 import { SessionOverrideModal } from './SessionOverrideModal';
 import { SessionAssigneeModal } from './SessionAssigneeModal';
 import { BulkAssignModal } from './BulkAssignModal';
+import { PublishSessionsModal } from './PublishSessionsModal';
 import { MySessionsList } from './MySessionsList';
 import { SeasonSetupModal } from '../../seasons/components/SeasonSetupModal';
 import { LocationManagerModal } from '../../locations/components/LocationManagerModal';
@@ -25,6 +26,7 @@ import {
   AlertTriangle,
   Users,
   User,
+  Eye,
 } from 'lucide-react';
 
 // Helper functions for ISO Calendar Week & Month grouping
@@ -82,6 +84,8 @@ export const SessionScheduleView: React.FC = () => {
     setFilters,
     refetch: refetchSessions,
     updateSessionOverride,
+    publishRange,
+    unpublishRange,
     deleteSession,
   } = useSessions({ seasonId: currentSeasonId });
 
@@ -95,8 +99,10 @@ export const SessionScheduleView: React.FC = () => {
   // Derived until the user picks a tab, since roles load asynchronously.
   const [selectedTab, setActiveTab] = useState<'all' | 'my' | null>(null);
   const activeTab = selectedTab ?? (canManageSeasons ? 'all' : 'my');
+  const draftSessionCount = sessions.filter((s) => !s.published_at).length;
   const [assigneeTargetSession, setAssigneeTargetSession] = useState<EnrichedSession | null>(null);
   const [bulkAssignModalOpen, setBulkAssignModalOpen] = useState(false);
+  const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [setupModalOpen, setSetupModalOpen] = useState(false);
   const [locationModalOpen, setLocationModalOpen] = useState(false);
   const [overrideTargetSession, setOverrideTargetSession] = useState<EnrichedSession | null>(null);
@@ -270,6 +276,14 @@ export const SessionScheduleView: React.FC = () => {
           <div className="flex flex-wrap items-center gap-2.5">
             <Button variant="outline" size="sm" onClick={() => setBulkAssignModalOpen(true)}>
               <Users className="w-4 h-4 mr-1 text-teal-500" /> Bulk Assign
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setPublishModalOpen(true)}>
+              <Eye className="w-4 h-4 mr-1 text-teal-500" /> Publish{' '}
+              {draftSessionCount > 0 && (
+                <span className="ml-1.5 px-1.5 py-0.5 rounded-md bg-teal-500/15 text-[10px] font-bold text-teal-600 dark:text-teal-400">
+                  {draftSessionCount} {draftSessionCount === 1 ? 'draft' : 'drafts'}
+                </span>
+              )}
             </Button>
             <Button variant="outline" size="sm" onClick={() => setLocationModalOpen(true)}>
               <Building2 className="w-4 h-4 mr-1 text-emerald-500" /> Manage Halls
@@ -521,6 +535,15 @@ export const SessionScheduleView: React.FC = () => {
         onSaveSuccess={async () => {
           await refetchSessions();
         }}
+      />
+
+      {/* Publish / Unpublish Modal */}
+      <PublishSessionsModal
+        isOpen={publishModalOpen}
+        onClose={() => setPublishModalOpen(false)}
+        sessions={sessions}
+        onPublish={(from, to) => publishRange(currentSeasonId as string, from, to)}
+        onUnpublish={(from, to) => unpublishRange(currentSeasonId as string, from, to)}
       />
 
       {/* Bulk Assign Modal */}

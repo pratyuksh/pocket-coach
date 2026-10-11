@@ -8,6 +8,8 @@ export interface CreateSeasonSlotInput {
   default_end_time: string;
   location_id: string | null;
   player_group_names: string[];
+  required_regular: number;
+  required_junior: number;
 }
 
 export interface CreateSeasonInput {
@@ -137,6 +139,8 @@ export function useSeasons() {
               default_start_time: slot.default_start_time,
               default_end_time: slot.default_end_time,
               location_id: slot.location_id,
+              required_regular: slot.required_regular,
+              required_junior: slot.required_junior,
             },
           ])
           .select()

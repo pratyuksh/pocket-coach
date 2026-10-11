@@ -24,6 +24,10 @@ vi.mock('../lib/supabase', () => ({
   },
 }));
 
+vi.mock('../hooks/usePermissions', () => ({
+  usePermissions: () => ({ canManageSeasons: true, isHeadTrainer: true, isSuperAdmin: false }),
+}));
+
 // Mock hooks
 vi.mock('../features/locations/hooks/useLocations', () => ({
   useLocations: () => ({
@@ -32,6 +36,8 @@ vi.mock('../features/locations/hooks/useLocations', () => ({
         id: 'loc-1',
         name: 'Sporthalle Schulhaus Apfelbaum',
         district_area: 'Oerlikon',
+        address: null,
+        trainer_note: null,
         is_active: true,
       },
       { id: 'loc-2', name: 'Sporthalle Borrweg', district_area: 'Friesenberg', is_active: true },
@@ -39,15 +45,22 @@ vi.mock('../features/locations/hooks/useLocations', () => ({
         id: 'loc-3',
         name: 'Sporthalle Wolfsblick',
         district_area: 'Zürich-Affoltern',
+        address: null,
+        trainer_note: null,
         is_active: true,
       },
     ],
     loading: false,
     error: null,
-    addLocation: vi.fn().mockResolvedValue({ id: 'loc-4', name: 'New Hall', is_active: true }),
-    updateLocation: vi.fn().mockResolvedValue({}),
+    addLocation: mockAddLocation,
+    updateLocation: mockUpdateLocation,
   }),
 }));
+
+const mockUpdateLocation = vi.fn().mockResolvedValue({});
+const mockAddLocation = vi
+  .fn()
+  .mockResolvedValue({ id: 'loc-4', name: 'New Hall', is_active: true });
 
 const mockCreateSeason = vi
   .fn()
@@ -145,11 +158,16 @@ describe('Sub-Phase 1.3: Seasons & Hall Locations Component Tests', () => {
       end_time: '19:00:00',
       location_id: 'loc-1',
       is_time_overridden: false,
+      required_regular: 3,
+      required_junior: 1,
+      published_at: '2026-09-27T00:00:00Z',
       created_at: '2026-09-27T00:00:00Z',
       location: {
         id: 'loc-1',
         name: 'Sporthalle Schulhaus Apfelbaum',
         district_area: 'Oerlikon',
+        address: null,
+        trainer_note: null,
         is_active: true,
         created_at: '2026-09-27T00:00:00Z',
       },
@@ -191,6 +209,44 @@ describe('Sub-Phase 1.3: Seasons & Hall Locations Component Tests', () => {
       expect(screen.getByText('Sporthalle Borrweg')).toBeInTheDocument();
       expect(screen.getByText('Sporthalle Wolfsblick')).toBeInTheDocument();
     });
+
+    it('saves a hall address and trainer note', async () => {
+      const user = userEvent.setup({ delay: null });
+      mockUpdateLocation.mockClear();
+      render(<LocationManagerModal isOpen={true} onClose={vi.fn()} />);
+
+      await user.click(screen.getAllByRole('button', { name: /edit details/i })[0]);
+      await user.type(
+        screen.getByLabelText(/address of sporthalle schulhaus apfelbaum/i),
+        'Apfelbaumstrasse 12',
+      );
+      await user.type(
+        screen.getByLabelText(/note for trainers at sporthalle schulhaus apfelbaum/i),
+        'Entrance via the schoolyard',
+      );
+      await user.click(screen.getByRole('button', { name: /save details/i }));
+
+      expect(mockUpdateLocation).toHaveBeenCalledWith('loc-1', {
+        address: 'Apfelbaumstrasse 12',
+        trainer_note: 'Entrance via the schoolyard',
+      });
+    });
+
+    it('passes address and note when adding a hall', async () => {
+      const user = userEvent.setup({ delay: null });
+      mockAddLocation.mockClear();
+      render(<LocationManagerModal isOpen={true} onClose={vi.fn()} />);
+
+      await user.type(screen.getByPlaceholderText('e.g. Sporthalle Borrweg'), 'Neue Halle');
+      await user.type(screen.getByLabelText(/^address$/i), 'Hallenweg 1, 8000 Zürich');
+      await user.type(screen.getByLabelText(/note for trainers$/i), 'Key at reception');
+      await user.click(screen.getByRole('button', { name: /add location/i }));
+
+      expect(mockAddLocation).toHaveBeenCalledWith('Neue Halle', undefined, {
+        address: 'Hallenweg 1, 8000 Zürich',
+        trainer_note: 'Key at reception',
+      });
+    });
   });
 
   describe('SessionOverrideModal', () => {
@@ -204,6 +260,9 @@ describe('Sub-Phase 1.3: Seasons & Hall Locations Component Tests', () => {
       end_time: '19:00:00',
       location_id: 'loc-1',
       is_time_overridden: false,
+      required_regular: 3,
+      required_junior: 1,
+      published_at: '2026-09-27T00:00:00Z',
       created_at: '2026-09-27T00:00:00Z',
     };
 
@@ -261,6 +320,29 @@ describe('Sub-Phase 1.3: Seasons & Hall Locations Component Tests', () => {
 
       expect(mockCreateSeason).toHaveBeenCalled();
       expect(onSuccess).toHaveBeenCalled();
+    });
+
+    it('defaults staffing targets by weekday and submits edited targets', async () => {
+      const user = userEvent.setup({ delay: null });
+      mockCreateSeason.mockClear();
+
+      render(<SeasonSetupModal isOpen={true} onClose={vi.fn()} onSuccess={vi.fn()} />);
+      await user.click(screen.getByText(/Next: Configure Schedule/i));
+
+      // Tuesday slot from a template without targets defaults to 3 regular + 1 14/18
+      const regular = screen.getByLabelText(/regular trainers needed/i);
+      expect(regular).toHaveValue(3);
+      expect(screen.getByLabelText(/14\/18 coaches needed/i)).toHaveValue(1);
+
+      fireEvent.change(regular, { target: { value: '2' } });
+      await user.click(screen.getByText(/Next: Review & Confirm/i));
+      await user.click(screen.getByRole('button', { name: /Confirm & Generate/i }));
+
+      expect(mockCreateSeason).toHaveBeenCalledWith(
+        expect.objectContaining({
+          slots: [expect.objectContaining({ required_regular: 2, required_junior: 1 })],
+        }),
+      );
     });
   });
 });
