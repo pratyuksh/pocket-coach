@@ -4,7 +4,7 @@
 
 **Sources**: None
 
-**Last updated**: 2026-07-18
+**Last updated**: 2026-10-11
 
 ---
 
@@ -24,6 +24,7 @@
 - **Web App**: Accessible via modern browsers (Chrome, Firefox, Safari, Edge).
 - **Mobile App**: Native or cross-platform apps for **Android** and **iOS**.
 - UI must be responsive and optimized for both desktop and mobile screen sizes.
+- **Light mode only** *(decision, 2026-10-11)*: the app ships a single light theme following the Modernist design; a dark theme is not planned for now.
 
 ### Offline Support
 - The app must support **offline mode** for core read operations:

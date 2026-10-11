@@ -110,4 +110,17 @@
 * Created `codebase/known-issues.md` as a living list of open problems (security, correctness, missing features, testing, plan gaps for 1.5/1.6) with a record of resolved items.
 * Not verified in this pass: a from-scratch run of all migrations on an empty local database (CI will do this on the next push).
 
+## 2026-10-11 | design-prototype-and-plan-streamline | Updated 8 pages: codebase/implementation-plan.md, codebase/known-issues.md, codebase/architecture/substitution-flow.md, requirements/sessions-and-assignment.md, requirements/views-and-notifications.md, requirements/non-functional-requirements.md, wiki/index.md, wiki/log.md
+* Read the Modernist design prototype `pocke-coach-design-prototype/PocketCoach.dc.html` (script section, design-system stylesheet and readme) from the local copy, because the design import tool lacked authorization. The prototype was not rendered; findings come from its code and tokens. The folder name contains a typo ("pocke").
+* `implementation-plan.md` rewritten and streamlined: delivered sub-phases 1.1–1.4b condensed into one table; new execution order (gate, 1.4c data foundations, 1.4d Modernist UI and localization, 1.6a notifications and server-side invites, 1.5 substitutions, 1.6b calendar and offline, pilot readiness gate, Phase 2.1); design reference with a screen-by-screen Phase 1 treatment; schedule of known issues by sub-phase; list of details still to confirm.
+* Recorded five product decisions: no availability survey yet (Phase 2.1 after the pilot); gaps defined by coverage against staffing targets; assignments are published and trainers see only published sessions; session log and counts matter for later pay-outs (read-only log now, CSV export, audit trail and mistake reporting deferred); light mode only.
+* `known-issues.md`: plan gaps marked decided or open; link to where each issue is scheduled.
+* `substitution-flow.md`: added the coverage-based gap definition, published-only visibility, session-row locking, eligibility rules and counting rules.
+* Requirements pages: added staffing targets, published assignments, coverage-gap note, session log, and light-mode-only decision notes (original requirement wording unchanged).
+* Details proposed but not confirmed are listed in the plan under "Details to Confirm" (staffing target values, label exclusivity, unpublish, grouped publish notification, undo, escalation record, invite expiry, preference semantics).
+
+## 2026-10-11 | language-toggle | Updated 2 pages: codebase/implementation-plan.md, wiki/log.md
+* Clarified from the design prototype that every user can toggle between English and German. Added to the plan: the toggle on the login and invite screens and in Settings (applies immediately, saved in `profiles.preferred_language` after sign-in); translated error messages via stable database error codes (1.4c, 1.4d); in-app notifications translated in the viewer's language and push text generated in the recipient's language (1.6a); invitee language on the invitation with English and German invite email templates (1.6a); calendar feed text in the trainer's language and a two-language sign-off walkthrough (1.6b).
+* Two details to confirm were added: the default language for unsupported browser languages, and whether hall notes are stored once or per language.
+
 <!-- END OF LOG -->

@@ -28,6 +28,8 @@ A **training session** represents one training day.
 - Sessions are automatically generated for each **configured training day slot** of the week (as defined in the season setup) for every week in the season.
 - Each session inherits the **default time slot and sports hall location** for its weekday configuration. Individual sessions can **override the default time or location** if an exception occurs (e.g., holiday or facility conflict).
 - **Regeneration guard** *(implementation decision, 2026-10-11)*: generating a season's sessions deletes and recreates all of them, so it is refused once any session of the season has a trainer assignment or a time override. Changing the weekly slots of a season already in use needs a separate "add missing sessions" action, which is not built yet (see [[codebase/known-issues]]).
+- **Staffing targets** *(implementation decision, 2026-10-11)*: each training slot defines how many trainers are required on each track (regular and 14/18). A session with fewer assigned trainers than required on a track has a **coverage gap**. The numbers in the design prototype (3 + 2 for all-group slots, 2 + 1 for Wednesday Kids/Basic, 3 + 1 for Wednesday Advanced) are mock values still to be confirmed with the club.
+- **Published assignments** *(decision, 2026-10-11)*: sessions start as drafts that only Head-trainers and Super-admins see. When the Head-trainer publishes a date range, the sessions and their assignments become visible to trainers and the assigned trainers are notified. This keeps trainers' views limited to confirmed information.
 - Standard default junior schedule:
   - **Tuesday 17:30 – 19:00**: All Groups (`Kids / Basic`, `Advanced-1`, `Advanced-2`) @ *Sporthalle Schulhaus Apfelbaum (Oerlikon)*
   - **Wednesday 17:30 – 18:30**: Beginner Level (`Kids / Basic`) @ *Sporthalle Borrweg (Friesenberg)*
@@ -134,6 +136,8 @@ The goal is to always maintain the **originally assigned number of trainers** pe
 7. If no volunteer steps forward as the session approaches (e.g., within 48 hours), a follow-up alert is broadcast and all Head-trainers/Super-admins are notified to follow up manually.
 
 > This replaces the current WhatsApp-based substitution workflow.
+
+> **Implementation decision (2026-10-11):** a coverage gap is measured against the session's required number of trainers per track (see [Training Sessions](#training-sessions)), so a published session that was never fully staffed also appears as a gap. Details: [[codebase/architecture/substitution-flow]].
 
 *Previous: [Season & Training Planning](./season-planning.md)*
 *Next: [Views, Dashboards & Notifications](./views-and-notifications.md)*

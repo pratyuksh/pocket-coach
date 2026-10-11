@@ -10,12 +10,14 @@
 
 ## Table of Contents
 - [Open Issues](#open-issues)
-- [Gaps in the Plan for Sub-Phases 1.5 and 1.6](#gaps-in-the-plan-for-sub-phases-15-and-16)
+- [Plan Gaps: Decided and Still Open](#plan-gaps-decided-and-still-open)
 - [Recently Resolved](#recently-resolved)
 
 ---
 
 ## Open Issues
+
+Each open issue has a scheduled sub-phase; see [[codebase/implementation-plan#where-known-issues-are-scheduled]].
 
 ### Security
 
@@ -52,17 +54,22 @@
 
 ---
 
-## Gaps in the Plan for Sub-Phases 1.5 and 1.6
+## Plan Gaps: Decided and Still Open
 
-Found while reviewing [[codebase/implementation-plan]]; decisions are still needed.
+Found while reviewing the earlier plan for 1.5 and 1.6; most were settled by the decisions of 2026-10-11 recorded in [[codebase/implementation-plan#decisions-of-2026-10-11]].
 
-- **Escalation depends on notifications.** The 48-hour escalation and "broadcast to all eligible trainers" in 1.5 need the notification dispatcher and bell that arrive in 1.6. Either pull a minimal in-app notification into 1.5, or limit the 1.5 escalation milestone to recording `escalated_at`.
-- **The escalation check could skip the Edge Function.** `pg_cron` can call a SQL function directly; push delivery can be added in 1.6.
-- **`volunteer_substitution` rules are undefined.** Decide what counts as double-booking (overlapping times on the same date, not just the same session), whether a trainer may fill a gap on the other track, that nobody may volunteer for their own gap, and that past sessions are rejected. See [[codebase/architecture/substitution-flow]].
-- **Concurrency test.** "Two windows click Volunteer at the same millisecond" cannot be reproduced by hand reliably; specify a database-level test with two connections.
-- **Localization test.** "100% of UI text translates" needs a check, such as a missing-key test.
-- **"Home screen" is ambiguous.** The app has no home page (`/` redirects to `/dashboard`); name the page that hosts `HomeGapBanner`.
-- **Phase 2.1** lists "live updates" for the matrix but proposes no Supabase Realtime subscription ([[codebase/risk-analysis]], risk 5).
+| Gap | Outcome |
+|---|---|
+| Escalation depends on notifications | Settled: notifications (1.6a) now come before substitutions (1.5). |
+| Escalation check could skip the Edge Function | Settled: an hourly `pg_cron` SQL function notifies through the dispatcher. |
+| `volunteer_substitution` rules undefined | Settled: same track only; no overlapping session the same day; not already on the session; published and upcoming only. Own-gap case does not arise because flagging removes the trainer from coverage. See [[codebase/architecture/substitution-flow]]. |
+| Gap definition | Settled: coverage-based, from staffing targets (decision 2). |
+| Concurrency test | Settled: two-connection test in CI (1.5). |
+| Localization test | Settled: missing-key test (1.4d, 1.6b). |
+| "Home screen" ambiguous | Settled: gaps appear on the trainer Home and the Gaps page; the dashboard is the Head-trainer home. A separate banner is still to confirm ([[codebase/implementation-plan#details-to-confirm]]). |
+| Phase 2.1 "live updates" without Realtime | Open: handled when 2.1 is built ([[codebase/risk-analysis]], risk 5). |
+
+Other details still to confirm with the club (staffing targets, label exclusivity, unpublish, undo, invite expiry, notification preference semantics) are listed in the plan.
 
 ---
 

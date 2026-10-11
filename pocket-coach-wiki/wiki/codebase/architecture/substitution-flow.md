@@ -4,7 +4,7 @@
 
 **Sources**: None
 
-**Last updated**: 2026-08-18
+**Last updated**: 2026-10-11
 
 ---
 
@@ -82,6 +82,18 @@ A `pg_cron` job runs hourly, checking for substitution requests where:
 
 When triggered, the cron fires a Supabase Edge Function that broadcasts an escalation notification to all Head-trainers and Super-admins for manual follow-up. This is monitored for failures as described in Risk 6 of [[codebase/risk-analysis]].
 
+## Design Update (2026-10-11): Coverage-based Gaps
+
+Decided together with the Modernist design ([[codebase/implementation-plan#decisions-of-2026-10-11]]). Where this section differs from the diagram and text above, this section applies.
+
+- **A gap is a coverage shortfall**, not only an unfilled request: a published, upcoming session whose active assignments on a track are fewer than the session's required number (`required_regular`, `required_junior`). Sessions that were never fully staffed therefore show up as gaps too. A substitution request still records who is out and drives the "can't make it" notifications.
+- **Published only**: trainers see and can volunteer for published sessions only; draft sessions are invisible to them.
+- **Flagging** sets the trainer's assignment to `absent_pending_sub` (the row is kept for history) and creates a request. The trainer no longer counts toward coverage.
+- **Locking**: volunteering locks the **session row** with `SELECT FOR UPDATE` instead of the request row, so the coverage check and the insert are atomic for request-backed and never-staffed gaps alike.
+- **Eligibility**: the trainer's track matches the gap (14/18 label means the junior track); they are not already on the session; they have no overlapping session on the same day, in any hall; the session is upcoming. A rule that blocks dates the trainer marked unavailable arrives with availability surveys (Phase 2.1).
+- **Escalation**: gaps starting within 48 hours that have not been escalated notify Head-trainers and Super-admins once per session and track.
+- **Counting**: `replaced` and `absent_pending_sub` assignments never count as completed sessions; the substitute's assignment (`is_substitute = true`) does. See the `session_log` view in [[codebase/implementation-plan#sub-phase-15-substitutions-coverage-gaps--session-log]].
+
 ## Authorization Requirements
 
 Set in Sub-Phase 1.4b so the workflow in 1.5 builds on enforced rules (see [[codebase/architecture/database-schema#row-level-security]]):
@@ -89,7 +101,7 @@ Set in Sub-Phase 1.4b so the workflow in 1.5 builds on enforced rules (see [[cod
 - Any authenticated trainer can read substitution requests (open gaps are visible to everyone).
 - A trainer can create a request only for themselves, as `open`, without a volunteer. Clients cannot set `volunteer_id` or `status = 'filled'` directly; Head-trainer+ may update or delete requests.
 - Volunteering and escalation therefore run in server-side functions. Because `SECURITY DEFINER` functions bypass RLS, the volunteer function must itself verify the caller with `auth.uid()` and have `EXECUTE` revoked from `anon` and `PUBLIC` (risk 8 in [[codebase/risk-analysis]]).
-- Open decisions for the function (double-booking definition, cross-track volunteering, own gap, past sessions, notification dependency) are listed in [[codebase/known-issues]].
+- The eligibility rules for the function are decided above; remaining details to confirm (undo, escalation record) are listed in [[codebase/implementation-plan#details-to-confirm]].
 
 ## Related pages
 

@@ -88,6 +88,7 @@ A summary of the trainer's activity for the current season (and optionally past 
 
 - Stats are shown per season and as a total.
 - The breakdown helps trainers understand their contribution across different capacities.
+- **Session log** *(decision, 2026-10-11)*: the profile shows a read-only list of the trainer's completed sessions (date, hall, role, substitute marker). Counts and log come from one shared definition: only published sessions that have ended and where the trainer held an active assignment count; sessions handed to a substitute do not. The numbers are meant to support pay-outs later, so the definition must stay stable. CSV export, an audit trail and mistake reporting are deferred.
 
 ---
 

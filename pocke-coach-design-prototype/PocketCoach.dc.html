@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-0c41f760-0980-4e7d-baed-f361f54fb6db/styles.css">
+<script src="_ds/modernist-0c41f760-0980-4e7d-baed-f361f54fb6db/_ds_bundle.js"></script>
+<style>
+body{margin:0;background:var(--color-neutral-200)}
+a{color:var(--color-accent-700)}a:hover{color:var(--color-accent-800)}
+button{font-family:var(--font-body)}
+</style>
+</helmet>
+<div style="min-height:100vh;min-width:max-content;background:var(--color-neutral-200);display:flex;flex-direction:column;align-items:center;gap:16px;padding:18px 20px 40px;font-family:var(--font-body);color:var(--color-text)">
+
+<div style="width:{{ frameW }};display:flex;gap:18px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+  <span style="font:800 15px var(--font-heading)">PocketCoach · Phase 1</span>
+  <div style="display:flex;gap:14px;flex-wrap:wrap">
+    <sc-for list="{{ toolbar }}" as="g" hint-placeholder-count="4">
+      <div style="display:flex;border:1px solid var(--color-divider);background:var(--color-bg)">
+        <sc-for list="{{ g.opts }}" as="o" hint-placeholder-count="3">
+          <button onClick="{{ o.onClick }}" style="border:0;border-left:{{ o.bl }};padding:5px 10px;font:600 12px var(--font-body);cursor:pointer;background:{{ o.bg }};color:{{ o.fg }}">{{ o.l }}</button>
+        </sc-for>
+      </div>
+    </sc-for>
+  </div>
+</div>
+
+<div style="width:{{ frameW }};height:{{ frameH }};flex:none;border:2px solid var(--color-text);background:var(--color-bg);position:relative;overflow:hidden;display:flex;flex-direction:column">
+
+<sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:none;height:30px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-size:12px;font-weight:600"><span>9:41</span><span style="display:flex;gap:3px"><span style="width:12px;height:8px;background:currentColor"></span><span style="width:18px;height:8px;border:1.5px solid currentColor"></span></span></div>
+</sc-if>
+
+<sc-if value="{{ isAuth }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;min-height:0;display:grid;grid-template-columns:{{ L.auth }}">
+    <div style="padding:{{ L.authPad }};display:flex;flex-direction:column;gap:20px;overflow:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font:800 18px var(--font-heading)">PocketCoach</span>
+        <div style="display:flex;border:1px solid var(--color-divider)">
+          <sc-for list="{{ langOpts }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="border:0;border-left:{{ o.bl }};padding:5px 10px;font:600 12px var(--font-body);cursor:pointer;background:{{ o.bg }};color:{{ o.fg }}">{{ o.l }}</button></sc-for>
+        </div>
+      </div>
+      <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div style="border-top:2px solid var(--color-divider);padding-top:20px"><h1 style="font-size:34px;margin:0 0 8px">{{ t.signInTitle }}</h1><p style="margin:0;font-size:14px;color:var(--color-neutral-800)">{{ t.inviteOnly }}</p></div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div class="field"><label>{{ t.email }}</label><input class="input" value="reto.baumann@gmail.com" readOnly></div>
+            <div class="field"><label>{{ t.password }}</label><input class="input" type="password" value="password" readOnly></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button onClick="{{ signIn }}" class="btn btn-primary" style="justify-content:flex-start;height:44px;font-size:15px">{{ t.signIn }} →</button>
+            <button onClick="{{ signIn }}" class="btn btn-secondary" style="justify-content:flex-start;height:44px;font-size:15px">{{ t.google }}</button>
+          </div>
+          <button class="btn btn-ghost" style="align-self:flex-start">{{ t.forgot }}</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{ isInvite }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div style="border-top:2px solid var(--color-divider);padding-top:20px"><h1 style="font-size:32px;margin:0 0 10px">{{ t.invited }}</h1><p style="margin:0;font-size:14px;color:var(--color-neutral-800)">{{ t.invitedBody }}</p></div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div class="field"><label>{{ t.email }}</label><input class="input" value="elif.yilmaz@gmail.com" readOnly></div>
+            <div class="field"><label>{{ t.yourName }}</label><input class="input" placeholder="Elif Yilmaz"></div>
+            <div class="field"><label>{{ t.choosePw }}</label><input class="input" type="password" placeholder="••••••••"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button onClick="{{ signIn }}" class="btn btn-primary" style="justify-content:flex-start;height:44px;font-size:15px">{{ t.create }} →</button>
+            <button onClick="{{ signIn }}" class="btn btn-secondary" style="justify-content:flex-start;height:44px;font-size:15px">{{ t.google }}</button>
+          </div>
+        </div>
+      </sc-if>
+      <div style="margin-top:auto;border-top:2px solid var(--color-divider);padding-top:12px;font-size:12px;color:var(--color-neutral-700)">{{ t.gdpr }}</div>
+    </div>
+    <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+      <div style="border-left:2px solid var(--color-text);display:grid;grid-template-rows:repeat(3,1fr)">
+        <sc-for list="{{ benefits }}" as="b" hint-placeholder-count="3">
+          <div style="border-bottom:2px solid var(--color-divider);padding:28px 40px;display:flex;flex-direction:column;justify-content:flex-end;gap:8px">
+            <span style="font:800 13px var(--font-heading);color:var(--color-accent)">{{ b.n }}</span>
+            <span style="font:800 30px/1.1 var(--font-heading);letter-spacing:-0.02em;max-width:520px">{{ b.h }}</span>
+            <span style="font-size:14px;color:var(--color-neutral-800);max-width:480px">{{ b.p }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isApp }}" hint-placeholder-val="{{ true }}">
+<div style="flex:1;min-height:0;display:grid;grid-template-columns:{{ L.shell }}">
+
+  <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+    <aside style="border-right:2px solid var(--color-divider);display:flex;flex-direction:column;padding:20px 0 16px;min-height:0">
+      <div style="padding:0 20px 18px;font:800 19px var(--font-heading)">PocketCoach</div>
+      <nav style="border-top:2px solid var(--color-divider);display:flex;flex-direction:column">
+        <sc-for list="{{ nav }}" as="n" hint-placeholder-count="6">
+          <button onClick="{{ n.onClick }}" style="display:flex;justify-content:space-between;align-items:center;padding:11px 20px;border:0;border-bottom:1px solid var(--color-divider);background:{{ n.bg }};color:{{ n.c }};font-size:14px;font-weight:{{ n.w }};text-align:left;cursor:pointer;box-shadow:inset 3px 0 0 {{ n.line }}" style-hover="background:var(--color-neutral-100)"><span>{{ n.l }}</span><span style="font-size:11.5px;font-weight:600;color:var(--color-accent-700)">{{ n.meta }}</span></button>
+        </sc-for>
+      </nav>
+      <div style="margin-top:auto;padding:14px 20px 0;border-top:2px solid var(--color-divider);display:flex;flex-direction:column;gap:2px">
+        <span style="font-weight:600;font-size:14px">{{ me.name }}</span>
+        <span style="font-size:12px;color:var(--color-neutral-700)">{{ me.roles }}</span>
+        <div style="display:flex;border:1px solid var(--color-divider);align-self:flex-start;margin-top:10px">
+          <sc-for list="{{ langOpts }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="border:0;border-left:{{ o.bl }};padding:4px 10px;font:600 12px var(--font-body);cursor:pointer;background:{{ o.bg }};color:{{ o.fg }}">{{ o.l }}</button></sc-for>
+        </div>
+      </div>
+    </aside>
+  </sc-if>
+
+  <div style="min-width:0;min-height:0;display:flex;flex-direction:column">
+    <header style="flex:none;padding:{{ L.hdPad }};display:flex;justify-content:space-between;align-items:flex-end;gap:12px;border-bottom:2px solid var(--color-divider)">
+      <div style="min-width:0">
+        <div style="font-size:12px;color:var(--color-neutral-700)">{{ pageSub }}</div>
+        <h2 style="font-size:{{ L.h }};margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ pageTitle }}</h2>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex:none">
+        <button onClick="{{ toggleDrawer }}" style="position:relative;height:34px;padding:0 10px;border:1px solid var(--color-divider);background:var(--color-bg);font:600 13px var(--font-body);cursor:pointer;color:var(--color-text)" style-hover="background:var(--color-neutral-100)">{{ t.inbox }}<sc-if value="{{ unread }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-7px;right:-7px;min-width:18px;height:18px;padding:0 4px;background:var(--color-accent);color:var(--color-bg);font-size:11px;font-weight:800;display:grid;place-items:center">{{ unread }}</span></sc-if></button>
+        <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ goSettings }}" style="height:34px;width:34px;border:1px solid var(--color-divider);background:{{ setBg }};color:{{ setFg }};font:800 12px var(--font-heading);cursor:pointer">{{ me.ini }}</button>
+        </sc-if>
+      </div>
+    </header>
+
+    <div style="flex:1;min-height:0;overflow:auto">
+
+<!-- HOME · trainer -->
+<sc-if value="{{ show.homeTrainer }}" hint-placeholder-val="{{ false }}">
+<div style="padding:{{ L.pad }};display:grid;grid-template-columns:{{ L.two }};gap:{{ L.gap }};align-items:start">
+  <div style="display:flex;flex-direction:column;gap:22px;min-width:0">
+    <sc-for list="{{ myGaps }}" as="g" hint-placeholder-count="1">
+      <div style="background:var(--color-accent-100);border-top:2px solid var(--color-accent);padding:14px 16px;display:flex;flex-direction:column;gap:6px">
+        <div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-accent-700);font-weight:600">{{ t.gapsYouCan }}</div>
+        <div style="font:800 18px/1.2 var(--font-heading)">{{ g.title }}</div>
+        <div style="font-size:13px;color:var(--color-neutral-800)">{{ g.sub }}</div>
+        <div style="font-size:12.5px;color:var(--color-neutral-700)">{{ g.req }}</div>
+        <div style="display:flex;gap:8px;margin-top:6px"><button onClick="{{ g.onVolunteer }}" class="btn btn-primary" style="justify-content:flex-start;height:40px;flex:1">{{ t.volunteer }} →</button><button onClick="{{ g.onOpen }}" class="btn btn-secondary" style="justify-content:flex-start;height:40px">{{ t.open }}</button></div>
+      </div>
+    </sc-for>
+    <section style="border-top:2px solid var(--color-divider);padding-top:12px">
+      <div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600;margin-bottom:8px">{{ t.next }}</div>
+      <sc-if value="{{ hasNext }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span style="font:800 24px var(--font-heading)">{{ nextS.date }}</span><span style="font-weight:600;font-variant-numeric:tabular-nums">{{ nextS.time }}</span></div>
+          <span style="font-size:14px">{{ nextS.hall }} · {{ nextS.groups }}</span>
+          <span style="font-size:13px;color:var(--color-neutral-700);margin-top:6px">{{ t.with }} {{ nextS.with }}</span>
+          <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+            <button onClick="{{ nextS.onOpen }}" class="btn btn-secondary" style="justify-content:flex-start">{{ t.open }}</button>
+            <button onClick="{{ addCal }}" class="btn btn-secondary" style="justify-content:flex-start">{{ t.addCal }}</button>
+            <button onClick="{{ nextS.onFlag }}" class="btn btn-secondary" style="justify-content:flex-start">{{ t.cantMake }}</button>
+          </div>
+        </div>
+      </sc-if>
+    </section>
+    <section style="border-top:2px solid var(--color-divider)">
+      <div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600;padding:12px 0 4px">{{ t.upcoming }}</div>
+      <sc-for list="{{ mineList }}" as="u" hint-placeholder-count="4">
+        <button onClick="{{ u.onOpen }}" style="width:100%;display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:10px;padding:11px 0;border:0;border-bottom:1px solid var(--color-divider);background:none;font-size:14px;align-items:baseline;text-align:left;cursor:pointer;color:var(--color-text)" style-hover="background:var(--color-neutral-100)">
+          <span style="font-weight:600">{{ u.date }}</span>
+          <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ u.hallShort }}<span style="color:var(--color-neutral-700)"> · {{ u.roleTag }}</span></span>
+          <span style="font-variant-numeric:tabular-nums;color:var(--color-neutral-700);font-size:13px">{{ u.start }}</span>
+        </button>
+      </sc-for>
+    </section>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:22px;min-width:0">
+    <section style="border-top:2px solid var(--color-divider);padding-top:12px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;gap:10px"><span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600">{{ t.completedSeason }}</span><span style="font-size:12px;color:var(--color-neutral-700)">{{ t.asOf }}</span></div>
+      <div style="display:grid;grid-template-columns:minmax(0,1.2fr) repeat(2,minmax(0,1fr));border-bottom:2px solid var(--color-divider)">
+        <div style="padding:6px 0 12px 0;display:flex;flex-direction:column"><span style="font:800 40px/1.05 var(--font-heading);font-variant-numeric:tabular-nums">{{ myDone }}</span><span style="font-size:12px;color:var(--color-neutral-700)">{{ t.done }}</span></div>
+        <sc-for list="{{ myStats }}" as="s" hint-placeholder-count="2">
+          <div style="padding:6px 0 12px 10px;border-left:1px solid var(--color-divider);display:flex;flex-direction:column;justify-content:flex-end"><span style="font:800 22px var(--font-heading);font-variant-numeric:tabular-nums">{{ s.v }}</span><span style="font-size:12px;color:var(--color-neutral-700)">{{ s.l }}</span></div>
+        </sc-for>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-top:8px;font-size:12.5px;color:var(--color-neutral-700)"><span>{{ myUpcomingLbl }}</span><button onClick="{{ goMyLog }}" class="btn btn-ghost" style="padding:2px 0">{{ t.viewLog }} →</button></div>
+    </section>
+    <sc-if value="{{ surveyDue }}" hint-placeholder-val="{{ false }}">
+      <section style="border-top:2px solid var(--color-divider);padding-top:12px;display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600">{{ surveyName }}</div>
+        <span style="font-size:14px">{{ surveyDueText }}</span>
+        <button onClick="{{ goSurvey }}" class="btn btn-secondary" style="justify-content:flex-start;align-self:flex-start">{{ t.answerNow }} →</button>
+      </section>
+    </sc-if>
+    <section style="border-top:2px solid var(--color-divider);padding-top:12px;display:flex;flex-direction:column;gap:8px">
+      <div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600">{{ t.calendar }}</div>
+      <span style="font-size:14px;color:var(--color-neutral-800)">{{ t.calShort }}</span>
+      <button onClick="{{ goSettings }}" class="btn btn-secondary" style="justify-content:flex-start;align-self:flex-start">{{ t.setUp }} →</button>
+    </section>
+  </div>
+</div>
+</sc-if>
+
+<!-- HOME · dashboard -->
+<sc-if value="{{ show.dashboard }}" hint-placeholder-val="{{ true }}">
+<div style="padding:{{ L.pad }};display:flex;flex-direction:column;gap:{{ L.gap }}">
+  <div style="display:grid;grid-template-columns:{{ L.strip }};border-top:2px solid var(--color-divider);border-bottom:2px solid var(--color-divider)">
+    <sc-for list="{{ strip }}" as="s" hint-placeholder-count="4">
+      <button onClick="{{ s.onClick }}" style="text-align:left;border:0;border-left:1px solid var(--color-divider);background:none;padding:12px 14px;display:flex;flex-direction:column;gap:2px;cursor:pointer;color:var(--color-text)" style-hover="background:var(--color-neutral-100)">
+        <span style="font-size:12px;color:var(--color-neutral-700)">{{ s.k }}</span>
+        <span style="font:800 30px/1.1 var(--font-heading);color:{{ s.c }};font-variant-numeric:tabular-nums;white-space:nowrap">{{ s.v }}</span>
+        <span style="font-size:12px;color:var(--color-neutral-700)">{{ s.sub }}</span>
+      </button>
+    </sc-for>
+  </div>
+  <div style="display:grid;grid-template-columns:{{ L.two }};gap:{{ L.gap }};align-items:start">
+    <div style="display:flex;flex-direction:column;gap:22px;min-width:0">
+      <section style="border-top:2px solid var(--color-divider)">
+        <div style="display:flex;justify-content:space-between;padding:12px 0 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600"><span>{{ t.coverageGaps }}</span><span style="color:var(--color-accent-700)">{{ gapCountLbl }}</span></div>
+        <sc-for list="{{ gapList }}" as="g" hint-placeholder-count="3">
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--color-divider)">
+            <button onClick="{{ g.onOpen }}" style="border:0;background:none;padding:0;text-align:left;cursor:pointer;color:var(--color-text);display:flex;flex-direction:column;gap:2px;min-width:0">
+              <span style="font-weight:600;font-size:14px">{{ g.date }} · {{ g.start }}</span>
+              <span style="font-size:12.5px;color:var(--color-neutral-700)">{{ g.hall }} · <span style="color:var(--color-accent-700);font-weight:600">{{ g.need }}</span></span>
+              <span style="font-size:12px;color:var(--color-neutral-700)">{{ g.req }}</span>
+            </button>
+            <button onClick="{{ g.onAssign }}" class="btn btn-secondary" style="justify-content:flex-start;padding:6px 10px">{{ t.assign }}</button>
+          </div>
+        </sc-for>
+        <sc-if value="{{ noGaps }}" hint-placeholder-val="{{ false }}"><div style="padding:14px 0;font-size:14px;color:var(--color-neutral-700)">{{ t.noGaps }}</div></sc-if>
+      </section>
+      <section style="border-top:2px solid var(--color-divider)">
+        <div style="padding:12px 0 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600">{{ t.resolved }}</div>
+        <sc-for list="{{ resolvedList }}" as="r" hint-placeholder-count="2">
+          <div style="display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:13.5px"><span>{{ r.text }}</span><span style="color:var(--color-neutral-700);font-size:12px;white-space:nowrap">{{ r.when }}</span></div>
+        </sc-for>
+      </section>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:22px;min-width:0">
+      <sc-if value="{{ hasNext }}" hint-placeholder-val="{{ true }}">
+        <section style="border-top:2px solid var(--color-divider);padding-top:12px">
+          <div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600;margin-bottom:6px">{{ t.myNext }}</div>
+          <button onClick="{{ nextS.onOpen }}" style="border:0;background:none;padding:0;text-align:left;cursor:pointer;color:var(--color-text);display:flex;flex-direction:column;gap:2px">
+            <span style="font:800 20px var(--font-heading)">{{ nextS.date }} · {{ nextS.start }}</span>
+            <span style="font-size:13.5px">{{ nextS.hall }}</span>
+          </button>
+        </section>
+      </sc-if>
+      <section style="border-top:2px solid var(--color-divider)">
+        <div style="padding:12px 0 6px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600">{{ t.workload }}</div>
+        <sc-for list="{{ workload }}" as="w" hint-placeholder-count="8">
+          <button onClick="{{ w.onOpen }}" style="width:100%;display:grid;grid-template-columns:minmax(0,1fr) 120px 26px;gap:10px;align-items:center;padding:7px 0;border:0;border-bottom:1px solid var(--color-divider);background:none;font-size:13.5px;text-align:left;cursor:pointer;color:var(--color-text)" style-hover="background:var(--color-neutral-100)">
+            <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ w.name }}</span>
+            <span style="height:8px;background:var(--color-neutral-200);display:flex"><span style="width:{{ w.pct }};background:var(--color-text)"></span><span style="width:{{ w.upPct }};background:var(--color-neutral-400)"></span></span>
+            <span style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600">{{ w.count }}</span>
+          </button>
+        </sc-for>
+      </section>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- SESSIONS list -->
+<sc-if value="{{ show.sessions }}" hint-placeholder-val="{{ false }}">
+<div style="padding:{{ L.pad }};display:flex;flex-direction:column;gap:16px">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--color-divider);padding-bottom:12px">
+    <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700)">{{ sessSeason.kicker }}</span><span style="font:800 22px var(--font-heading)">{{ sessSeason.title }}</span></div>
+    <span style="font-size:12.5px;color:var(--color-neutral-700)">{{ sessSeason.sub }}</span>
+  </div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+    <div style="display:flex;border:1px solid var(--color-divider);flex-wrap:wrap">
+      <sc-for list="{{ hallOpts }}" as="o" hint-placeholder-count="4"><button onClick="{{ o.onClick }}" style="border:0;border-left:{{ o.bl }};padding:6px 12px;font:600 13px var(--font-body);cursor:pointer;background:{{ o.bg }};color:{{ o.fg }}">{{ o.l }}</button></sc-for>
+    </div>
+    <button onClick="{{ toggleMine }}" style="display:flex;align-items:center;gap:8px;border:0;background:none;font:600 13px var(--font-body);cursor:pointer;color:var(--color-text);padding:0"><span style="width:16px;height:16px;border:1.5px solid var(--color-text);background:{{ mineBg }};color:var(--color-bg);display:grid;place-items:center;font-size:11px">{{ mineMark }}</span>{{ t.onlyMine }}</button>
+  </div>
+  <div style="display:flex;align-items:stretch;gap:8px;min-width:0;position:relative">
+    <div style="display:flex;overflow-x:auto;border:1px solid var(--color-divider);min-width:0"><sc-for list="{{ sessChips }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.onClick }}" style="flex:none;border:0;border-left:{{ c.bl }};padding:6px 10px 5px;background:{{ c.bg }};color:{{ c.fg }};font:600 12.5px var(--font-body);cursor:pointer;white-space:nowrap;display:flex;flex-direction:column;align-items:flex-start;gap:3px">{{ c.l }}<span style="font-size:10.5px;font-weight:600;opacity:.75;min-height:12px">{{ c.sub }}</span><span style="height:3px;width:100%;background:{{ c.mark }}"></span></button></sc-for></div>
+  </div>
+  <div style="display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap">
+  <sc-if value="{{ sessCalOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;gap:10px;flex:0 1 400px;min-width:280px;order:2">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <button onClick="{{ sessCal.prev }}" style="border:1px solid var(--color-divider);background:none;width:30px;height:28px;cursor:pointer;color:var(--color-text);opacity:{{ sessCal.prevOp }}">←</button>
+      <span style="font:800 15px var(--font-heading)">{{ sessCal.title }}</span>
+      <button onClick="{{ sessCal.next }}" style="border:1px solid var(--color-divider);background:none;width:30px;height:28px;cursor:pointer;color:var(--color-text);opacity:{{ sessCal.nextOp }}">→</button>
+    </div>
+    <div>
+      <div style="display:grid;grid-template-columns:36px repeat(7,minmax(0,1fr));border-bottom:2px solid var(--color-text)">
+        <sc-for list="{{ sessCal.head }}" as="hd" hint-placeholder-count="8"><span style="font-size:10.5px;color:var(--color-neutral-700);padding:5px 0;text-align:center;font-weight:600">{{ hd }}</span></sc-for>
+      </div>
+      <sc-for list="{{ sessCal.weeks }}" as="w" hint-placeholder-count="5">
+        <div onClick="{{ w.onClick }}" style="display:grid;grid-template-columns:36px repeat(7,minmax(0,1fr));border-bottom:1px solid var(--color-divider);background:{{ w.bg }};cursor:{{ w.cur }};box-shadow:inset 3px 0 0 {{ w.line }}">
+          <span style="font:800 11px var(--font-heading);color:var(--color-accent-700);display:flex;align-items:center;justify-content:center">{{ w.cw }}</span>
+          <sc-for list="{{ w.days }}" as="d" hint-placeholder-count="7"><span style="height:42px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font:{{ d.w }} 12.5px var(--font-body);color:{{ d.c }}">{{ d.n }}<span style="width:8px;height:8px;box-sizing:border-box;background:{{ d.mbg }}"></span></span></sc-for>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--color-neutral-700)">
+      <sc-for list="{{ sessCal.legend }}" as="l" hint-placeholder-count="2"><span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;background:{{ l.bg }}"></span>{{ l.l }}</span></sc-for>
+    </div>
+  </div>
+  </sc-if>
+  <div style="flex:1 1 320px;min-width:0;order:1;display:flex;flex-direction:column;gap:16px">
+  <sc-for list="{{ weeks }}" as="w" hint-placeholder-count="2">
+    <section style="border-top:2px solid var(--color-divider)">
+      <div style="padding:12px 0 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600">{{ w.label }}</div>
+      <sc-for list="{{ w.rows }}" as="r" hint-placeholder-count="5">
+        <button onClick="{{ r.onOpen }}" style="width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px 0;border:0;border-bottom:1px solid var(--color-divider);background:none;text-align:left;cursor:pointer;color:var(--color-text)" style-hover="background:var(--color-neutral-100)">
+          <span style="display:flex;flex-direction:column;gap:2px;min-width:0">
+            <span style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap"><span style="font-weight:600;font-size:14.5px">{{ r.date }}</span><span style="font-size:13px;font-variant-numeric:tabular-nums">{{ r.time }}</span><sc-if value="{{ r.mine }}" hint-placeholder-val="{{ false }}"><span class="tag tag-neutral" style="padding:0 6px">{{ t.you }}</span></sc-if><sc-if value="{{ r.changed }}" hint-placeholder-val="{{ false }}"><span class="tag tag-outline" style="padding:0 6px">{{ t.changed }}</span></sc-if></span>
+            <span style="font-size:12.5px;color:var(--color-neutral-700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.hall }} · {{ r.groups }}</span>
+          </span>
+          <span style="display:flex;gap:14px;font-size:12px;color:var(--color-neutral-700)">
+            <span style="display:flex;flex-direction:column;align-items:flex-end"><span style="font:800 15px var(--font-heading);color:{{ r.regC }};font-variant-numeric:tabular-nums">{{ r.covReg }}</span>{{ t.regularsLbl }}</span>
+            <span style="display:flex;flex-direction:column;align-items:flex-end"><span style="font:800 15px var(--font-heading);color:{{ r.junC }};font-variant-numeric:tabular-nums">{{ r.covJun }}</span>{{ t.coachesLbl }}</span>
+          </span>
+        </button>
+      </sc-for>
+    </section>
+  </sc-for>
+  <sc-if value="{{ sessEmpty }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:var(--color-neutral-700)">{{ sessEmptyText }}</div></sc-if>
+  </div>
+  </div>
+  <div style="font-size:12.5px;color:var(--color-neutral-700);border-top:2px solid var(--color-divider);padding-top:10px">{{ laterNote }}</div>
+</div>
+</sc-if>
+
+<!-- SESSION detail -->
+<sc-if value="{{ show.session }}" hint-placeholder-val="{{ false }}">
+<div style="padding:{{ L.pad }};display:flex;flex-direction:column;gap:18px">
+  <button onClick="{{ goSessions }}" class="btn btn-ghost" style="align-self:flex-start;padding:0">{{ t.back }}</button>
+  <div style="display:flex;flex-direction:column;gap:4px">
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="font:800 26px var(--font-heading)">{{ sd.time }}</span><sc-if value="{{ sd.changed }}" hint-placeholder-val="{{ false }}"><span class="tag tag-outline">{{ t.changed }}</span></sc-if><sc-if value="{{ sd.short }}" hint-placeholder-val="{{ false }}"><span class="tag tag-accent">{{ sd.shortLabel }}</span></sc-if></div>
+    <span style="font-size:14.5px">{{ sd.hallFull }}</span>
+    <a href="{{ sd.mapUrl }}" target="_blank" rel="noopener" style="align-self:flex-start;font-size:13.5px;font-weight:600;color:var(--color-accent-700);text-decoration:underline;text-underline-offset:3px">{{ sd.addr }} ↗</a>
+    <sc-if value="{{ sd.hallNote }}" hint-placeholder-val="{{ false }}"><span style="font-size:12.5px;color:var(--color-neutral-700)">{{ sd.hallNote }}</span></sc-if>
+    <span style="font-size:13px;color:var(--color-neutral-700)">{{ t.groupsLbl }}: {{ sd.groups }}</span>
+  </div>
+  <div style="display:grid;grid-template-columns:{{ L.two }};gap:{{ L.gap }};align-items:start">
+    <div style="display:flex;flex-direction:column;gap:20px;min-width:0">
+      <sc-for list="{{ sd.tracks }}" as="tr" hint-placeholder-count="2">
+        <section style="border-top:2px solid var(--color-divider)">
+          <div style="display:flex;justify-content:space-between;padding:12px 0 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600"><span>{{ tr.label }}</span><span style="font-variant-numeric:tabular-nums;color:{{ tr.c }}">{{ tr.cov }}</span></div>
+          <sc-for list="{{ tr.slots }}" as="s" hint-placeholder-count="3">
+            <div style="display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--color-divider)">
+              <span style="width:32px;height:32px;display:grid;place-items:center;font:800 12px var(--font-heading);background:{{ s.avBg }};color:{{ s.avFg }};border:{{ s.avBd }}">{{ s.ini }}</span>
+              <span style="display:flex;flex-direction:column;min-width:0"><span style="font-weight:600;font-size:14px;color:{{ s.nameC }}">{{ s.name }}</span><span style="font-size:12px;color:var(--color-neutral-700)">{{ s.sub }}</span></span>
+              <sc-if value="{{ s.hasTag }}" hint-placeholder-val="{{ false }}"><span class="tag tag-neutral">{{ s.tag }}</span></sc-if>
+            </div>
+          </sc-for>
+        </section>
+      </sc-for>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:20px;min-width:0">
+      <section style="border-top:2px solid var(--color-divider);padding-top:12px;display:flex;flex-direction:column;gap:8px">
+        <sc-if value="{{ sd.canVolunteer }}" hint-placeholder-val="{{ false }}"><button onClick="{{ sd.onVolunteer }}" class="btn btn-primary" style="justify-content:flex-start;height:42px">{{ t.volunteer }} →</button></sc-if>
+        <sc-if value="{{ sd.amAssigned }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button onClick="{{ addCal }}" class="btn btn-secondary" style="justify-content:flex-start;height:40px">{{ t.addCal }}</button>
+            <button onClick="{{ sd.onFlag }}" class="btn btn-secondary" style="justify-content:flex-start;height:40px">{{ t.cantMake }}</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ sd.blockNote }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:var(--color-neutral-700)">{{ sd.blockNote }}</span></sc-if>
+        <sc-if value="{{ isHead }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--color-divider);padding-top:10px;margin-top:4px">
+            <button onClick="{{ sd.onMatrix }}" class="btn btn-secondary" style="justify-content:flex-start;height:40px">{{ t.editMatrix }} →</button>
+            <button onClick="{{ sd.onOverride }}" class="btn btn-secondary" style="justify-content:flex-start;height:40px">{{ t.override }}</button>
+          </div>
+        </sc-if>
+      </section>
+      <sc-if value="{{ sd.hasReq }}" hint-placeholder-val="{{ false }}">
+        <section style="border-top:2px solid var(--color-accent);padding-top:12px;display:flex;flex-direction:column;gap:4px;font-size:13.5px">
+          <span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-accent-700);font-weight:600">{{ t.subRequest }}</span>
+          <span>{{ sd.req }}</span>
+          <span style="color:var(--color-neutral-700);font-size:12.5px">{{ sd.esc }}</span>
+        </section>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- AVAILABILITY -->
+<sc-if value="{{ show.availability }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;min-height:100%">
+  <sc-if value="{{ isHead }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:none;display:flex;gap:20px;padding:12px {{ L.side }} 0;border-bottom:2px solid var(--color-divider)">
+      <sc-for list="{{ availTabs }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="border:0;background:none;padding:0 0 9px;font:600 14px var(--font-body);cursor:pointer;color:{{ o.c }};border-bottom:3px solid {{ o.line }};margin-bottom:-2px">{{ o.l }}</button></sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ show.survey }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:{{ L.pad }};display:grid;grid-template-columns:{{ L.svGrid }};gap:{{ L.gap }};align-items:start">
+      <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><span style="display:flex;flex-direction:column"><span style="font:800 18px var(--font-heading)">{{ surveyName }}</span><span style="font-size:12.5px;color:var(--color-neutral-700)">{{ surveyRange }}</span></span><span class="tag {{ surveyTagCls }}">{{ surveyStatus }}</span></div>
+        <sc-if value="{{ surveyLocked }}" hint-placeholder-val="{{ false }}"><div style="border-top:2px solid var(--color-text);padding-top:10px;font-size:14px">{{ t.surveyLockedNote }}</div></sc-if>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap"><span style="font-size:14px;color:var(--color-neutral-800)">{{ surveyIntroText }}</span><span style="font-weight:600;font-size:13px;white-space:nowrap">{{ surveyProgress }}</span></div>
+        <div style="height:6px;background:var(--color-neutral-300);position:relative"><span style="position:absolute;left:0;top:0;bottom:0;width:{{ surveyPct }};background:var(--color-text)"></span></div>
+        <div style="display:flex;align-items:stretch;gap:8px">
+          <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}"><button onClick="{{ toggleSvCal }}" style="flex:none;border:1px solid var(--color-divider);background:{{ svCalBg }};color:{{ svCalFg }};padding:0 10px;font:600 12.5px var(--font-body);cursor:pointer">{{ t.calendarBtn }}</button></sc-if>
+          <div style="display:flex;overflow-x:auto;border:1px solid var(--color-divider);min-width:0"><sc-for list="{{ svChips }}" as="c" hint-placeholder-count="8"><button onClick="{{ c.onClick }}" style="flex:none;border:0;border-left:{{ c.bl }};padding:6px 10px 5px;background:{{ c.bg }};color:{{ c.fg }};font:600 12.5px var(--font-body);cursor:pointer;white-space:nowrap;display:flex;flex-direction:column;align-items:flex-start;gap:3px">{{ c.l }}<span style="font-size:10.5px;font-weight:600;opacity:.75;min-height:12px">{{ c.sub }}</span><span style="height:3px;width:100%;background:{{ c.mark }}"></span></button></sc-for></div>
+        </div>
+        <sc-if value="{{ svCalInline }}" hint-placeholder-val="{{ false }}"><div style="border:2px solid var(--color-text);padding:12px"><div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <button onClick="{{ calS.prev }}" style="border:1px solid var(--color-divider);background:none;width:30px;height:28px;cursor:pointer;color:var(--color-text);opacity:{{ calS.prevOp }}">←</button>
+            <span style="font:800 15px var(--font-heading)">{{ calS.title }}</span>
+            <button onClick="{{ calS.next }}" style="border:1px solid var(--color-divider);background:none;width:30px;height:28px;cursor:pointer;color:var(--color-text);opacity:{{ calS.nextOp }}">→</button>
+          </div>
+          <div>
+            <div style="display:grid;grid-template-columns:36px repeat(7,minmax(0,1fr));border-bottom:2px solid var(--color-text)">
+              <sc-for list="{{ calS.head }}" as="hd" hint-placeholder-count="8"><span style="font-size:10.5px;color:var(--color-neutral-700);padding:5px 0;text-align:center;font-weight:600">{{ hd }}</span></sc-for>
+            </div>
+            <sc-for list="{{ calS.weeks }}" as="w" hint-placeholder-count="5">
+              <div onClick="{{ w.onClick }}" style="display:grid;grid-template-columns:36px repeat(7,minmax(0,1fr));border-bottom:1px solid var(--color-divider);background:{{ w.bg }};cursor:{{ w.cur }};box-shadow:inset 3px 0 0 {{ w.line }}">
+                <span style="font:800 11px var(--font-heading);color:{{ w.cwC }};display:flex;align-items:center;justify-content:center">{{ w.cw }}</span>
+                <sc-for list="{{ w.days }}" as="d" hint-placeholder-count="7"><span style="height:36px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12.5px;font-weight:{{ d.w }};color:{{ d.c }}">{{ d.n }}<span style="width:8px;height:8px;box-sizing:border-box;background:{{ d.mbg }};border:{{ d.mbd }}"></span></span></sc-for>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--color-neutral-700)">
+            <sc-for list="{{ calS.legend }}" as="l" hint-placeholder-count="3"><span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;box-sizing:border-box;background:{{ l.bg }};border:{{ l.bd }}"></span>{{ l.l }}</span></sc-for>
+          </div>
+        </div></div></sc-if>
+        <div style="display:grid;grid-template-columns:40px minmax(0,1fr) 40px;border-top:2px solid var(--color-divider);border-bottom:2px solid var(--color-divider)">
+          <button onClick="{{ svPrev }}" style="border:0;border-right:1px solid var(--color-divider);background:none;font-size:17px;cursor:pointer;color:var(--color-text);opacity:{{ svPrevOp }}">←</button>
+          <div style="padding:9px 12px;display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span style="font:800 17px var(--font-heading)">{{ svWeekTitle }}</span><span style="font-size:12.5px;color:var(--color-neutral-700);white-space:nowrap">{{ svWeekDone }}</span></div>
+          <button onClick="{{ svNext }}" style="border:0;border-left:1px solid var(--color-divider);background:none;font-size:17px;cursor:pointer;color:var(--color-text);opacity:{{ svNextOp }}">→</button>
+        </div>
+        <div style="margin-top:-14px">
+          <sc-for list="{{ surveyRows }}" as="r" hint-placeholder-count="5">
+            <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--color-divider)">
+              <span style="display:flex;flex-direction:column;min-width:0"><span style="font-weight:600;font-size:14px">{{ r.date }} · {{ r.start }}</span><span style="font-size:12px;color:var(--color-neutral-700)">{{ r.hall }}</span></span>
+              <span style="display:flex;border:1px solid var(--color-divider)">
+                <sc-for list="{{ r.opts }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.onClick }}" title="{{ o.title }}" style="width:{{ L.surveyBtn }};height:38px;border:0;border-left:{{ o.bl }};background:{{ o.bg }};color:{{ o.fg }};font:800 13px var(--font-body);cursor:{{ o.cur }};opacity:{{ o.op }};display:flex;align-items:center;justify-content:flex-start;gap:6px;padding:0 10px">{{ o.g }}<span style="font-weight:600;font-size:12px;display:{{ L.deskInline }}">{{ o.title }}</span></button></sc-for>
+              </span>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ surveyEditable }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button onClick="{{ saveSurvey }}" class="btn btn-primary" style="justify-content:flex-start;height:42px;padding:0 18px">{{ t.saveAnswers }}</button>
+            <button onClick="{{ markWeek }}" class="btn btn-secondary" style="justify-content:flex-start;height:42px">{{ t.markWeek }}</button>
+          </div>
+        </sc-if>
+      </div>
+      <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+        <aside style="border-top:2px solid var(--color-divider);padding-top:12px;display:flex;flex-direction:column;gap:10px">
+          <span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600">{{ t.calendarBtn }}</span>
+          <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <button onClick="{{ calS.prev }}" style="border:1px solid var(--color-divider);background:none;width:30px;height:28px;cursor:pointer;color:var(--color-text);opacity:{{ calS.prevOp }}">←</button>
+            <span style="font:800 15px var(--font-heading)">{{ calS.title }}</span>
+            <button onClick="{{ calS.next }}" style="border:1px solid var(--color-divider);background:none;width:30px;height:28px;cursor:pointer;color:var(--color-text);opacity:{{ calS.nextOp }}">→</button>
+          </div>
+          <div>
+            <div style="display:grid;grid-template-columns:36px repeat(7,minmax(0,1fr));border-bottom:2px solid var(--color-text)">
+              <sc-for list="{{ calS.head }}" as="hd" hint-placeholder-count="8"><span style="font-size:10.5px;color:var(--color-neutral-700);padding:5px 0;text-align:center;font-weight:600">{{ hd }}</span></sc-for>
+            </div>
+            <sc-for list="{{ calS.weeks }}" as="w" hint-placeholder-count="5">
+              <div onClick="{{ w.onClick }}" style="display:grid;grid-template-columns:36px repeat(7,minmax(0,1fr));border-bottom:1px solid var(--color-divider);background:{{ w.bg }};cursor:{{ w.cur }};box-shadow:inset 3px 0 0 {{ w.line }}">
+                <span style="font:800 11px var(--font-heading);color:{{ w.cwC }};display:flex;align-items:center;justify-content:center">{{ w.cw }}</span>
+                <sc-for list="{{ w.days }}" as="d" hint-placeholder-count="7"><span style="height:36px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12.5px;font-weight:{{ d.w }};color:{{ d.c }}">{{ d.n }}<span style="width:8px;height:8px;box-sizing:border-box;background:{{ d.mbg }};border:{{ d.mbd }}"></span></span></sc-for>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--color-neutral-700)">
+            <sc-for list="{{ calS.legend }}" as="l" hint-placeholder-count="3"><span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;box-sizing:border-box;background:{{ l.bg }};border:{{ l.bd }}"></span>{{ l.l }}</span></sc-for>
+          </div>
+        </div>
+        </aside>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ show.matrixDesk }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 330px">
+      <div style="min-width:0;display:flex;flex-direction:column">
+        <div style="flex:none;display:flex;flex-direction:column;gap:10px;padding:12px 32px;border-bottom:2px solid var(--color-divider)">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+            <span style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="font:800 16px var(--font-heading)">{{ surveyName }}</span><span class="tag {{ surveyTagCls }}">{{ surveyStatus }}</span><span style="font-size:12.5px;color:var(--color-neutral-700)">{{ mx.resp }} {{ t.responded }}</span></span>
+            <span style="display:flex;gap:8px"><button onClick="{{ closeSurvey }}" class="btn btn-secondary" style="justify-content:flex-start">{{ surveyBtn }}</button><button onClick="{{ openNs }}" class="btn btn-primary" style="justify-content:flex-start">+ {{ t.newSurvey }}</button></span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+            <div style="display:flex;align-items:stretch;gap:8px;min-width:0;position:relative">
+              <button onClick="{{ toggleMxCal }}" style="flex:none;border:1px solid var(--color-divider);background:{{ mxCalBg }};color:{{ mxCalFg }};padding:0 10px;font:600 12.5px var(--font-body);cursor:pointer">{{ t.calendarBtn }} ▾</button>
+              <div style="display:flex;overflow-x:auto;border:1px solid var(--color-divider);min-width:0"><sc-for list="{{ mxChips }}" as="c" hint-placeholder-count="8"><button onClick="{{ c.onClick }}" style="flex:none;border:0;border-left:{{ c.bl }};padding:6px 10px 5px;background:{{ c.bg }};color:{{ c.fg }};font:600 12.5px var(--font-body);cursor:pointer;white-space:nowrap;display:flex;flex-direction:column;align-items:flex-start;gap:3px">{{ c.l }}<span style="font-size:10.5px;font-weight:600;opacity:.75;min-height:12px">{{ c.sub }}</span><span style="height:3px;width:100%;background:{{ c.mark }}"></span></button></sc-for></div>
+              <sc-if value="{{ mxCalOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;top:calc(100% + 6px);left:0;width:310px;z-index:10;background:var(--color-bg);border:2px solid var(--color-text);box-shadow:var(--shadow-lg);padding:12px"><div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <button onClick="{{ calM.prev }}" style="border:1px solid var(--color-divider);background:none;width:30px;height:28px;cursor:pointer;color:var(--color-text);opacity:{{ calM.prevOp }}">←</button>
+            <span style="font:800 15px var(--font-heading)">{{ calM.title }}</span>
+            <button onClick="{{ calM.next }}" style="border:1px solid var(--color-divider);background:none;width:30px;height:28px;cursor:pointer;color:var(--color-text);opacity:{{ calM.nextOp }}">→</button>
+          </div>
+          <div>
+            <div style="display:grid;grid-template-columns:36px repeat(7,minmax(0,1fr));border-bottom:2px solid var(--color-text)">
+              <sc-for list="{{ calM.head }}" as="hd" hint-placeholder-count="8"><span style="font-size:10.5px;color:var(--color-neutral-700);padding:5px 0;text-align:center;font-weight:600">{{ hd }}</span></sc-for>
+            </div>
+            <sc-for list="{{ calM.weeks }}" as="w" hint-placeholder-count="5">
+              <div onClick="{{ w.onClick }}" style="display:grid;grid-template-columns:36px repeat(7,minmax(0,1fr));border-bottom:1px solid var(--color-divider);background:{{ w.bg }};cursor:{{ w.cur }};box-shadow:inset 3px 0 0 {{ w.line }}">
+                <span style="font:800 11px var(--font-heading);color:{{ w.cwC }};display:flex;align-items:center;justify-content:center">{{ w.cw }}</span>
+                <sc-for list="{{ w.days }}" as="d" hint-placeholder-count="7"><span style="height:36px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12.5px;font-weight:{{ d.w }};color:{{ d.c }}">{{ d.n }}<span style="width:8px;height:8px;box-sizing:border-box;background:{{ d.mbg }};border:{{ d.mbd }}"></span></span></sc-for>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--color-neutral-700)">
+            <sc-for list="{{ calM.legend }}" as="l" hint-placeholder-count="3"><span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;box-sizing:border-box;background:{{ l.bg }};border:{{ l.bd }}"></span>{{ l.l }}</span></sc-for>
+          </div>
+        </div></div>
+              </sc-if>
+            </div>
+            <div style="display:flex;border:1px solid var(--color-divider);flex:none"><sc-for list="{{ trackOpts }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="border:0;border-left:{{ o.bl }};padding:5px 12px;font:600 13px var(--font-body);cursor:pointer;background:{{ o.bg }};color:{{ o.fg }}">{{ o.l }}</button></sc-for></div>
+          </div>
+        </div>
+        <div style="flex:1;overflow:auto">
+          <div style="display:grid;grid-template-columns:{{ dk.cols }};position:sticky;top:0;background:var(--color-bg);z-index:2;border-bottom:2px solid var(--color-text)">
+            <span style="padding:8px 0 6px 32px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);align-self:end">{{ t.session }}</span>
+            <span style="padding:8px 0 6px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);align-self:end">{{ t.coverage }}</span>
+            <sc-for list="{{ dk.head }}" as="h" hint-placeholder-count="8">
+              <span style="padding:8px 0 6px;display:flex;flex-direction:column;align-items:center;gap:3px"><span style="font-size:12px;font-weight:600">{{ h.first }}</span><span style="width:28px;height:4px;background:var(--color-neutral-300);position:relative"><span style="position:absolute;left:0;top:0;bottom:0;width:{{ h.load }};background:var(--color-text)"></span></span><span style="font-size:10.5px;color:var(--color-neutral-700);font-variant-numeric:tabular-nums">{{ h.count }}</span></span>
+            </sc-for>
+          </div>
+          <sc-for list="{{ dk.rows }}" as="r" hint-placeholder-count="10">
+            <div style="display:grid;grid-template-columns:{{ dk.cols }};border-bottom:1px solid var(--color-divider);background:{{ r.rowBg }};box-shadow:inset 3px 0 0 {{ r.selLine }}">
+              <button onClick="{{ r.onSelect }}" style="border:0;background:none;text-align:left;padding:8px 0 8px 32px;cursor:pointer;color:var(--color-text);display:flex;flex-direction:column;line-height:1.25"><span style="font-weight:600;font-size:13.5px">{{ r.date }}</span><span style="font-size:11.5px;color:var(--color-neutral-700)">{{ r.sub }}</span></button>
+              <span style="align-self:center;font-size:14px;font-variant-numeric:tabular-nums;font-weight:{{ r.covW }};color:{{ r.covC }}">{{ r.cov }}</span>
+              <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="8">
+                <span onClick="{{ c.onClick }}" style="display:grid;place-items:center;cursor:{{ c.cur }}"><span style="width:28px;height:28px;display:grid;place-items:center;font-size:12px;font-weight:800;background:{{ c.bg }};color:{{ c.fg }};border:{{ c.bd }}">{{ c.g }}</span></span>
+              </sc-for>
+            </div>
+          </sc-for>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;padding:12px 32px;font-size:12px;color:var(--color-neutral-800)">
+            <sc-for list="{{ legend }}" as="l" hint-placeholder-count="5"><span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;background:{{ l.bg }};border:{{ l.bd }}"></span>{{ l.l }}</span></sc-for>
+            <span style="color:var(--color-neutral-700)">{{ t.clickHint }}</span>
+          </div>
+        </div>
+      </div>
+      <aside style="border-left:2px solid var(--color-divider);display:flex;flex-direction:column;min-height:0">
+        <div style="flex:none;padding:16px 20px 12px;border-bottom:2px solid var(--color-divider)">
+          <div style="font-size:12px;color:var(--color-neutral-700)">{{ dk.panel.groups }}</div>
+          <h3 style="font-size:22px;margin:2px 0 4px">{{ dk.panel.date }}</h3>
+          <div style="font-size:13.5px">{{ dk.panel.hall }} · {{ dk.panel.time }}</div>
+          <div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap"><sc-if value="{{ dk.panel.short }}" hint-placeholder-val="{{ true }}"><span class="tag tag-accent">{{ dk.panel.shortLabel }}</span></sc-if><button onClick="{{ dk.panel.onOpen }}" class="btn btn-ghost" style="padding:0">{{ t.open }} →</button></div>
+        </div>
+        <div style="flex:1;overflow:auto">
+          <sc-for list="{{ dk.panel.tracks }}" as="tr" hint-placeholder-count="2">
+            <div>
+              <div style="display:flex;justify-content:space-between;padding:12px 20px 6px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600"><span>{{ tr.label }}</span><span style="font-variant-numeric:tabular-nums">{{ tr.cov }}</span></div>
+              <sc-for list="{{ tr.slots }}" as="s" hint-placeholder-count="3">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin:0 20px 6px;padding:7px 10px;border:{{ s.bd }}">
+                  <span style="display:flex;flex-direction:column;line-height:1.25"><span style="font-size:13.5px;font-weight:600;color:{{ s.c }}">{{ s.name }}</span><span style="font-size:11.5px;color:var(--color-neutral-700)">{{ s.sub }}</span></span>
+                  <sc-if value="{{ s.canRemove }}" hint-placeholder-val="{{ false }}"><button onClick="{{ s.onRemove }}" style="border:0;background:none;cursor:pointer;font-size:14px;color:var(--color-neutral-700)">✕</button></sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </sc-for>
+          <div style="padding:14px 20px 6px;margin-top:6px;border-top:2px solid var(--color-divider);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600">{{ dk.panel.candTitle }}</div>
+          <sc-for list="{{ dk.panel.candidates }}" as="c" hint-placeholder-count="3">
+            <div style="display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 20px;border-bottom:1px solid var(--color-divider)">
+              <span style="width:22px;height:22px;display:grid;place-items:center;font-size:11px;font-weight:800;background:{{ c.bg }};color:{{ c.fg }};border:{{ c.bd }}">{{ c.g }}</span>
+              <span style="display:flex;flex-direction:column;line-height:1.25"><span style="font-size:13.5px;font-weight:600">{{ c.name }}</span><span style="font-size:11.5px;color:var(--color-neutral-700)">{{ c.state }} · {{ c.count }} {{ t.sessionsN }}</span></span>
+              <button onClick="{{ c.onAssign }}" class="btn btn-secondary" style="justify-content:flex-start;padding:5px 10px">{{ t.assign }}</button>
+            </div>
+          </sc-for>
+          <sc-if value="{{ dk.panel.noCand }}" hint-placeholder-val="{{ false }}"><div style="padding:12px 20px;font-size:13px;color:var(--color-neutral-700)">{{ t.noCandidates }}</div></sc-if>
+        </div>
+      </aside>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ show.matrixMob }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-direction:column">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px">
+        <div style="display:flex;border:1px solid var(--color-divider)"><sc-for list="{{ trackOpts }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="border:0;border-left:{{ o.bl }};padding:6px 12px;font:600 13px var(--font-body);cursor:pointer;background:{{ o.bg }};color:{{ o.fg }}">{{ o.l }}</button></sc-for></div>
+        <span style="font-size:12px;color:var(--color-neutral-700);white-space:nowrap">{{ mx.resp }} {{ t.responded }}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:0 16px 10px">
+        <span class="tag {{ surveyTagCls }}">{{ surveyName }} · {{ surveyStatus }}</span>
+        <span style="display:flex;gap:6px"><button onClick="{{ closeSurvey }}" class="btn btn-secondary" style="justify-content:flex-start;padding:5px 8px;font-size:12.5px">{{ surveyBtn }}</button><button onClick="{{ openNs }}" class="btn btn-primary" style="justify-content:flex-start;padding:5px 8px;font-size:12.5px">+</button></span>
+      </div>
+      <div style="display:flex;align-items:stretch;gap:8px;padding:0 16px 10px">
+        <button onClick="{{ toggleMxCal }}" style="flex:none;border:1px solid var(--color-divider);background:{{ mxCalBg }};color:{{ mxCalFg }};padding:0 10px;font:600 12.5px var(--font-body);cursor:pointer">{{ t.calendarBtn }}</button>
+        <div style="display:flex;overflow-x:auto;border:1px solid var(--color-divider);min-width:0"><sc-for list="{{ mxChipsMob }}" as="c" hint-placeholder-count="8"><button onClick="{{ c.onClick }}" style="flex:none;border:0;border-left:{{ c.bl }};padding:6px 10px 5px;background:{{ c.bg }};color:{{ c.fg }};font:600 12.5px var(--font-body);cursor:pointer;white-space:nowrap;display:flex;flex-direction:column;align-items:flex-start;gap:3px">{{ c.l }}<span style="font-size:10.5px;font-weight:600;opacity:.75;min-height:12px">{{ c.sub }}</span><span style="height:3px;width:100%;background:{{ c.mark }}"></span></button></sc-for></div>
+      </div>
+      <sc-if value="{{ mxCalOpen }}" hint-placeholder-val="{{ false }}"><div style="margin:0 16px 12px;border:2px solid var(--color-text);padding:12px"><div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <button onClick="{{ calM.prev }}" style="border:1px solid var(--color-divider);background:none;width:30px;height:28px;cursor:pointer;color:var(--color-text);opacity:{{ calM.prevOp }}">←</button>
+            <span style="font:800 15px var(--font-heading)">{{ calM.title }}</span>
+            <button onClick="{{ calM.next }}" style="border:1px solid var(--color-divider);background:none;width:30px;height:28px;cursor:pointer;color:var(--color-text);opacity:{{ calM.nextOp }}">→</button>
+          </div>
+          <div>
+            <div style="display:grid;grid-template-columns:36px repeat(7,minmax(0,1fr));border-bottom:2px solid var(--color-text)">
+              <sc-for list="{{ calM.head }}" as="hd" hint-placeholder-count="8"><span style="font-size:10.5px;color:var(--color-neutral-700);padding:5px 0;text-align:center;font-weight:600">{{ hd }}</span></sc-for>
+            </div>
+            <sc-for list="{{ calM.weeks }}" as="w" hint-placeholder-count="5">
+              <div onClick="{{ w.onClick }}" style="display:grid;grid-template-columns:36px repeat(7,minmax(0,1fr));border-bottom:1px solid var(--color-divider);background:{{ w.bg }};cursor:{{ w.cur }};box-shadow:inset 3px 0 0 {{ w.line }}">
+                <span style="font:800 11px var(--font-heading);color:{{ w.cwC }};display:flex;align-items:center;justify-content:center">{{ w.cw }}</span>
+                <sc-for list="{{ w.days }}" as="d" hint-placeholder-count="7"><span style="height:36px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12.5px;font-weight:{{ d.w }};color:{{ d.c }}">{{ d.n }}<span style="width:8px;height:8px;box-sizing:border-box;background:{{ d.mbg }};border:{{ d.mbd }}"></span></span></sc-for>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--color-neutral-700)">
+            <sc-for list="{{ calM.legend }}" as="l" hint-placeholder-count="3"><span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;box-sizing:border-box;background:{{ l.bg }};border:{{ l.bd }}"></span>{{ l.l }}</span></sc-for>
+          </div>
+        </div></div></sc-if>
+      <div style="display:grid;grid-template-columns:44px minmax(0,1fr) 44px;border-top:2px solid var(--color-divider);border-bottom:2px solid var(--color-divider)">
+        <button onClick="{{ selPrev }}" style="border:0;border-right:1px solid var(--color-divider);background:none;font-size:18px;cursor:pointer;color:var(--color-text);opacity:{{ day.prevOp }}">←</button>
+        <button onClick="{{ dk.panel.onOpen }}" style="border:0;background:none;text-align:left;padding:10px 12px;display:flex;flex-direction:column;gap:2px;cursor:pointer;color:var(--color-text)">
+          <span style="display:flex;justify-content:space-between;align-items:baseline;width:100%"><span style="font:800 18px var(--font-heading)">{{ dk.panel.date }}</span><span style="font-size:12px;color:var(--color-neutral-700);font-variant-numeric:tabular-nums">{{ day.pos }}</span></span>
+          <span style="font-size:13px;color:var(--color-neutral-800)">{{ dk.panel.hallShort }} · {{ dk.panel.time }}</span>
+        </button>
+        <button onClick="{{ selNext }}" style="border:0;border-left:1px solid var(--color-divider);background:none;font-size:18px;cursor:pointer;color:var(--color-text);opacity:{{ day.nextOp }}">→</button>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--color-divider);font-size:13px">
+        <span>{{ t.X }} <b style="font-variant-numeric:tabular-nums">{{ day.cov }}</b></span>
+        <sc-if value="{{ day.short }}" hint-placeholder-val="{{ true }}"><span class="tag tag-accent">{{ day.shortLabel }}</span></sc-if>
+      </div>
+      <sc-for list="{{ day.rows }}" as="r" hint-placeholder-count="8">
+        <div style="display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--color-divider)">
+          <span style="width:26px;height:26px;display:grid;place-items:center;font-size:13px;font-weight:800;background:{{ r.bg }};color:{{ r.fg }};border:{{ r.bd }}">{{ r.g }}</span>
+          <span style="display:flex;flex-direction:column;min-width:0"><span style="font-weight:600;font-size:14px">{{ r.name }}</span><span style="font-size:12px;color:var(--color-neutral-700)">{{ r.state }} · {{ r.count }}</span></span>
+          <sc-if value="{{ r.canAssign }}" hint-placeholder-val="{{ false }}"><button onClick="{{ r.onAssign }}" class="btn btn-secondary" style="justify-content:flex-start;padding:6px 10px">{{ t.assign }}</button></sc-if>
+          <sc-if value="{{ r.isAssigned }}" hint-placeholder-val="{{ false }}"><button onClick="{{ r.onUnassign }}" style="border:0;background:none;font:600 12px var(--font-body);color:var(--color-neutral-700);cursor:pointer;padding:6px 0">{{ t.X }} ✕</button></sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- GAPS -->
+<sc-if value="{{ show.gaps }}" hint-placeholder-val="{{ false }}">
+<div style="padding:{{ L.pad }};display:flex;flex-direction:column;gap:18px;max-width:820px">
+  <p style="margin:0;font-size:14px;color:var(--color-neutral-800)">{{ t.gapsIntro }}</p>
+  <section style="border-top:2px solid var(--color-divider)">
+    <sc-for list="{{ gapList }}" as="g" hint-placeholder-count="3">
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--color-divider)">
+        <button onClick="{{ g.onOpen }}" style="border:0;background:none;padding:0;text-align:left;cursor:pointer;color:var(--color-text);display:flex;flex-direction:column;gap:3px;min-width:0">
+          <span style="font:800 17px var(--font-heading)">{{ g.date }} · {{ g.start }}</span>
+          <span style="font-size:13px">{{ g.hall }} · <span style="color:var(--color-accent-700);font-weight:600">{{ g.need }}</span></span>
+          <span style="font-size:12px;color:var(--color-neutral-700)">{{ g.req }}{{ g.escSep }}{{ g.esc }}</span>
+        </button>
+        <sc-if value="{{ g.canVol }}" hint-placeholder-val="{{ false }}"><button onClick="{{ g.onVolunteer }}" class="btn btn-primary" style="justify-content:flex-start;height:38px">{{ t.volunteer }}</button></sc-if>
+        <sc-if value="{{ g.why }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;color:var(--color-neutral-700);max-width:150px;text-align:right">{{ g.why }}</span></sc-if>
+      </div>
+    </sc-for>
+    <sc-if value="{{ noGaps }}" hint-placeholder-val="{{ false }}"><div style="padding:16px 0;font-size:14px;color:var(--color-neutral-700)">{{ t.noGaps }}</div></sc-if>
+  </section>
+  <section style="border-top:2px solid var(--color-divider)">
+    <div style="padding:12px 0 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600">{{ t.resolved }}</div>
+    <sc-for list="{{ resolvedList }}" as="r" hint-placeholder-count="2">
+      <div style="display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:13.5px"><span>{{ r.text }}</span><span style="color:var(--color-neutral-700);font-size:12px;white-space:nowrap">{{ r.when }}</span></div>
+    </sc-for>
+  </section>
+</div>
+</sc-if>
+
+<!-- TEAM -->
+<sc-if value="{{ show.team }}" hint-placeholder-val="{{ false }}">
+<div style="padding:{{ L.pad }};display:flex;flex-direction:column;gap:18px">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+    <div style="display:flex;border:1px solid var(--color-divider)"><sc-for list="{{ teamFilters }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.onClick }}" style="border:0;border-left:{{ o.bl }};padding:6px 12px;font:600 13px var(--font-body);cursor:pointer;background:{{ o.bg }};color:{{ o.fg }}">{{ o.l }}</button></sc-for></div>
+    <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}"><button onClick="{{ openInvite }}" class="btn btn-primary" style="justify-content:flex-start">+ {{ t.invite }}</button></sc-if>
+  </div>
+  <sc-if value="{{ showPending }}" hint-placeholder-val="{{ false }}">
+    <section style="border-top:2px solid var(--color-divider)">
+      <div style="padding:12px 0 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600">{{ t.pending }}</div>
+      <sc-for list="{{ invites }}" as="p" hint-placeholder-count="2">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--color-divider)">
+          <span style="display:flex;flex-direction:column;min-width:0"><span style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.email }}</span><span style="font-size:12px;color:{{ p.c }}">{{ p.sub }}</span></span>
+          <button onClick="{{ p.onResend }}" class="btn btn-ghost">{{ t.resend }}</button>
+        </div>
+      </sc-for>
+    </section>
+  </sc-if>
+  <sc-if value="{{ isHead }}" hint-placeholder-val="{{ false }}">
+    <div style="display:grid;grid-template-columns:{{ L.strip }};border-top:2px solid var(--color-divider);border-bottom:2px solid var(--color-divider)">
+      <sc-for list="{{ teamStrip }}" as="s" hint-placeholder-count="4"><div style="padding:10px 14px;border-left:1px solid var(--color-divider);display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;color:var(--color-neutral-700)">{{ s.k }}</span><span style="font:800 26px/1.1 var(--font-heading);font-variant-numeric:tabular-nums;white-space:nowrap">{{ s.v }}</span></div></sc-for>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:-6px">
+      <span style="font-size:12.5px;color:var(--color-neutral-700)">{{ t.countedNote }}</span>
+      <button onClick="{{ exportCsv }}" class="btn btn-secondary" style="justify-content:flex-start">{{ t.exportCsv }}</button>
+    </div>
+  </sc-if>
+  <section style="border-top:2px solid var(--color-divider)">
+    <div style="display:grid;grid-template-columns:{{ L.teamCols }};padding:12px 0 6px;border-bottom:2px solid var(--color-text);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600">
+      <span style="align-self:end">{{ t.trainers }}</span>
+      <span style="text-align:right;padding:0 14px 0 0;border-left:1px solid var(--color-divider);align-self:stretch;display:{{ L.deskFlex }};align-items:flex-end;justify-content:flex-end">{{ t.sTrainer }}</span>
+      <span style="text-align:right;padding:0 14px 0 0;border-left:1px solid var(--color-divider);align-self:stretch;display:{{ L.deskFlex }};align-items:flex-end;justify-content:flex-end">{{ t.sAssistantShort }}</span>
+      <span style="text-align:right;padding:0 14px 0 0;border-left:1px solid var(--color-divider);align-self:stretch;display:{{ L.deskFlex }};align-items:flex-end;justify-content:flex-end">14/18</span>
+      <span style="display:{{ L.statFlex }};align-items:flex-end;justify-content:flex-end;padding:0 14px 0 0;border-left:1px solid var(--color-divider);align-self:stretch;color:var(--color-text)">{{ t.done }}</span>
+      <span style="text-align:right;padding:0 14px 0 0;border-left:1px solid var(--color-divider);align-self:stretch;display:{{ L.deskFlex }};align-items:flex-end;justify-content:flex-end">{{ t.upcomingShort }}</span>
+    </div>
+    <sc-for list="{{ roster }}" as="m" hint-placeholder-count="8">
+      <button onClick="{{ m.onOpen }}" style="width:100%;display:grid;grid-template-columns:{{ L.teamCols }};align-items:stretch;min-height:56px;padding:0;border:0;border-bottom:1px solid var(--color-divider);background:none;text-align:left;cursor:pointer;color:var(--color-text);opacity:{{ m.op }}" style-hover="background:var(--color-neutral-100)">
+        <span style="display:flex;flex-direction:column;justify-content:center;gap:3px;min-width:0;padding:9px 12px 9px 0">
+          <span style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span style="font-size:14px;font-weight:600">{{ m.name }}</span><sc-for list="{{ m.tags }}" as="tg" hint-placeholder-count="1"><span class="tag tag-neutral" style="padding:1px 6px">{{ tg }}</span></sc-for></span>
+          <sc-if value="{{ m.sp }}" hint-placeholder-val="{{ false }}"><span style="align-self:flex-start;max-width:100%;font-size:12px;font-weight:600;color:var(--color-accent-700);background:var(--color-accent-100);padding:1px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.sp }}</span></sc-if>
+        </span>
+        <span style="display:{{ L.deskFlex }};align-items:center;justify-content:flex-end;padding:0 14px 0 0;border-left:1px solid var(--color-divider);align-self:stretch;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:{{ m.sTc }}">{{ m.sT }}</span>
+        <span style="display:{{ L.deskFlex }};align-items:center;justify-content:flex-end;padding:0 14px 0 0;border-left:1px solid var(--color-divider);align-self:stretch;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:{{ m.sAc }}">{{ m.sA }}</span>
+        <span style="display:{{ L.deskFlex }};align-items:center;justify-content:flex-end;padding:0 14px 0 0;border-left:1px solid var(--color-divider);align-self:stretch;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:{{ m.sJc }}">{{ m.sJ }}</span>
+        <span style="display:{{ L.statFlex }};align-items:center;justify-content:flex-end;padding:0 14px 0 0;border-left:1px solid var(--color-divider);font:800 17px var(--font-heading);font-variant-numeric:tabular-nums">{{ m.done }}</span>
+        <span style="display:{{ L.deskFlex }};align-items:center;justify-content:flex-end;padding:0 14px 0 0;border-left:1px solid var(--color-divider);align-self:stretch;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--color-neutral-700)">{{ m.up }}</span>
+      </button>
+    </sc-for>
+  </section>
+</div>
+</sc-if>
+
+<!-- PROFILE -->
+<sc-if value="{{ show.profile }}" hint-placeholder-val="{{ false }}">
+<div style="padding:{{ L.pad }};display:flex;flex-direction:column;gap:20px">
+  <button onClick="{{ goTeam }}" class="btn btn-ghost" style="align-self:flex-start;padding:0">{{ t.back }}</button>
+  <div style="display:flex;gap:14px;align-items:center">
+    <span style="width:56px;height:56px;display:grid;place-items:center;font:800 18px var(--font-heading);background:var(--color-text);color:var(--color-bg);flex:none">{{ pf.ini }}</span>
+    <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+      <span style="font:800 24px/1.1 var(--font-heading)">{{ pf.name }}</span>
+      <span style="display:flex;gap:4px;flex-wrap:wrap"><sc-for list="{{ pf.tags }}" as="tg" hint-placeholder-count="1"><span class="tag tag-neutral">{{ tg }}</span></sc-for></span>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:{{ L.two }};gap:{{ L.gap }};align-items:start">
+    <div style="display:flex;flex-direction:column;gap:20px;min-width:0">
+      <sc-if value="{{ pf.canSee }}" hint-placeholder-val="{{ true }}">
+        <section style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap"><span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600">{{ t.completedSeason }}</span><span style="font-size:12px;color:var(--color-neutral-700)">{{ t.asOf }}</span></div>
+          <div style="display:grid;grid-template-columns:{{ L.pfStats }};border-top:2px solid var(--color-divider);border-bottom:2px solid var(--color-divider)">
+            <sc-for list="{{ pf.stats }}" as="s" hint-placeholder-count="5"><div style="padding:10px 0 12px 10px;border-left:1px solid var(--color-divider);display:flex;flex-direction:column;background:{{ s.bg }}"><span style="font:800 26px var(--font-heading);font-variant-numeric:tabular-nums;color:{{ s.c }}">{{ s.v }}</span><span style="font-size:11.5px;color:var(--color-neutral-700)">{{ s.l }}</span></div></sc-for>
+          </div>
+        </section>
+      </sc-if>
+      <section style="border-top:2px solid var(--color-divider)">
+        <div style="padding:12px 0 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600">{{ t.upcoming }}</div>
+        <sc-for list="{{ pf.upcoming }}" as="u" hint-placeholder-count="3">
+          <button onClick="{{ u.onOpen }}" style="width:100%;display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:10px;padding:10px 0;border:0;border-bottom:1px solid var(--color-divider);background:none;font-size:14px;text-align:left;cursor:pointer;color:var(--color-text)" style-hover="background:var(--color-neutral-100)"><span style="font-weight:600">{{ u.date }}</span><span>{{ u.hallShort }}</span><span style="color:var(--color-neutral-700);font-size:13px">{{ u.start }}</span></button>
+        </sc-for>
+      </section>
+      <sc-if value="{{ pf.canSee }}" hint-placeholder-val="{{ true }}">
+        <section style="border-top:2px solid var(--color-divider)">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;padding:12px 0 4px;gap:10px"><span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600">{{ t.sessionLog }}</span><span style="font-size:12px;color:var(--color-neutral-700)">{{ pf.logCount }}</span></div>
+          <sc-for list="{{ pf.logShown }}" as="g" hint-placeholder-count="6">
+            <div style="display:grid;grid-template-columns:28px 96px minmax(0,1fr) auto;gap:10px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--color-divider);font-size:13.5px">
+              <span style="font-size:11.5px;color:var(--color-neutral-600);font-variant-numeric:tabular-nums">{{ g.n }}</span>
+              <span style="font-weight:600">{{ g.date }}</span>
+              <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ g.hall }}</span>
+              <span style="display:flex;gap:4px"><span class="tag tag-neutral" style="padding:0 6px">{{ g.role }}</span><sc-if value="{{ g.sub }}" hint-placeholder-val="{{ false }}"><span class="tag tag-outline" style="padding:0 6px">{{ t.substitute }}</span></sc-if></span>
+            </div>
+          </sc-for>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-top:10px;flex-wrap:wrap">
+            <sc-if value="{{ pf.hasMore }}" hint-placeholder-val="{{ false }}"><button onClick="{{ toggleLog }}" class="btn btn-ghost" style="padding:2px 0">{{ pf.moreLbl }}</button></sc-if>
+            <sc-if value="{{ pf.isMe }}" hint-placeholder-val="{{ false }}"><button onClick="{{ reportMistake }}" class="btn btn-ghost" style="padding:2px 0">{{ t.reportMistake }}</button></sc-if>
+          </div>
+        </section>
+      </sc-if>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:20px;min-width:0">
+      <section style="border-top:2px solid var(--color-divider);padding-top:12px;display:flex;flex-direction:column;gap:6px;font-size:14px">
+        <sc-if value="{{ pf.hasSp }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"><span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600">{{ t.speciality }}</span><span>{{ pf.sp }}</span></div>
+        </sc-if>
+        <span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600">{{ t.email }}</span>
+        <span>{{ pf.email }}</span>
+      </section>
+      <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+        <section style="border-top:2px solid var(--color-divider);padding-top:12px;display:flex;flex-direction:column;gap:8px">
+          <button onClick="{{ openRoles }}" class="btn btn-secondary" style="justify-content:flex-start;height:40px">{{ t.editRoles }}</button>
+          <button onClick="{{ toggleActive }}" class="btn btn-ghost" style="justify-content:flex-start;padding:4px 0">{{ pf.activeBtn }}</button>
+        </section>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- SETTINGS -->
+<sc-if value="{{ show.settings }}" hint-placeholder-val="{{ false }}">
+<div style="padding:{{ L.pad }};display:grid;grid-template-columns:{{ L.two }};gap:{{ L.gap }};align-items:start">
+  <div style="display:flex;flex-direction:column;gap:22px;min-width:0">
+    <section style="border-top:2px solid var(--color-divider);padding-top:12px;display:flex;flex-direction:column;gap:12px">
+      <span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600">{{ t.profileSec }}</span>
+      <div class="field"><label>{{ t.name }}</label><input class="input" value="{{ prof.name }}" onChange="{{ onName }}"></div>
+      <sc-if value="{{ isHead }}" hint-placeholder-val="{{ false }}"><div class="field"><label>{{ t.speciality }}</label><input class="input" value="{{ prof.sp }}" onChange="{{ onSp }}" placeholder="{{ t.spPh }}"></div></sc-if>
+      <button onClick="{{ saveProfile }}" class="btn btn-primary" style="justify-content:flex-start;align-self:flex-start">{{ t.save }}</button>
+    </section>
+    <section style="border-top:2px solid var(--color-divider);padding-top:12px;display:flex;flex-direction:column;gap:10px">
+      <span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600">{{ t.language }}</span>
+      <div style="display:flex;border:1px solid var(--color-divider);align-self:flex-start"><sc-for list="{{ langOptsLong }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="border:0;border-left:{{ o.bl }};padding:7px 14px;font:600 13px var(--font-body);cursor:pointer;background:{{ o.bg }};color:{{ o.fg }}">{{ o.l }}</button></sc-for></div>
+    </section>
+    <section style="border-top:2px solid var(--color-divider)">
+      <div style="padding:12px 0 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600">{{ t.notifs }}</div>
+      <sc-for list="{{ notifToggles }}" as="n" hint-placeholder-count="4">
+        <button onClick="{{ n.onClick }}" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:11px 0;border:0;border-bottom:1px solid var(--color-divider);background:none;font-size:14px;cursor:pointer;color:var(--color-text);text-align:left">
+          <span>{{ n.l }}</span>
+          <span style="width:38px;height:20px;border:1.5px solid var(--color-text);background:{{ n.track }};position:relative;flex:none"><span style="position:absolute;top:2px;left:2px;width:13px;height:13px;background:{{ n.knob }};transform:{{ n.tx }};transition:transform .15s"></span></span>
+        </button>
+      </sc-for>
+    </section>
+    <button onClick="{{ signOut }}" class="btn btn-secondary" style="justify-content:flex-start;align-self:flex-start">{{ t.signOut }}</button>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:22px;min-width:0">
+    <section style="border-top:2px solid var(--color-divider);padding-top:12px;display:flex;flex-direction:column;gap:10px">
+      <span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600">{{ t.calendar }}</span>
+      <span style="font-size:14px;color:var(--color-neutral-800)">{{ t.calBody }}</span>
+      <div style="padding:9px 10px;background:var(--color-surface);border:1px solid var(--color-divider);font-size:12.5px;word-break:break-all;font-variant-numeric:tabular-nums">{{ calUrl }}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button onClick="{{ copyCal }}" class="btn btn-secondary" style="justify-content:flex-start">{{ t.copy }}</button>
+        <button onClick="{{ addCal }}" class="btn btn-secondary" style="justify-content:flex-start">{{ t.ics }}</button>
+        <button onClick="{{ regenCal }}" class="btn btn-ghost">{{ t.regenerate }}</button>
+      </div>
+    </section>
+    <sc-if value="{{ isHead }}" hint-placeholder-val="{{ false }}">
+      <section style="border-top:2px solid var(--color-divider)">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:12px 0 2px"><span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600">{{ t.seasonSec }}</span><button class="btn btn-ghost" style="padding:0">{{ t.newSeason }}</button></div>
+        <div style="font:800 18px var(--font-heading)">Saison 2026/27</div>
+        <div style="font-size:12.5px;color:var(--color-neutral-700);margin-bottom:8px">{{ t.seasonDates }}</div>
+        <sc-for list="{{ slots }}" as="s" hint-placeholder-count="5">
+          <div style="display:grid;grid-template-columns:44px 92px minmax(0,1fr);gap:10px;padding:8px 0;border-bottom:1px solid var(--color-divider);font-size:13px;align-items:baseline"><span style="font-weight:800">{{ s.wd }}</span><span style="font-variant-numeric:tabular-nums">{{ s.time }}</span><span style="display:flex;flex-direction:column;min-width:0"><span>{{ s.hall }}</span><span style="font-size:11.5px;color:var(--color-neutral-700)">{{ s.groups }}</span></span></div>
+        </sc-for>
+      </section>
+    </sc-if>
+    <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+      <section style="border-top:2px solid var(--color-divider)">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:12px 0 2px"><span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600">{{ t.halls }}</span><button class="btn btn-ghost" style="padding:0">+ {{ t.addHall }}</button></div>
+        <sc-for list="{{ halls }}" as="h" hint-placeholder-count="3">
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start;padding:10px 0;border-bottom:1px solid var(--color-divider)">
+            <span style="display:flex;flex-direction:column;gap:2px;min-width:0">
+              <span style="font-size:13.5px;font-weight:600">{{ h.name }} <span style="font-weight:400;color:var(--color-neutral-700)">· {{ h.area }}</span></span>
+              <a href="{{ h.mapUrl }}" target="_blank" rel="noopener" style="font-size:12.5px;color:var(--color-accent-700);text-underline-offset:3px">{{ h.addr }} ↗</a>
+              <span style="font-size:12px;color:var(--color-neutral-700)">{{ h.note }}</span>
+            </span>
+            <button onClick="{{ h.onEdit }}" class="btn btn-ghost" style="padding:2px 4px">{{ t.edit }}</button>
+          </div>
+        </sc-for>
+      </section>
+    </sc-if>
+    <section style="border-top:2px solid var(--color-divider);padding-top:12px;display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-700);font-weight:600">{{ t.install }}</span>
+      <span style="font-size:14px;color:var(--color-neutral-800)">{{ t.installBody }}</span>
+    </section>
+  </div>
+</div>
+</sc-if>
+
+    </div>
+
+    <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:none;display:grid;grid-template-columns:repeat(5,1fr);border-top:2px solid var(--color-divider);height:60px">
+        <sc-for list="{{ tabs }}" as="b" hint-placeholder-count="5">
+          <button onClick="{{ b.onClick }}" style="position:relative;border:0;border-top:3px solid {{ b.line }};margin-top:-2px;background:none;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding-left:9px;font-size:11.5px;font-weight:{{ b.w }};color:{{ b.c }};cursor:pointer">{{ b.l }}<span style="font-size:10.5px;font-weight:700;color:var(--color-accent-700);min-height:13px">{{ b.meta }}</span></button>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+</div>
+
+<sc-if value="{{ drawerOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ toggleDrawer }}" style="position:absolute;inset:0;background:color-mix(in srgb,var(--color-neutral-900) 35%,transparent);z-index:20"></div>
+  <div style="position:absolute;top:0;right:0;bottom:0;width:{{ L.drawerW }};background:var(--color-bg);border-left:2px solid var(--color-text);z-index:21;display:flex;flex-direction:column">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:2px solid var(--color-divider)"><span style="font:800 20px var(--font-heading)">{{ t.notifications }}</span><span style="display:flex;gap:6px"><button onClick="{{ markRead }}" class="btn btn-ghost">{{ t.markRead }}</button><button onClick="{{ toggleDrawer }}" class="btn btn-secondary btn-icon">✕</button></span></div>
+    <div style="flex:1;overflow:auto">
+      <sc-for list="{{ notifs }}" as="n" hint-placeholder-count="4">
+        <button onClick="{{ n.onClick }}" style="width:100%;display:grid;grid-template-columns:8px minmax(0,1fr);gap:12px;padding:13px 20px;border:0;border-bottom:1px solid var(--color-divider);background:none;text-align:left;cursor:pointer;color:var(--color-text)" style-hover="background:var(--color-neutral-100)">
+          <span style="width:8px;height:8px;margin-top:6px;background:{{ n.dot }}"></span>
+          <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:{{ n.w }}">{{ n.text }}</span><span style="font-size:12px;color:var(--color-neutral-700)">{{ n.when }}</span></span>
+        </button>
+      </sc-for>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ modalOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;inset:0;background:color-mix(in srgb,var(--color-neutral-900) 50%,transparent);z-index:30;display:grid;place-items:center">
+    <div style="width:{{ L.modalW }};background:var(--color-surface);box-shadow:var(--shadow-lg);padding:20px;display:flex;flex-direction:column;gap:14px">
+      <sc-if value="{{ modal.invite }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div><div style="font:800 20px var(--font-heading)">{{ t.inviteTitle }}</div><div style="font-size:13.5px;color:var(--color-neutral-800);margin-top:4px">{{ t.inviteBody }}</div></div>
+          <div class="field"><label>{{ t.email }}</label><input class="input" value="{{ inv.email }}" onChange="{{ onInvEmail }}" placeholder="name@example.com"></div>
+          <div style="display:flex;flex-direction:column;border-top:2px solid var(--color-divider)">
+            <sc-for list="{{ inv.roles }}" as="r" hint-placeholder-count="3">
+              <button onClick="{{ r.onClick }}" style="display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;align-items:start;padding:10px 0;border:0;border-bottom:1px solid var(--color-divider);background:none;text-align:left;cursor:{{ r.cur }};color:var(--color-text)">
+                <span style="width:18px;height:18px;border:1.5px solid var(--color-text);background:{{ r.bg }};color:var(--color-bg);display:grid;place-items:center;font-size:12px;opacity:{{ r.op }}">{{ r.mark }}</span>
+                <span style="display:flex;flex-direction:column"><span style="font-weight:600;font-size:14px">{{ r.l }}</span><span style="font-size:12px;color:var(--color-neutral-700)">{{ r.d }}</span></span>
+              </button>
+            </sc-for>
+          </div>
+          <sc-if value="{{ inv.err }}" hint-placeholder-val="{{ false }}"><span style="font-size:12.5px;color:var(--color-accent-700)">{{ t.emailErr }}</span></sc-if>
+          <div style="display:flex;justify-content:flex-end;gap:8px"><button onClick="{{ closeModal }}" class="btn btn-secondary">{{ t.cancel }}</button><button onClick="{{ sendInvite }}" class="btn btn-primary" style="justify-content:flex-start">{{ t.sendInvite }}</button></div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ modal.roles }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div><div style="font:800 20px var(--font-heading)">{{ t.rolesTitle }} · {{ pf.name }}</div><div style="font-size:13.5px;color:var(--color-neutral-800);margin-top:4px">{{ t.rolesBody }}</div></div>
+          <div style="display:flex;flex-direction:column;border-top:2px solid var(--color-divider)">
+            <sc-for list="{{ roleEdit }}" as="r" hint-placeholder-count="4">
+              <button onClick="{{ r.onClick }}" style="display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;align-items:start;padding:10px 0;border:0;border-bottom:1px solid var(--color-divider);background:none;text-align:left;cursor:{{ r.cur }};color:var(--color-text)">
+                <span style="width:18px;height:18px;border:1.5px solid var(--color-text);background:{{ r.bg }};color:var(--color-bg);display:grid;place-items:center;font-size:12px;opacity:{{ r.op }}">{{ r.mark }}</span>
+                <span style="display:flex;flex-direction:column"><span style="font-weight:600;font-size:14px">{{ r.l }}</span><span style="font-size:12px;color:var(--color-neutral-700)">{{ r.d }}</span></span>
+              </button>
+            </sc-for>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:8px"><button onClick="{{ closeModal }}" class="btn btn-secondary">{{ t.cancel }}</button><button onClick="{{ saveRoles }}" class="btn btn-primary" style="justify-content:flex-start">{{ t.save }}</button></div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ modal.ns }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div><div style="font:800 20px var(--font-heading)">{{ t.nsTitle }}</div><div style="font-size:13.5px;color:var(--color-neutral-800);margin-top:4px">{{ t.nsBody }}</div></div>
+          <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--color-divider);border-left:1px solid var(--color-divider)">
+            <sc-for list="{{ nsChips }}" as="c" hint-placeholder-count="11"><button onClick="{{ c.onClick }}" style="border:0;border-right:1px solid var(--color-divider);border-bottom:1px solid var(--color-divider);padding:7px 8px;background:{{ c.bg }};color:{{ c.fg }};text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:1px;font-family:var(--font-body)"><span style="font:800 13px var(--font-heading)">{{ c.l }}</span><span style="font-size:11px;opacity:.8">{{ c.sub }}</span></button></sc-for>
+          </div>
+          <div style="font-size:13.5px;font-weight:600;min-height:20px">{{ nsSummary }}</div>
+          <div class="field"><label>{{ t.deadline }}</label><input class="input" value="{{ ns.dl }}" onChange="{{ onNsDl }}"></div>
+          <sc-if value="{{ ns.err }}" hint-placeholder-val="{{ false }}"><span style="font-size:12.5px;color:var(--color-accent-700)">{{ t.nsErr }}</span></sc-if>
+          <div style="display:flex;justify-content:flex-end;gap:8px"><button onClick="{{ closeModal }}" class="btn btn-secondary">{{ t.cancel }}</button><button onClick="{{ sendNs }}" class="btn btn-primary" style="justify-content:flex-start">{{ t.openSurvey }}</button></div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ modal.hall }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div><div style="font:800 20px var(--font-heading)">{{ he.name }}</div><div style="font-size:13.5px;color:var(--color-neutral-800);margin-top:4px">{{ t.hallBody }}</div></div>
+          <div class="field"><label>{{ t.address }}</label><input class="input" value="{{ he.a }}" onChange="{{ onHallA }}"></div>
+          <div class="field"><label>{{ t.hallNoteLbl }}</label><input class="input" value="{{ he.n }}" onChange="{{ onHallN }}" placeholder="{{ t.hallNotePh }}"></div>
+          <div style="display:flex;justify-content:flex-end;gap:8px"><button onClick="{{ closeModal }}" class="btn btn-secondary">{{ t.cancel }}</button><button onClick="{{ saveHall }}" class="btn btn-primary" style="justify-content:flex-start">{{ t.save }}</button></div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ modal.override }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div><div style="font:800 20px var(--font-heading)">{{ t.override }}</div><div style="font-size:13.5px;color:var(--color-neutral-800);margin-top:4px">{{ sd.date }} · {{ t.overrideBody }}</div></div>
+          <div class="field"><label>{{ t.time }}</label><input class="input" value="{{ ov.time }}" onChange="{{ onOvTime }}"></div>
+          <div class="field"><label>{{ t.hall }}</label>
+            <div style="display:flex;flex-direction:column;border:1px solid var(--color-divider)"><sc-for list="{{ ov.halls }}" as="h" hint-placeholder-count="3"><button onClick="{{ h.onClick }}" style="border:0;border-top:{{ h.bt }};padding:8px 10px;text-align:left;font:600 13.5px var(--font-body);cursor:pointer;background:{{ h.bg }};color:{{ h.fg }};display:flex;flex-direction:column;gap:1px">{{ h.name }}<span style="font-weight:400;font-size:12px;opacity:.8">{{ h.addr }}</span></button></sc-for></div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:8px"><button onClick="{{ closeModal }}" class="btn btn-secondary">{{ t.cancel }}</button><button onClick="{{ saveOverride }}" class="btn btn-primary" style="justify-content:flex-start">{{ t.save }}</button></div>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;left:50%;bottom:{{ L.toastBottom }};transform:translateX(-50%);z-index:40;display:flex;align-items:center;gap:14px;background:var(--color-text);color:var(--color-bg);padding:11px 12px 11px 16px;font-size:13.5px;box-shadow:var(--shadow-lg);max-width:calc(100% - 32px)">
+    <span>{{ toastText }}</span>
+    <sc-if value="{{ toastUndo }}" hint-placeholder-val="{{ false }}"><button onClick="{{ toastUndo }}" style="border:1px solid var(--color-neutral-600);background:none;color:var(--color-bg);padding:4px 10px;font:600 12.5px var(--font-body);cursor:pointer">{{ t.undo }}</button></sc-if>
+  </div>
+</sc-if>
+
+</sc-if>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;role&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;trainer&quot;,&quot;head&quot;,&quot;admin&quot;],&quot;default&quot;:&quot;head&quot;,&quot;tsType&quot;:&quot;'trainer' | 'head' | 'admin'&quot;},&quot;device&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;desktop&quot;,&quot;mobile&quot;],&quot;default&quot;:&quot;desktop&quot;,&quot;tsType&quot;:&quot;'desktop' | 'mobile'&quot;},&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;EN&quot;,&quot;DE&quot;],&quot;default&quot;:&quot;EN&quot;,&quot;tsType&quot;:&quot;'EN' | 'DE'&quot;}}">
+const T = {
+  EN: {
+    home: 'Home', dashboard: 'Dashboard', mySessions: 'My sessions', sessions: 'Sessions', availability: 'Availability', gaps: 'Gaps', team: 'Team', settings: 'Settings', inbox: 'Inbox',
+    back: '← Back', assign: 'Assign', volunteer: 'Volunteer', cantMake: "Can't make it", addCal: 'Add to calendar', open: 'Open', save: 'Save', cancel: 'Cancel', undo: 'Undo', signOut: 'Sign out', notifications: 'Notifications', markRead: 'Mark all read',
+    A: 'Available', T: 'Tentative', U: 'Unavailable', N: 'No response', X: 'Assigned',
+    needReg: n => n + (n === 1 ? ' trainer' : ' trainers') + ' needed', needJun: n => n + ' 14/18 coach needed',
+    regularTrack: 'Regular trainers', coachTrack: '14/18 coaches', regularsLbl: 'Trainers', coachesLbl: '14/18',
+    groups: { all: 'All groups', kids: 'Kids / Basic', adv: 'Advanced-1 · Advanced-2' },
+    seasonWeek: 'Season 2026/27 · CW 41', survey: 'Survey 1 · Aug–Dec', responded: 'responded', filled: 'slots filled', coverage: 'Coverage', openGaps: 'Open gaps',
+    hi: n => 'Hi ' + n, gapsYouCan: 'Open gap you can cover', reqBy: (n, a) => n + " can't make it · " + a, next: 'Next session', myNext: 'My next session', with: 'With', upcoming: 'Upcoming', stats: 'This season',
+    sTrainer: 'Trainer', sAssistant: 'Assistant coach', sAssistantShort: 'Assist.', s1418: '14/18 coach', sTotal: 'Total',
+    surveyDue: n => n + (n === 1 ? ' date still needs' : ' dates still need') + ' your answer.', answerNow: 'Answer now', calendar: 'Calendar sync', calShort: 'Your sessions show up in Google or Apple Calendar automatically.', setUp: 'Set up',
+    coverageGaps: 'Coverage gaps', resolved: 'Recently filled', workload: 'Workload · completed + upcoming', noGaps: 'Every session is fully staffed.',
+    escalates: d => 'Escalates to head trainers ' + d, escNow: 'Escalated to head trainers', nGaps: n => n + ' open',
+    allHalls: 'All halls', onlyMine: 'Only mine', weekLbl: (n, r) => 'Week ' + n + ' · ' + r, you: 'You', changed: 'Changed', substitute: 'Substitute', outSub: 'Out · sub requested', openSlot: 'Open slot', hilfs: 'Assistant',
+    groupsLbl: 'Groups', editMatrix: 'Edit in matrix', override: 'Change time or hall', overrideBody: 'Only this session changes; the weekly slot stays the same.', time: 'Time', hall: 'Hall', subRequest: 'Substitution request',
+    flaggedToast: 'Substitution request sent to all trainers', volToast: "You're in. The session's trainers have been notified.", savedToast: 'Saved', ovToast: 'Session updated, assigned trainers notified', assignedToast: n => n + ' assigned and notified', unassignedToast: n => n + ' removed from session',
+    matrixTab: 'Matrix', myAvailTab: 'My availability', surveyIntro: 'One answer per date. You can change answers until the survey closes.', answered: (a, b) => a + ' of ' + b + ' answered', saveAnswers: 'Save answers', closeSurvey: 'Close survey', reopenSurvey: 'Reopen survey', surveyClosedToast: 'Survey closed. Trainers can no longer change answers.', surveyOpenedToast: 'Survey reopened',
+    statusOpen: 'Open', statusClosed: 'Closed', surveyLockedNote: 'A head trainer has closed this survey. Your answers are locked; ask a head trainer if something has changed.', surveyIntroClosed: 'Your answers as submitted.',
+    session: 'Session', candidates: 'Available, fewest sessions first', noCandidates: 'Nobody else is available. Ask in the team.', clickHint: 'Click a cell to assign or unassign. Click a date to open it.', months: ['Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    gapsIntro: 'Sessions short of trainers. The first volunteer is confirmed straight away; no approval needed.', busy: 'You have another session at this time', unavailWhy: 'You marked this date unavailable', otherTrack: 'For the other track', covered: (a, b) => a + ' covered for ' + b,
+    invite: 'Invite trainer', pending: 'Pending invites', resend: 'Resend', resentToast: 'Invite sent again', everyone: 'Everyone', headTrainers: 'Head trainers', coaches1418: '14/18 coaches', trainers: 'Trainers', speciality: 'Responsibility / speciality', sessionsN: 'sessions',
+    ht: 'Head trainer', sa: 'Super-admin', jun: '14/18 coach', inactive: 'Deactivated', editRoles: 'Edit roles', deactivate: 'Deactivate account', reactivate: 'Reactivate account',
+    inviteTitle: 'Invite a trainer', inviteBody: 'They get an email link and join as a Trainer. Extra roles can be added now or later.', sendInvite: 'Send invite', invitedToast: e => 'Invite sent to ' + e, emailErr: 'Enter a valid email address.', sentAgo: 'Sent 2 days ago', expired: 'Expired · sent 9 days ago', justSent: 'Sent just now',
+    rolesTitle: 'Roles', rolesBody: 'Everyone is a Trainer. Extra roles add permissions; the 14/18 label changes the assignment track.', trainerBase: 'Trainer', trainerBaseD: 'Always on: sessions, availability, substitutions', htD: 'Season setup, availability matrix, assignments', saD: 'Invites, roles, halls, club settings', junD: 'Label only: assigned on the 14/18 track', rolesToast: 'Roles updated. The trainer has been notified.',
+    profileSec: 'Profile', name: 'Display name', spPh: 'e.g. Trainer allocation', language: 'Language', calBody: 'Subscribe once and new assignments appear in your phone calendar, with the hall address for directions.', copy: 'Copy link', copiedToast: 'Link copied', regenerate: 'Regenerate link', regenToast: 'New link created. The old one has stopped working.', ics: 'Download .ics', icsToast: 'Calendar file downloaded',
+    notifs: 'Notifications', nAssign: 'Assigned to a session', nSubs: 'Substitution requests', nSurvey: 'Availability surveys', nRoles: 'Role changes',
+    install: 'Install PocketCoach', installBody: 'Add it to your home screen. Your sessions stay readable offline in the hall.', cw: n => 'CW ' + n, cwShort: 'CW', surveyName: (n, a, b) => 'Survey ' + n + ' · CW ' + a + '–' + b, nSessions: n => n + ' sessions', calendarBtn: 'Calendar', allWeeks: 'All weeks', markWeek: 'Mark open dates as available',
+    legAnswered: 'Answered', legOpen: 'Not answered', legOutside: 'Not in survey', legFull: 'Fully staffed', legShort: 'Short', legToAssign: 'To assign', surveyShort: 'Survey', assignedShort: 'Assigned', newSurvey: 'New survey',
+    nsTitle: 'Open an availability survey', nsBody: 'Pick the first and last calendar week. All active trainers are notified and can answer until you close the survey.', nsPick: 'Click a start week, then an end week.', nWeeks: n => n + (n === 1 ? ' week' : ' weeks'),
+    deadline: 'Answer by', openSurvey: 'Open survey', nsToast: (a, b) => 'Survey open for CW ' + a + '–' + b + '. All trainers notified.', nsErr: 'Pick at least one week.', laterNote: (a, b) => 'CW ' + a + '–' + b + ' appear here once assignments are published.',
+    done: 'Completed', upcomingShort: 'Upcoming', completedSeason: 'Completed sessions · Season 2026/27', asOf: 'Up to Fri 9 Oct', asSub: 'As substitute', avgPer: 'Average per trainer',
+    viewLog: 'View session log', sessionLog: 'Session log', logCount: n => n + ' completed', showAll: n => 'Show all ' + n, showLess: 'Show fewer', reportMistake: 'Report a mistake', reportedToast: 'Sent to the head trainers. They will check your log.',
+    upcomingLine: n => n + ' more assigned this month', exportCsv: 'Export CSV', csvToast: 'sessions_2026-27.csv downloaded', countedNote: 'Counted automatically from assignments, including substitutions. Use for session payments.',
+    edit: 'Edit', address: 'Address', hallNoteLbl: 'Note for trainers', hallNotePh: 'e.g. Entrance, parking, key', hallBody: 'Shown on every session in this hall and added to calendar events.',
+    seasonSec: 'Season', seasonDates: '1 Aug 2026 – 31 Jul 2027 · Standard Junior Season', newSeason: 'New season', halls: 'Halls', addHall: 'Add hall',
+    signInTitle: 'Sign in', signIn: 'Sign in', google: 'Continue with Google', forgot: 'Forgot password?', email: 'Email', password: 'Password', inviteOnly: 'PocketCoach is for the coaching staff only. Ask a super-admin for an invite.',
+    invited: "You're invited to the coaching team", invitedBody: 'Lena Brunner added you as a trainer. Set up your account to see your sessions, mark your availability and pick up substitutions.', yourName: 'Your name', choosePw: 'Choose a password', create: 'Create account', gdpr: 'Hosted in Frankfurt. We store only your name and email.',
+    b: [['Every session in one place', 'Times, halls and co-trainers, on your phone or computer.'], ['Availability in a few taps', 'Answer twice a season instead of filling in spreadsheets.'], ['Substitutes without WhatsApp', "Can't make it? One tap tells everyone. The first volunteer is in."]],
+    roleT: 'Trainer', roleH: 'Head trainer', roleA: 'Super-admin', desktop: 'Desktop', mobile: 'Mobile', app: 'App', login: 'Login', inviteScr: 'Invite',
+    n: { gap: (d, n) => d + ' needs a substitute: ' + n + " can't make it", assigned: d => 'You were assigned to ' + d, surveyOpen: s => s + ' is open', esc: d => 'No substitute yet for ' + d + '. Please follow up.', flag: (n, d) => n + " can't make " + d, inviteIdle: 'Elif Yilmaz has not accepted her invite yet' },
+    ago: { d2: '2 days ago', h5: '5 h ago', now: 'just now', d3: '3 days ago', jul: '28 Jul', d1: 'yesterday' },
+    pageSub: { home: 'Season 2026/27 · CW 41', sessions: 'CW 42–43 · 12–25 Oct', availability: 'Survey 1 · Aug–Dec', gaps: 'Next 14 days', team: 'Coaching staff', settings: 'Your account' },
+  },
+  DE: {
+    home: 'Start', dashboard: 'Dashboard', mySessions: 'Meine Trainings', sessions: 'Trainings', availability: 'Verfügbarkeit', gaps: 'Lücken', team: 'Team', settings: 'Einstellungen', inbox: 'Inbox',
+    back: '← Zurück', assign: 'Einteilen', volunteer: 'Einspringen', cantMake: 'Ich kann nicht', addCal: 'Zum Kalender', open: 'Öffnen', save: 'Speichern', cancel: 'Abbrechen', undo: 'Rückgängig', signOut: 'Abmelden', notifications: 'Mitteilungen', markRead: 'Alle gelesen',
+    A: 'Verfügbar', T: 'Vielleicht', U: 'Verhindert', N: 'Keine Antwort', X: 'Eingeteilt',
+    needReg: n => n + ' Trainer fehl' + (n === 1 ? 't' : 'en'), needJun: n => n + ' 14/18-Coach fehlt',
+    regularTrack: 'Trainer', coachTrack: '14/18-Coaches', regularsLbl: 'Trainer', coachesLbl: '14/18',
+    groups: { all: 'Alle Gruppen', kids: 'Kids / Basic', adv: 'Advanced-1 · Advanced-2' },
+    seasonWeek: 'Saison 2026/27 · KW 41', survey: 'Umfrage 1 · Aug–Dez', responded: 'geantwortet', filled: 'Plätze besetzt', coverage: 'Besetzung', openGaps: 'Offene Lücken',
+    hi: n => 'Hallo ' + n, gapsYouCan: 'Offene Lücke, die du füllen kannst', reqBy: (n, a) => n + ' fällt aus · ' + a, next: 'Nächstes Training', myNext: 'Mein nächstes Training', with: 'Mit', upcoming: 'Demnächst', stats: 'Diese Saison',
+    sTrainer: 'Trainer', sAssistant: 'Hilfstrainer', sAssistantShort: 'Hilfs.', s1418: '14/18-Coach', sTotal: 'Total',
+    surveyDue: n => n + (n === 1 ? ' Datum braucht' : ' Daten brauchen') + ' noch deine Antwort.', answerNow: 'Jetzt antworten', calendar: 'Kalender-Sync', calShort: 'Deine Trainings erscheinen automatisch im Google- oder Apple-Kalender.', setUp: 'Einrichten',
+    coverageGaps: 'Lücken in der Besetzung', resolved: 'Kürzlich besetzt', workload: 'Auslastung · geleistet + geplant', noGaps: 'Alle Trainings sind voll besetzt.',
+    escalates: d => 'Eskalation an Cheftrainer ' + d, escNow: 'An Cheftrainer eskaliert', nGaps: n => n + ' offen',
+    allHalls: 'Alle Hallen', onlyMine: 'Nur meine', weekLbl: (n, r) => 'Woche ' + n + ' · ' + r, you: 'Du', changed: 'Geändert', substitute: 'Vertretung', outSub: 'Fällt aus · Vertretung gesucht', openSlot: 'Freier Platz', hilfs: 'Hilfstrainer',
+    groupsLbl: 'Gruppen', editMatrix: 'In der Matrix bearbeiten', override: 'Zeit oder Halle ändern', overrideBody: 'Nur dieses Training ändert sich; der Wochenslot bleibt gleich.', time: 'Zeit', hall: 'Halle', subRequest: 'Vertretungsanfrage',
+    flaggedToast: 'Vertretungsanfrage an alle Trainer gesendet', volToast: 'Du bist dabei. Die Trainer dieses Trainings wurden informiert.', savedToast: 'Gespeichert', ovToast: 'Training geändert, Trainer informiert', assignedToast: n => n + ' eingeteilt und informiert', unassignedToast: n => n + ' ausgeteilt',
+    matrixTab: 'Matrix', myAvailTab: 'Meine Verfügbarkeit', surveyIntro: 'Eine Antwort pro Datum. Du kannst sie ändern, bis die Umfrage schliesst.', answered: (a, b) => a + ' von ' + b + ' beantwortet', saveAnswers: 'Antworten speichern', closeSurvey: 'Umfrage schliessen', reopenSurvey: 'Umfrage öffnen', surveyClosedToast: 'Umfrage geschlossen. Antworten sind gesperrt.', surveyOpenedToast: 'Umfrage wieder offen',
+    statusOpen: 'Offen', statusClosed: 'Geschlossen', surveyLockedNote: 'Ein Cheftrainer hat diese Umfrage geschlossen. Deine Antworten sind gesperrt; bei Änderungen bitte einen Cheftrainer fragen.', surveyIntroClosed: 'Deine eingereichten Antworten.',
+    session: 'Training', candidates: 'Verfügbar, wenigste Einsätze zuerst', noCandidates: 'Niemand sonst verfügbar. Im Team nachfragen.', clickHint: 'Zelle klicken zum Ein- oder Austeilen. Datum klicken zum Öffnen.', months: ['Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
+    gapsIntro: 'Trainings mit zu wenig Trainern. Wer zuerst einspringt, ist sofort bestätigt; keine Freigabe nötig.', busy: 'Du hast zur gleichen Zeit ein Training', unavailWhy: 'Du hast dieses Datum als verhindert markiert', otherTrack: 'Für die andere Gruppe', covered: (a, b) => a + ' ist für ' + b + ' eingesprungen',
+    invite: 'Trainer einladen', pending: 'Offene Einladungen', resend: 'Erneut senden', resentToast: 'Einladung erneut gesendet', everyone: 'Alle', headTrainers: 'Cheftrainer', coaches1418: '14/18-Coaches', trainers: 'Trainer', speciality: 'Verantwortung / Schwerpunkt', sessionsN: 'Trainings',
+    ht: 'Cheftrainer', sa: 'Super-Admin', jun: '14/18-Coach', inactive: 'Deaktiviert', editRoles: 'Rollen bearbeiten', deactivate: 'Konto deaktivieren', reactivate: 'Konto aktivieren',
+    inviteTitle: 'Trainer einladen', inviteBody: 'Die Person erhält einen Link per E-Mail und startet als Trainer. Weitere Rollen jetzt oder später.', sendInvite: 'Einladung senden', invitedToast: e => 'Einladung an ' + e + ' gesendet', emailErr: 'Bitte eine gültige E-Mail eingeben.', sentAgo: 'Vor 2 Tagen gesendet', expired: 'Abgelaufen · vor 9 Tagen gesendet', justSent: 'Gerade gesendet',
+    rolesTitle: 'Rollen', rolesBody: 'Alle sind Trainer. Zusatzrollen geben Rechte; das 14/18-Label ändert die Einteilungsgruppe.', trainerBase: 'Trainer', trainerBaseD: 'Immer aktiv: Trainings, Verfügbarkeit, Vertretungen', htD: 'Saisonplanung, Verfügbarkeitsmatrix, Einteilung', saD: 'Einladungen, Rollen, Hallen, Vereinseinstellungen', junD: 'Nur Label: Einteilung über die 14/18-Gruppe', rolesToast: 'Rollen gespeichert. Die Person wurde informiert.',
+    profileSec: 'Profil', name: 'Anzeigename', spPh: 'z. B. Trainereinteilung', language: 'Sprache', calBody: 'Einmal abonnieren, dann erscheinen neue Einteilungen im Handy-Kalender, mit Hallenadresse für die Wegbeschreibung.', copy: 'Link kopieren', copiedToast: 'Link kopiert', regenerate: 'Neuen Link erstellen', regenToast: 'Neuer Link erstellt. Der alte funktioniert nicht mehr.', ics: '.ics herunterladen', icsToast: 'Kalenderdatei heruntergeladen',
+    notifs: 'Mitteilungen', nAssign: 'Für ein Training eingeteilt', nSubs: 'Vertretungsanfragen', nSurvey: 'Verfügbarkeitsumfragen', nRoles: 'Rollenänderungen',
+    install: 'PocketCoach installieren', installBody: 'Zum Startbildschirm hinzufügen. Deine Trainings bleiben in der Halle auch offline lesbar.', cw: n => 'KW ' + n, cwShort: 'KW', surveyName: (n, a, b) => 'Umfrage ' + n + ' · KW ' + a + '–' + b, nSessions: n => n + ' Trainings', calendarBtn: 'Kalender', allWeeks: 'Alle Wochen', markWeek: 'Offene Daten als verfügbar markieren',
+    legAnswered: 'Beantwortet', legOpen: 'Offen', legOutside: 'Nicht in Umfrage', legFull: 'Voll besetzt', legShort: 'Unterbesetzt', legToAssign: 'Einzuteilen', surveyShort: 'Umfrage', assignedShort: 'Eingeteilt', newSurvey: 'Neue Umfrage',
+    nsTitle: 'Verfügbarkeitsumfrage öffnen', nsBody: 'Erste und letzte Kalenderwoche wählen. Alle aktiven Trainer werden informiert und können antworten, bis du die Umfrage schliesst.', nsPick: 'Startwoche, dann Endwoche anklicken.', nWeeks: n => n + (n === 1 ? ' Woche' : ' Wochen'),
+    deadline: 'Antworten bis', openSurvey: 'Umfrage öffnen', nsToast: (a, b) => 'Umfrage für KW ' + a + '–' + b + ' geöffnet. Alle Trainer informiert.', nsErr: 'Mindestens eine Woche wählen.', laterNote: (a, b) => 'KW ' + a + '–' + b + ' erscheinen hier, sobald die Einteilung veröffentlicht ist.',
+    done: 'Geleistet', upcomingShort: 'Geplant', completedSeason: 'Geleistete Trainings · Saison 2026/27', asOf: 'Bis Fr 9. Okt.', asSub: 'Als Vertretung', avgPer: 'Schnitt pro Trainer',
+    viewLog: 'Trainingsprotokoll ansehen', sessionLog: 'Trainingsprotokoll', logCount: n => n + ' geleistet', showAll: n => 'Alle ' + n + ' anzeigen', showLess: 'Weniger anzeigen', reportMistake: 'Fehler melden', reportedToast: 'An die Cheftrainer gesendet. Sie prüfen dein Protokoll.',
+    upcomingLine: n => n + ' weitere diesen Monat eingeteilt', exportCsv: 'CSV exportieren', csvToast: 'trainings_2026-27.csv heruntergeladen', countedNote: 'Automatisch aus den Einteilungen gezählt, inkl. Vertretungen. Grundlage für die Entschädigung.',
+    edit: 'Bearbeiten', address: 'Adresse', hallNoteLbl: 'Hinweis für Trainer', hallNotePh: 'z. B. Eingang, Parkplatz, Schlüssel', hallBody: 'Wird bei jedem Training in dieser Halle angezeigt und in Kalendereinträge übernommen.',
+    seasonSec: 'Saison', seasonDates: '1. Aug. 2026 – 31. Juli 2027 · Standard-Juniorensaison', newSeason: 'Neue Saison', halls: 'Hallen', addHall: 'Halle hinzufügen',
+    signInTitle: 'Anmelden', signIn: 'Anmelden', google: 'Weiter mit Google', forgot: 'Passwort vergessen?', email: 'E-Mail', password: 'Passwort', inviteOnly: 'PocketCoach ist nur für das Trainerteam. Eine Einladung erhältst du von einem Super-Admin.',
+    invited: 'Du bist ins Trainerteam eingeladen', invitedBody: 'Lena Brunner hat dich als Trainer hinzugefügt. Richte dein Konto ein, um deine Trainings zu sehen, Verfügbarkeit einzutragen und Vertretungen zu übernehmen.', yourName: 'Dein Name', choosePw: 'Passwort wählen', create: 'Konto erstellen', gdpr: 'Gehostet in Frankfurt. Wir speichern nur Name und E-Mail.',
+    b: [['Alle Trainings an einem Ort', 'Zeiten, Hallen und Co-Trainer, auf Handy oder Computer.'], ['Verfügbarkeit mit wenigen Taps', 'Zweimal pro Saison antworten statt Tabellen ausfüllen.'], ['Vertretung ohne WhatsApp', 'Du kannst nicht? Ein Tap informiert alle. Wer zuerst einspringt, ist dabei.']],
+    roleT: 'Trainer', roleH: 'Cheftrainer', roleA: 'Super-Admin', desktop: 'Desktop', mobile: 'Mobil', app: 'App', login: 'Login', inviteScr: 'Einladung',
+    n: { gap: (d, n) => d + ' braucht eine Vertretung: ' + n + ' fällt aus', assigned: d => 'Du wurdest für ' + d + ' eingeteilt', surveyOpen: s => s + ' ist offen', esc: d => 'Noch keine Vertretung für ' + d + '. Bitte nachfassen.', flag: (n, d) => n + ' kann am ' + d + ' nicht', inviteIdle: 'Elif Yilmaz hat die Einladung noch nicht angenommen' },
+    ago: { d2: 'vor 2 Tagen', h5: 'vor 5 Std.', now: 'gerade eben', d3: 'vor 3 Tagen', jul: '28. Juli', d1: 'gestern' },
+    pageSub: { home: 'Saison 2026/27 · KW 41', sessions: 'KW 42–43 · 12.–25. Okt.', availability: 'Umfrage 1 · Aug–Dez', gaps: 'Nächste 14 Tage', team: 'Trainerteam', settings: 'Dein Konto' },
+  },
+};
+const WD = { EN: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], DE: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'] };
+const MON = { EN: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], DE: ['Jan.', 'Feb.', 'März', 'Apr.', 'Mai', 'Juni', 'Juli', 'Aug.', 'Sep.', 'Okt.', 'Nov.', 'Dez.'] };
+const pd = s => new Date(s + 'T12:00:00');
+const fmt = (s, L) => { const d = pd(s); return L === 'DE' ? WD.DE[d.getDay()] + ' ' + d.getDate() + '. ' + MON.DE[d.getMonth()] : WD.EN[d.getDay()] + ' ' + d.getDate() + ' ' + MON.EN[d.getMonth()]; };
+const HALL = { Apfelbaum: 'Sporthalle Schulhaus Apfelbaum', Borrweg: 'Sporthalle Borrweg', Wolfsblick: 'Sporthalle Wolfsblick' };
+const AREA = { Apfelbaum: 'Oerlikon', Borrweg: 'Friesenberg', Wolfsblick: 'Zürich-Affoltern' };
+const ADDR = {
+  Apfelbaum: { a: 'Apfelbaumstrasse 12, 8050 Zürich', n: { EN: 'Entrance via the schoolyard, gym 2', DE: 'Eingang über den Pausenplatz, Turnhalle 2' } },
+  Borrweg: { a: 'Borrweg 80, 8055 Zürich', n: { EN: 'Bike parking behind the building', DE: 'Veloparkplatz hinter dem Gebäude' } },
+  Wolfsblick: { a: 'Wolfsblickweg 5, 8046 Zürich', n: { EN: 'Key box at the side door, code from head trainer', DE: 'Schlüsselbox am Seiteneingang, Code beim Cheftrainer' } },
+};
+const TR = [
+  { n: 'Lena Brunner', a: 'AAUAAAAUAA', c: 14, as: 1, roles: ['ht', 'sa'], sp: 'Trainer allocation', e: 'lena.brunner@gmail.com' },
+  { n: 'Marco Keller', a: 'AAAUAATAAA', c: 12, as: 2, roles: ['ht'], sp: 'Training content & planning', e: 'marco.keller@bluewin.ch' },
+  { n: 'Sofia Meier', a: 'TAAAUAAAAT', c: 11, as: 3, roles: [], sp: '', e: 'sofia.meier@gmail.com' },
+  { n: 'Jonas Weber', a: 'AAAUA-AAU-', c: 9, as: 2, roles: [], sp: 'Footwork', e: 'jonas.w@gmx.ch' },
+  { n: 'Aylin Demir', a: 'UAAAAAAAAA', c: 13, as: 1, roles: [], sp: 'Kids / Basic', e: 'aylin.demir@gmail.com' },
+  { n: 'Tobias Frei', a: 'AT-AAU-AAA', c: 8, as: 4, roles: [], sp: '', e: 'tobias.frei@sunrise.ch' },
+  { n: 'Nina Graf', a: '----AAAA--', c: 7, as: 3, roles: [], sp: '', e: 'nina.graf@gmail.com' },
+  { n: 'Reto Baumann', a: 'AAAAAUUAAA', c: 10, as: 2, roles: [], sp: 'Doubles tactics', e: 'reto.baumann@gmail.com' },
+  { n: 'Luca Steiner', a: 'AAUAAAUAAA', c: 5, as: 0, roles: ['jun'], sp: '', e: 'luca.steiner@gmail.com' },
+  { n: 'Mia Huber', a: 'TAAAA-AAAT', c: 6, as: 0, roles: ['jun'], sp: '', e: 'mia.huber@gmail.com' },
+  { n: 'Noah Fischer', a: 'AUUAAAAU-A', c: 4, as: 0, roles: ['jun'], sp: '', e: 'noah.fischer@gmail.com' },
+];
+const NEED = { all: [3, 2], kids: [2, 1], adv: [3, 1] };
+const B10 = [[0, 1, 7, 8, 10], [2, 7, 9], [1, 4, 3], [0, 4, 8, 9], [5, 7, 1, 9, 10], [0, 4, 8, 10], [2, 3, 9], [1, 4, 5, 8], [4, 7, 2, 8, 9], [0, 1, 5, 8, 10]];
+const HILFS = { '0:7': 1, '4:5': 1, '8:2': 1, '1:2': 1 };
+const BASE_REQ = { 3: { who: 3, ago: 'd2' }, 5: { who: 5, ago: 'h5' } };
+const ME = { trainer: 7, head: 1, admin: 0 };
+const SLOTS = [['2', '17:30–19:00', 'Apfelbaum', 'all'], ['3', '17:30–18:30', 'Borrweg', 'kids'], ['3', '18:15–19:45', 'Borrweg', 'adv'], ['4', '17:30–19:00', 'Wolfsblick', 'all'], ['5', '17:30–19:00', 'Apfelbaum', 'all']];
+const isoOf = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+const isoWeek = s => { const d = pd(s), u = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())), day = u.getUTCDay() || 7; u.setUTCDate(u.getUTCDate() + 4 - day); const y0 = new Date(Date.UTC(u.getUTCFullYear(), 0, 1)); return Math.ceil(((u - y0) / 86400000 + 1) / 7); };
+const SS = (() => { const out = [], d = new Date(2026, 9, 12, 12), end = new Date(2026, 11, 18, 12);
+  while (d <= end) { const wd = d.getDay(), iso = isoOf(d); SLOTS.forEach(([w, time, hall, kind]) => { if (+w === wd) out.push({ date: iso, time, hall, kind }); }); d.setDate(d.getDate() + 1); }
+  return out.map((x, i) => ({ i, ...x, cw: isoWeek(x.date), base: i < 10 ? B10[i] : [] })); })();
+const PUB = 10, TODAY = '2026-10-11';
+const WEEKS = [...new Set(SS.map(x => x.cw))];
+const genA = (i, s) => { if (s < 10) return TR[i].a[s]; if (i === 6) return s % 9 === 0 ? 'A' : '-'; if (i === 7 && s >= 25) return '-'; const v = (i * 7 + s * 13 + (i * s) % 5) % 20; return v <= 12 ? 'A' : v <= 15 ? 'T' : v <= 17 ? 'U' : '-'; };
+const MONL = { EN: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], DE: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'] };
+const CELL = {
+  X: { bg: 'var(--color-text)', fg: 'var(--color-bg)', bd: '0', g: '✓' },
+  A: { bg: '#5cc27a', fg: '#201e1d', bd: '0', g: '✓' },
+  T: { bg: '#f5b800', fg: '#201e1d', bd: '0', g: '?' },
+  U: { bg: '#f47c68', fg: '#201e1d', bd: '0', g: '✕' },
+  N: { bg: 'transparent', fg: 'var(--color-neutral-600)', bd: '1.5px dashed var(--color-neutral-500)', g: '–' },
+};
+const mins = s => { const [h, m] = s.split(':').map(Number); return h * 60 + m; };
+const overlaps = (a, b) => { const [a1, a2] = a.split('–').map(mins), [b1, b2] = b.split('–').map(mins); return a1 < b2 && b1 < a2; };
+const PAST = (() => { const out = []; const d = new Date('2026-08-11T12:00:00'); const end = new Date('2026-10-09T12:00:00');
+  while (d <= end) { const wd = d.getDay(), iso = d.toISOString().slice(0, 10); SLOTS.forEach(([w, time, hall, kind]) => { if (+w === wd) out.push({ date: iso, time, hall, kind }); }); d.setDate(d.getDate() + 1); } return out; })();
+const SUBS_DONE = { 0: 1, 2: 1, 4: 2, 7: 1, 9: 1 };
+const LOGS = {};
+const logFor = (i, jun) => { if (LOGS[i + ':' + jun]) return LOGS[i + ':' + jun]; const c = TR[i].c, picked = new Set(); let k = 0;
+  while (picked.size < Math.min(c, PAST.length) && k < 500) { picked.add((k * 7 + i * 3 + Math.floor(k / 5)) % PAST.length); k++; }
+  const list = [...picked].sort((a, b) => b - a).map(p => PAST[p]); const as = jun ? 0 : TR[i].as, subs = SUBS_DONE[i] || 0;
+  return (LOGS[i + ':' + jun] = list.map((x, j) => ({ ...x, role: jun ? 'jun' : (j % 4 === 1 && j < as * 4 ? 'as' : 'tr'), sub: j % 5 === 2 && j < subs * 5 }))); };
+const ini = n => n.split(' ').map(w => w[0]).join('').slice(0, 2);
+
+class Component extends DCLogic {
+  state = {
+    role: this.props.role ?? 'head', device: this.props.device ?? 'desktop', lang: this.props.lang ?? 'EN', auth: null,
+    screen: 'home', sid: 3, pid: 0, sel: 3, track: 'reg', availTab: 'matrix', hall: 'all', mine: false, teamF: 'all', sessCalOpen: false, sessMo: null, sessCw: null,
+    add: {}, rem: {}, reqs: {}, vols: [], ans: {}, over: {}, roles: {}, inactive: {}, surveyClosed: false,
+    invites: [{ email: 'elif.yilmaz@gmail.com', k: 'sentAgo' }, { email: 'ben.moser@bluewin.ch', k: 'expired' }],
+    drawer: false, read: false, modal: null, inv: { email: '', ht: false, sa: false, jun: false, err: false }, roleDraft: [], ov: { time: '', hall: '' },
+    hallInfo: {}, hallEdit: { k: '', a: '', n: '' }, survey: { n: 2, a: 44, b: 51 }, svWk: 44, svMo: 9, svCal: false, mxMo: 9, mxCal: false, mxAll: false, ns: { a: null, b: null, dl: '', err: false }, logAll: false, prof: {}, nt: { assign: true, subs: true, survey: true, roles: true }, token: 'k7f2q9xm', toast: null,
+  };
+  componentWillUnmount() { clearTimeout(this.tt); }
+
+  rolesOf(i) { return this.state.roles[i] ?? TR[i].roles; }
+  isJun(i) { return this.rolesOf(i).includes('jun'); }
+  sess(s) { return { ...SS[s], ...(this.state.over[s] || {}) }; }
+  k(s, i) { return s + ':' + i; }
+  isAssigned(s, i) { const k = this.k(s, i); if (this.state.rem[k]) return false; return SS[s].base.includes(i) || !!this.state.add[k]; }
+  avail(s, i) { const me = ME[this.state.role]; const c = (i === me && this.state.ans[s]) || genA(i, s); return c === '-' ? 'N' : c; }
+  code(s, i) { return this.isAssigned(s, i) ? 'X' : this.avail(s, i); }
+  cov(s) {
+    const [nr, nj] = NEED[SS[s].kind]; let reg = 0, jun = 0;
+    TR.forEach((x, i) => { if (this.isAssigned(s, i)) { if (this.isJun(i)) jun++; else reg++; } });
+    return { reg, jun, nr, nj, sr: Math.max(0, nr - reg), sj: Math.max(0, nj - jun) };
+  }
+  upcoming(i) { return SS.filter(x => this.isAssigned(x.i, i)).length; }
+  done(i) { return TR[i].c; }
+  count(i) { return this.done(i) + this.upcoming(i); }
+  split(i) { const log = logFor(i, this.isJun(i)); return { tr: log.filter(x => x.role === 'tr').length, as: log.filter(x => x.role === 'as').length, jun: log.filter(x => x.role === 'jun').length, sub: log.filter(x => x.sub).length, log }; }
+  busy(s, i) { const S = this.sess(s); return SS.some((o, j) => j !== s && o.date === S.date && this.isAssigned(j, i) && overlaps(this.sess(j).time, S.time)); }
+  setAssign(s, i, on, extra) {
+    const k = this.k(s, i), b = SS[s].base.includes(i), add = { ...this.state.add }, rem = { ...this.state.rem };
+    if (on) { delete rem[k]; if (!b) add[k] = true; } else { delete add[k]; if (b) rem[k] = true; }
+    this.setState({ add, rem, ...(extra || {}) });
+  }
+  flash(text, undo) { clearTimeout(this.tt); this.setState({ toast: { text, undo } }); this.tt = setTimeout(() => this.setState({ toast: null }), 4000); }
+  go(screen, extra) { this.setState({ screen, drawer: false, ...(extra || {}) }); }
+  volunteer(s) {
+    const me = ME[this.state.role], snap = { add: this.state.add, rem: this.state.rem, vols: this.state.vols };
+    const req = this.state.reqs[s] || BASE_REQ[s];
+    this.setAssign(s, me, true, { vols: [...this.state.vols, { s, who: me, for: req ? req.who : null }] });
+    this.flash(T[this.state.lang].volToast, () => this.setState({ ...snap, toast: null }));
+  }
+  flag(s) {
+    const me = ME[this.state.role], snap = { add: this.state.add, rem: this.state.rem, reqs: this.state.reqs };
+    this.setAssign(s, me, false, { reqs: { ...this.state.reqs, [s]: { who: me, ago: 'now' } } });
+    this.flash(T[this.state.lang].flaggedToast, () => this.setState({ ...snap, toast: null }));
+  }
+  toggleCell(s, i) {
+    const c = this.code(s, i), t = T[this.state.lang];
+    if (c === 'X') { this.setAssign(s, i, false); this.flash(t.unassignedToast(TR[i].n)); }
+    else if (c === 'A' || c === 'T') { this.setAssign(s, i, true); this.flash(t.assignedToast(TR[i].n)); }
+  }
+
+  renderVals() {
+    const st = this.state, L = st.lang, t = T[L], me = ME[st.role], mob = st.device === 'mobile', head = st.role !== 'trainer', admin = st.role === 'admin';
+    const idx = TR.map((x, i) => i);
+    const isJunTrack = st.track === 'jun';
+    const trackIdx = idx.filter(i => this.isJun(i) === isJunTrack && !st.inactive[i]);
+    const opt = (l, on, onClick, k) => ({ l, onClick, bg: on ? 'var(--color-text)' : 'transparent', fg: on ? 'var(--color-bg)' : 'var(--color-text)', bl: k ? '1px solid var(--color-divider)' : '0' });
+    const S = s => this.sess(s);
+    const sLite = s => { const x = S(s); return { date: fmt(x.date, L), time: x.time, start: x.time.split('–')[0], hall: HALL[x.hall], hallShort: x.hall, groups: t.groups[x.kind], onOpen: () => this.go('session', { sid: s }) }; };
+    const reqOf = s => st.reqs[s] || BASE_REQ[s];
+    const agoT = k => t.ago[k];
+    const sv = st.survey, svIdx = SS.filter(x => x.cw >= sv.a && x.cw <= sv.b).map(x => x.i);
+    const rng = (a, b) => L === 'DE'
+      ? (a.getMonth() === b.getMonth() ? a.getDate() + '.–' + b.getDate() + '. ' + MON.DE[b.getMonth()] : a.getDate() + '. ' + MON.DE[a.getMonth()] + ' – ' + b.getDate() + '. ' + MON.DE[b.getMonth()])
+      : (a.getMonth() === b.getMonth() ? a.getDate() + '–' + b.getDate() + ' ' + MON.EN[b.getMonth()] : a.getDate() + ' ' + MON.EN[a.getMonth()] + ' – ' + b.getDate() + ' ' + MON.EN[b.getMonth()]);
+    const monOf = s => { const d = pd(s); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d; };
+    const plus = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+    const wkRange = cw => { const f = SS.find(x => x.cw === cw); const m = monOf(f.date); return rng(m, plus(m, 6)); };
+    const surveyName = t.surveyName(sv.n, sv.a, sv.b);
+    const hallA = k => (st.hallInfo[k] && st.hallInfo[k].a) ?? ADDR[k].a;
+    const hallN = k => (st.hallInfo[k] && st.hallInfo[k].n != null) ? st.hallInfo[k].n : ADDR[k].n[L];
+    const mapUrl = k => 'https://maps.google.com/?q=' + encodeURIComponent(HALL[k] + ', ' + hallA(k));
+
+    const Lx = {
+      shell: mob ? 'minmax(0,1fr)' : '224px minmax(0,1fr)', pad: mob ? '16px 16px 28px' : '24px 32px 40px', side: mob ? '16px' : '32px',
+      two: mob ? 'minmax(0,1fr)' : 'minmax(0,1.5fr) minmax(0,1fr)', gap: mob ? '24px' : '36px', strip: mob ? 'repeat(2,minmax(0,1fr))' : 'repeat(4,minmax(0,1fr))',
+      hdPad: mob ? '6px 16px 12px' : '22px 32px 16px', h: mob ? '24px' : '30px', deskOnly: mob ? 'none' : 'block', deskInline: mob ? 'none' : 'inline',
+      teamCols: !head ? 'minmax(0,1fr)' : mob ? 'minmax(0,1fr) 64px' : 'minmax(0,1fr) 88px 88px 88px 88px 96px', deskFlex: mob || !head ? 'none' : 'flex', statFlex: head ? 'flex' : 'none',
+      pfStats: mob ? 'repeat(3,minmax(0,1fr))' : 'repeat(5,minmax(0,1fr))', toastBottom: mob ? '76px' : '24px',
+      drawerW: mob ? '100%' : '380px', modalW: mob ? 'calc(100% - 32px)' : '460px', auth: mob ? 'minmax(0,1fr)' : '480px minmax(0,1fr)', authPad: mob ? '16px 20px 24px' : '32px 40px',
+      surveyBtn: mob ? '44px' : '128px', svGrid: mob ? 'minmax(0,1fr)' : 'minmax(0,1fr) 300px',
+    };
+
+    // gaps
+    const gaps = [];
+    SS.filter(x => x.i < PUB).forEach(x => { const c = this.cov(x.i); if (c.sr) gaps.push({ s: x.i, jun: false, n: c.sr }); if (c.sj) gaps.push({ s: x.i, jun: true, n: c.sj }); });
+    const escText = s => { const x = S(s), d = pd(x.date); d.setDate(d.getDate() - 2); return t.escalates(fmt(d.toISOString().slice(0, 10), L) + ', ' + x.time.split('–')[0]); };
+    const gapItem = g => {
+      const x = sLite(g.s), r = reqOf(g.s), myJun = this.isJun(me), av = this.avail(g.s, me);
+      let why = '';
+      if (myJun !== g.jun) why = t.otherTrack; else if (this.isAssigned(g.s, me)) why = ''; else if (this.busy(g.s, me)) why = t.busy; else if (av === 'U') why = t.unavailWhy;
+      const canVol = !why && !this.isAssigned(g.s, me);
+      return { ...x, title: x.date + ' · ' + (g.jun ? t.needJun(g.n) : t.needReg(g.n)), sub: x.hall + ' · ' + x.time, need: g.jun ? t.needJun(g.n) : t.needReg(g.n), req: r && !g.jun ? t.reqBy(TR[r.who].n, agoT(r.ago)) : '', esc: g.jun ? '' : escText(g.s), escSep: r && !g.jun ? ' · ' : '', canVol, why, onVolunteer: () => this.volunteer(g.s), onAssign: () => this.go('availability', { sel: g.s, availTab: 'matrix', track: g.jun ? 'jun' : 'reg' }) };
+    };
+    const gapList = gaps.map(gapItem);
+    const myGaps = gaps.filter(g => g.s <= 4).map(gapItem).filter(g => g.canVol).slice(0, 2);
+    const resolvedList = [
+      ...st.vols.slice().reverse().map(v => ({ text: t.covered(TR[v.who].n, v.for != null ? TR[v.for].n : '—') + ' · ' + fmt(S(v.s).date, L), when: agoT('now') })),
+      { text: t.covered('Aylin Demir', 'Sofia Meier') + ' · ' + fmt('2026-10-09', L), when: agoT('d3') },
+      { text: t.covered('Mia Huber', 'Luca Steiner') + ' · ' + fmt('2026-10-08', L), when: agoT('d3') },
+    ].slice(0, 4);
+
+    // me
+    const myRoles = this.rolesOf(me);
+    const mine = SS.filter(x => this.isAssigned(x.i, me)).map(x => x.i);
+    const roleTag = s => HILFS[this.k(s, me)] ? t.hilfs : (this.isJun(me) ? t.s1418 : t.sTrainer);
+    const withNames = s => idx.filter(i => i !== me && this.isAssigned(s, i)).map(i => TR[i].n.split(' ')[0]).join(', ');
+    const nextS = mine.length ? { ...sLite(mine[0]), with: withNames(mine[0]), onFlag: () => this.flag(mine[0]) } : {};
+    const mySp = this.split(me);
+    const myStats = this.isJun(me) ? [{ v: mySp.jun, l: t.s1418 }, { v: mySp.sub, l: t.asSub }] : [{ v: mySp.tr, l: t.sTrainer }, { v: mySp.as, l: t.sAssistant }];
+    const unanswered = svIdx.filter(s => this.avail(s, me) === 'N').length;
+
+    // dashboard
+    let need = 0, have = 0; SS.filter(x => x.i < PUB).forEach(x => { const c = this.cov(x.i); need += c.nr + c.nj; have += Math.min(c.reg, c.nr) + Math.min(c.jun, c.nj); });
+    let answered = 0, cells = 0; idx.filter(i => !st.inactive[i]).forEach(i => svIdx.forEach(s => { cells++; if (this.avail(s, i) !== 'N') answered++; }));
+    const resp = Math.round(answered / cells * 100) + '%';
+    const strip = [
+      { k: t.seasonWeek.split(' · ')[0], v: t.cw(41), sub: rng(new Date(2026, 9, 5), new Date(2026, 9, 11)), c: 'var(--color-text)', onClick: () => this.go('settings') },
+      { k: surveyName, v: resp, sub: t.responded + (st.surveyClosed ? ' · ' + (L === 'DE' ? 'geschlossen' : 'closed') : ''), c: 'var(--color-text)', onClick: () => this.go('availability', { availTab: 'matrix' }) },
+      { k: t.coverage, v: Math.round(have / need * 100) + '%', sub: have + '/' + need + ' ' + t.filled, c: 'var(--color-text)', onClick: () => this.go('sessions') },
+      { k: t.openGaps, v: gaps.length, sub: t.pageSub.gaps, c: gaps.length ? 'var(--color-accent)' : 'var(--color-text)', onClick: () => this.go('gaps') },
+    ];
+    const maxLoad = Math.max(...idx.map(i => this.count(i)));
+    const workload = idx.filter(i => !st.inactive[i]).sort((a, b) => this.count(b) - this.count(a)).map(i => ({ name: TR[i].n, count: this.count(i), pct: (this.done(i) / maxLoad * 100).toFixed(1) + '%', upPct: (this.upcoming(i) / maxLoad * 100).toFixed(1) + '%', onOpen: () => this.go('profile', { pid: i }) }));
+
+    // sessions list
+    const hallOpts = [['all', t.allHalls], ['Apfelbaum', 'Apfelbaum'], ['Borrweg', 'Borrweg'], ['Wolfsblick', 'Wolfsblick']].map(([k, l], j) => opt(l, st.hall === k, () => this.setState({ hall: k }), j));
+    const rowOf = s => { const c = this.cov(s), x = sLite(s); return { ...x, mine: this.isAssigned(s, me), changed: !!st.over[s], covReg: c.reg + '/' + c.nr, covJun: c.jun + '/' + c.nj, regC: c.sr ? 'var(--color-accent-700)' : 'var(--color-text)', junC: c.sj ? 'var(--color-accent-700)' : 'var(--color-text)' }; };
+    const filt = s => (st.hall === 'all' || S(s).hall === st.hall) && (!st.mine || this.isAssigned(s, me));
+    const pubS = SS.filter(x => x.i < PUB), isCal = true;
+    const sCw = st.sessCw ?? (pubS.find(x => x.date >= TODAY) || pubS[0]).cw;
+    const weeksList = [...new Set(pubS.map(x => x.cw))].map(cw => ({ label: t.cw(cw) + ' · ' + wkRange(cw), rows: pubS.filter(x => x.cw === cw).map(x => x.i).filter(filt).map(rowOf) })).filter(w => w.rows.length);
+    const weeks = isCal ? [{ label: t.cw(sCw) + ' · ' + wkRange(sCw), rows: pubS.filter(x => x.cw === sCw).map(x => x.i).filter(filt).map(rowOf) }].filter(w => w.rows.length) : weeksList;
+    const sessEmpty = weeks.length === 0;
+    const pubMos = pubS.map(x => pd(x.date).getMonth()), mnM = Math.min(...pubMos), mxM = Math.max(...pubMos), smo = st.sessMo ?? pd(pubS.find(x => x.cw === sCw).date).getMonth();
+    const sFirst = new Date(2026, smo, 1, 12), sStart = plus(sFirst, -((sFirst.getDay() + 6) % 7)), sWeeks = [];
+    for (let w = 0; w < 6; w++) {
+      const ws = plus(sStart, w * 7); if (w > 0 && ws.getMonth() !== smo) break;
+      const wcw = isoWeek(isoOf(ws)), has = pubS.some(x => x.cw === wcw), won = wcw === sCw;
+      sWeeks.push({ cw: wcw, bg: won ? 'var(--color-accent-100)' : 'transparent', line: won ? 'var(--color-accent)' : 'transparent', cur: has ? 'pointer' : 'default', onClick: has ? () => this.setState({ sessCw: wcw, sessCalOpen: false }) : null, days: Array.from({ length: 7 }, (_, k) => {
+        const d = plus(ws, k), iso = isoOf(d), ss = pubS.filter(x => x.date === iso), inM = d.getMonth() === smo;
+        const short = ss.some(x => { const c = this.cov(x.i); return c.sr || c.sj; });
+        return { n: d.getDate(), c: inM ? (iso === TODAY ? 'var(--color-accent-700)' : 'var(--color-text)') : 'var(--color-neutral-500)', w: iso === TODAY || ss.length ? 800 : 500, mbg: ss.length ? (short ? 'var(--color-accent)' : 'var(--color-text)') : 'transparent' };
+      }) });
+    }
+    const sessCal = { title: MONL[L][smo] + ' 2026', head: [t.cwShort, ...(L === 'DE' ? ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'] : ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'])], weeks: sWeeks, legend: [{ l: t.legFull, bg: 'var(--color-text)' }, { l: t.legShort, bg: 'var(--color-accent)' }], prev: () => this.setState({ sessMo: Math.max(mnM, smo - 1) }), next: () => this.setState({ sessMo: Math.min(mxM, smo + 1) }), prevOp: smo <= mnM ? 0.3 : 1, nextOp: smo >= mxM ? 0.3 : 1 };
+    const sessChips = [...new Set(pubS.map(x => x.cw))].map((cw, k) => { const on = cw === sCw, sh = pubS.some(x => x.cw === cw && (this.cov(x.i).sr || this.cov(x.i).sj)); return { l: t.cw(cw), sub: wkRange(cw), mark: sh ? 'var(--color-accent)' : 'var(--color-text)', bg: on ? 'var(--color-text)' : 'transparent', fg: on ? 'var(--color-bg)' : 'var(--color-text)', bl: k ? '1px solid var(--color-divider)' : '0', onClick: () => this.setState({ sessCw: cw, sessCalOpen: false }) }; });
+    const sessViews = [['cal', L === 'DE' ? 'Kalender' : 'Calendar'], ['list', L === 'DE' ? 'Liste' : 'List']].map(([k, l], j) => opt(l, st.sessView === k, () => this.setState({ sessView: k }), j));
+    const sessSeason = L === 'DE' ? { kicker: 'Aktuelle Saison', title: 'Saison 2026/27', sub: 'Nur veröffentlichte Trainings mit erfolgter Einteilung' } : { kicker: 'Current season', title: 'Season 2026/27', sub: 'Only published sessions with trainers assigned' };
+    const sessEmptyText = L === 'DE' ? 'Keine Trainings für diese Auswahl.' : 'No sessions match this selection.';
+
+    // session detail
+    const sid = st.sid, sx = S(sid), sc = this.cov(sid), sr = reqOf(sid);
+    const slotsFor = jun => {
+      const ids = idx.filter(i => this.isJun(i) === jun && this.isAssigned(sid, i));
+      const n = Math.max(jun ? sc.nj : sc.nr, ids.length);
+      const arr = Array.from({ length: n }, (_, k) => {
+        if (ids[k] == null) return { name: t.openSlot, sub: '', ini: '+', avBg: 'transparent', avFg: 'var(--color-accent)', avBd: '1.5px dashed var(--color-accent)', nameC: 'var(--color-accent-700)', hasTag: false, tag: '' };
+        const i = ids[k], isSub = st.vols.some(v => v.s === sid && v.who === i);
+        const tag = isSub ? t.substitute : HILFS[this.k(sid, i)] ? t.hilfs : i === me ? t.you : '';
+        return { name: TR[i].n, sub: this.rolesOf(i).filter(r => r !== 'jun').map(r => t[r]).join(' · ') || (jun ? t.jun : t.sTrainer), ini: ini(TR[i].n), avBg: i === me ? 'var(--color-accent)' : 'var(--color-text)', avFg: 'var(--color-bg)', avBd: '0', nameC: 'var(--color-text)', hasTag: !!tag, tag };
+      });
+      if (sr && !jun && !this.isAssigned(sid, sr.who)) arr.push({ name: TR[sr.who].n, sub: t.outSub, ini: ini(TR[sr.who].n), avBg: 'transparent', avFg: 'var(--color-neutral-600)', avBd: '1.5px solid var(--color-neutral-400)', nameC: 'var(--color-neutral-600)', hasTag: false, tag: '' });
+      return arr;
+    };
+    const myTrackShort = this.isJun(me) ? sc.sj : sc.sr;
+    const amA = this.isAssigned(sid, me), avMe = this.avail(sid, me);
+    let blockNote = '';
+    if (!amA && myTrackShort) { if (this.busy(sid, me)) blockNote = t.busy; else if (avMe === 'U') blockNote = t.unavailWhy; }
+    const sd = {
+      date: fmt(sx.date, L), time: sx.time, hallFull: HALL[sx.hall] + ' (' + AREA[sx.hall] + ')', addr: hallA(sx.hall), hallNote: hallN(sx.hall), mapUrl: mapUrl(sx.hall), groups: t.groups[sx.kind], changed: !!st.over[sid],
+      short: sc.sr + sc.sj > 0, shortLabel: sc.sr ? t.needReg(sc.sr) : t.needJun(sc.sj),
+      tracks: [{ label: t.regularTrack, cov: sc.reg + '/' + sc.nr, c: sc.sr ? 'var(--color-accent-700)' : 'var(--color-neutral-700)', slots: slotsFor(false) }, { label: t.coachTrack, cov: sc.jun + '/' + sc.nj, c: sc.sj ? 'var(--color-accent-700)' : 'var(--color-neutral-700)', slots: slotsFor(true) }],
+      amAssigned: amA, canVolunteer: !amA && myTrackShort > 0 && !blockNote, blockNote,
+      onVolunteer: () => this.volunteer(sid), onFlag: () => this.flag(sid), onMatrix: () => this.go('availability', { sel: sid, availTab: 'matrix' }),
+      onOverride: () => this.setState({ modal: 'override', ov: { time: sx.time, hall: sx.hall } }),
+      hasReq: !!sr && sc.sr > 0, req: sr ? t.reqBy(TR[sr.who].n, agoT(sr.ago)) : '', esc: escText(sid),
+    };
+
+    // matrix desktop
+    const sel = st.sel, slx = S(sel), slc = this.cov(sel);
+    const panelSlots = jun => {
+      const ids = idx.filter(i => this.isJun(i) === jun && this.isAssigned(sel, i));
+      const n = Math.max(jun ? slc.nj : slc.nr, ids.length);
+      return Array.from({ length: n }, (_, k) => ids[k] != null
+        ? { name: TR[ids[k]].n, sub: HILFS[this.k(sel, ids[k])] ? t.hilfs : (this.rolesOf(ids[k]).filter(r => r !== 'jun').map(r => t[r]).join(' · ') || (jun ? t.jun : t.sTrainer)), c: 'var(--color-text)', bd: '1px solid var(--color-divider)', canRemove: true, onRemove: () => { this.setAssign(sel, ids[k], false); this.flash(t.unassignedToast(TR[ids[k]].n)); } }
+        : { name: t.openSlot, sub: '', c: 'var(--color-accent-700)', bd: '1.5px dashed var(--color-accent)', canRemove: false, onRemove: null });
+    };
+    const candidates = trackIdx.filter(i => { const c = this.code(sel, i); return (c === 'A' || c === 'T') && !this.busy(sel, i); })
+      .sort((a, b) => (this.code(sel, a) === 'T') - (this.code(sel, b) === 'T') || this.count(a) - this.count(b))
+      .map(i => ({ name: TR[i].n, count: this.count(i), state: t[this.code(sel, i)], ...CELL[this.code(sel, i)], onAssign: () => { this.setAssign(sel, i, true); this.flash(t.assignedToast(TR[i].n)); } }));
+    const dk = {
+      cols: '160px 84px repeat(' + trackIdx.length + ', minmax(44px,1fr))',
+      head: trackIdx.map(i => ({ first: TR[i].n.split(' ')[0], count: this.count(i), load: Math.round(this.count(i) / maxLoad * 100) + '%' })),
+      rows: SS.filter(x => st.mxAll || x.cw === SS[sel].cw).map(x => {
+        const c = this.cov(x.i), isSel = x.i === sel, short = isJunTrack ? c.sj : c.sr, xx = S(x.i);
+        return { date: fmt(xx.date, L), sub: xx.hall + ' · ' + xx.time.split('–')[0], cov: isJunTrack ? c.jun + '/' + c.nj : c.reg + '/' + c.nr, covC: short ? 'var(--color-accent-700)' : 'var(--color-text)', covW: short ? 800 : 500,
+          rowBg: isSel ? 'var(--color-accent-100)' : 'transparent', selLine: isSel ? 'var(--color-accent)' : 'transparent', onSelect: () => this.setState({ sel: x.i }),
+          cells: trackIdx.map(i => { const cd = this.code(x.i, i); return { ...CELL[cd], cur: cd === 'U' || cd === 'N' || st.surveyClosed && false ? 'default' : 'pointer', onClick: () => this.toggleCell(x.i, i) }; }) };
+      }),
+      panel: {
+        date: fmt(slx.date, L), hall: HALL[slx.hall], hallShort: slx.hall, time: slx.time, groups: t.groups[slx.kind],
+        short: (isJunTrack ? slc.sj : slc.sr) > 0, shortLabel: isJunTrack ? t.needJun(slc.sj) : t.needReg(slc.sr),
+        tracks: [{ label: t.regularTrack, cov: slc.reg + '/' + slc.nr, slots: panelSlots(false) }, { label: t.coachTrack, cov: slc.jun + '/' + slc.nj, slots: panelSlots(true) }],
+        candidates, noCand: !candidates.length, candTitle: (isJunTrack ? t.coachTrack : t.regularTrack) + ' · ' + t.candidates, onOpen: () => this.go('session', { sid: sel }),
+      },
+    };
+    // matrix mobile (day view on sel)
+    const order = { X: 0, A: 1, T: 2, N: 3, U: 4 }, shortTrack = isJunTrack ? slc.sj : slc.sr;
+    const day = {
+      pos: (sel + 1) + '/' + SS.length, prevOp: sel === 0 ? 0.3 : 1, nextOp: sel === SS.length - 1 ? 0.3 : 1,
+      cov: isJunTrack ? slc.jun + ' / ' + slc.nj : slc.reg + ' / ' + slc.nr, short: shortTrack > 0, shortLabel: isJunTrack ? t.needJun(slc.sj) : t.needReg(slc.sr),
+      rows: trackIdx.map(i => ({ i, c: this.code(sel, i) })).sort((a, b) => order[a.c] - order[b.c]).map(({ i, c }) => ({
+        name: TR[i].n, state: t[c], count: this.count(i) + ' ' + t.sessionsN, ...CELL[c], isAssigned: c === 'X', canAssign: (c === 'A' || c === 'T') && shortTrack > 0 && !this.busy(sel, i),
+        onAssign: () => { this.setAssign(sel, i, true); this.flash(t.assignedToast(TR[i].n)); }, onUnassign: () => this.setAssign(sel, i, false),
+      })),
+    };
+
+    // survey
+    const surveyRows = SS.filter(x => x.cw === st.svWk).map(x => { const xx = S(x.i), cur = this.avail(x.i, me); return { date: fmt(xx.date, L), start: xx.time.split('–')[0], hall: xx.hall + ' · ' + t.groups[xx.kind],
+      opts: ['A', 'T', 'U'].map((k, j) => ({ g: CELL[k].g, title: t[k], bl: j ? '1px solid var(--color-divider)' : '0', bg: cur === k ? CELL[k].bg : 'transparent', fg: cur === k ? CELL[k].fg : 'var(--color-text)',
+        cur: st.surveyClosed ? 'not-allowed' : 'pointer', op: st.surveyClosed && cur !== k ? 0.45 : 1, onClick: st.surveyClosed ? null : () => this.setState({ ans: { ...st.ans, [x.i]: k } }) })) }; });
+    const ansCount = svIdx.filter(s => this.avail(s, me) !== 'N').length;
+    const svWeeks = WEEKS.filter(cw => cw >= sv.a && cw <= sv.b);
+    const wkDone = cw => { const ss = SS.filter(x => x.cw === cw); return [ss.filter(x => this.avail(x.i, me) !== 'N').length, ss.length]; };
+    const chipSt = (on, k) => ({ bg: on ? 'var(--color-text)' : 'transparent', fg: on ? 'var(--color-bg)' : 'var(--color-text)', bl: k ? '1px solid var(--color-divider)' : '0' });
+    const svChips = svWeeks.map((cw, k) => { const [a, b] = wkDone(cw); return { l: t.cw(cw), sub: a + '/' + b, mark: a === b ? (cw === st.svWk ? 'var(--color-bg)' : 'var(--color-text)') : 'transparent', ...chipSt(cw === st.svWk, k), onClick: () => this.setState({ svWk: cw }) }; });
+    const DAYN = L === 'DE' ? ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'] : ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+    const calFor = (mode, mo, setMo, selCw, onWeek) => {
+      const first = new Date(2026, mo, 1, 12), start = plus(first, -((first.getDay() + 6) % 7)), weeksC = [];
+      for (let w = 0; w < 6; w++) {
+        const ws = plus(start, w * 7); if (w > 0 && ws.getMonth() !== mo) break;
+        const cw = isoWeek(isoOf(ws)), inRange = mode === 'survey' ? (cw >= sv.a && cw <= sv.b && WEEKS.includes(cw)) : WEEKS.includes(cw);
+        const days = Array.from({ length: 7 }, (_, k) => {
+          const d = plus(ws, k), iso = isoOf(d), ss = SS.filter(x => x.date === iso), inM = d.getMonth() === mo; let mbg = 'transparent', mbd = '0';
+          if (ss.length) {
+            if (mode === 'survey') { if (!inRange) mbg = 'var(--color-neutral-300)'; else { const cs = ss.map(x => this.avail(x.i, me)); if (cs.includes('N')) mbd = '1.5px dashed var(--color-neutral-600)'; else if (cs.every(c => c === 'U')) mbg = 'var(--color-accent)'; else if (cs.includes('A')) mbg = 'var(--color-text)'; else mbg = 'var(--color-neutral-400)'; } }
+            else { const short = ss.some(x => { const c = this.cov(x.i); return isJunTrack ? c.sj : c.sr; }), pub = ss[0].i < PUB; if (!short) mbg = 'var(--color-text)'; else if (pub) mbg = 'var(--color-accent)'; else mbd = '1.5px solid var(--color-text)'; }
+          }
+          return { n: d.getDate(), c: inM ? (iso === TODAY ? 'var(--color-accent-700)' : 'var(--color-text)') : 'var(--color-neutral-500)', w: iso === TODAY ? 800 : 500, mbg, mbd };
+        });
+        const on = cw === selCw;
+        weeksC.push({ cw, days, bg: on ? 'var(--color-accent-100)' : 'transparent', line: on ? 'var(--color-accent)' : 'transparent', cwC: inRange ? 'var(--color-accent-700)' : 'var(--color-neutral-500)', cur: inRange ? 'pointer' : 'default', onClick: inRange ? () => onWeek(cw) : null });
+      }
+      const legend = mode === 'survey'
+        ? [{ l: t.legAnswered, bg: 'var(--color-text)', bd: '0' }, { l: t.legOpen, bg: 'transparent', bd: '1.5px dashed var(--color-neutral-600)' }, { l: t.legOutside, bg: 'var(--color-neutral-300)', bd: '0' }]
+        : [{ l: t.legFull, bg: 'var(--color-text)', bd: '0' }, { l: t.legShort, bg: 'var(--color-accent)', bd: '0' }, { l: t.legToAssign, bg: 'transparent', bd: '1.5px solid var(--color-text)' }];
+      return { title: MONL[L][mo] + ' 2026', head: [t.cwShort, ...DAYN], weeks: weeksC, legend, prev: () => setMo(Math.max(9, mo - 1)), next: () => setMo(Math.min(11, mo + 1)), prevOp: mo <= 9 ? 0.3 : 1, nextOp: mo >= 11 ? 0.3 : 1 };
+    };
+    const selCw = SS[st.sel].cw;
+    const weekShortMark = cw => { const ss = SS.filter(x => x.cw === cw); const sh = ss.filter(x => { const c = this.cov(x.i); return isJunTrack ? c.sj : c.sr; }); if (!sh.length) return 'var(--color-text)'; return ss[0].i < PUB ? 'var(--color-accent)' : 'var(--color-neutral-400)'; };
+    const goWeek = cw => this.setState({ sel: SS.find(x => x.cw === cw).i, mxAll: false, mxCal: false });
+    const mxChipsBase = WEEKS.map((cw, k) => ({ l: t.cw(cw), sub: cw >= sv.a && cw <= sv.b ? t.surveyShort : t.assignedShort, mark: weekShortMark(cw), ...chipSt(!st.mxAll && cw === selCw, k), onClick: () => goWeek(cw) }));
+    const nsW = Array.from({ length: 11 }, (_, k) => { const m = plus(new Date(2026, 9, 19, 12), k * 7); return { cw: isoWeek(isoOf(m)), m }; });
+    const nsIn = k => st.ns.a != null && (st.ns.b == null ? k === st.ns.a : k >= st.ns.a && k <= st.ns.b);
+
+    // team
+    const tagsOf = i => { const r = this.rolesOf(i).map(x => t[x]); if (st.inactive[i]) r.push(t.inactive); return r.length ? r : [t.sTrainer]; };
+    const teamFilters = [['all', t.everyone], ['tr', t.regularsLbl], ['ht', t.headTrainers], ['jun', t.coaches1418]].map(([k, l], j) => opt(l, st.teamF === k, () => this.setState({ teamF: k }), j));
+    const roster = idx.filter(i => st.teamF === 'all' || (st.teamF === 'tr' ? !this.isJun(i) : this.rolesOf(i).includes(st.teamF))).map(i => {
+      const sp = this.split(i), j = this.isJun(i);
+      const elev = this.rolesOf(i).some(r => r === 'ht' || r === 'sa');
+      return { name: TR[i].n, tags: tagsOf(i), sp: elev ? ((i === me && st.prof.sp != null ? st.prof.sp : TR[i].sp) || '') : '', sT: sp.tr || '–', sA: sp.as || '–', sJ: sp.jun || '–', sTc: sp.tr ? 'var(--color-text)' : 'var(--color-neutral-500)', sAc: sp.as ? 'var(--color-text)' : 'var(--color-neutral-500)', sJc: sp.jun ? 'var(--color-text)' : 'var(--color-neutral-500)', done: this.done(i), up: this.upcoming(i) || '–', op: st.inactive[i] ? 0.5 : 1, onOpen: () => this.go('profile', { pid: i }) };
+    });
+    const invites = st.invites.map((v, j) => ({ email: v.email, sub: t[v.k], c: v.k === 'expired' ? 'var(--color-accent-700)' : 'var(--color-neutral-700)', onResend: () => { this.setState({ invites: st.invites.map((x, q) => q === j ? { ...x, k: 'justSent' } : x) }); this.flash(t.resentToast); } }));
+
+    // profile
+    const pid = st.pid, pSp = this.split(pid), canSee = head || pid === me;
+    const pLog = pSp.log.map((x, j) => ({ n: pSp.log.length - j, date: fmt(x.date, L), hall: x.hall + ' · ' + x.time.split('–')[0], role: x.role === 'as' ? t.hilfs : x.role === 'jun' ? t.s1418 : t.sTrainer, sub: x.sub }));
+    const pf = {
+      hasSp: this.rolesOf(pid).some(r => r === 'ht' || r === 'sa'), name: TR[pid].n, ini: ini(TR[pid].n), tags: tagsOf(pid), sp: (pid === me && st.prof.sp != null ? st.prof.sp : TR[pid].sp) || '—', email: TR[pid].e,
+      canSee, isMe: pid === me, logCount: t.logCount(pLog.length), logShown: st.logAll ? pLog : pLog.slice(0, 8), hasMore: pLog.length > 8, moreLbl: st.logAll ? t.showLess : t.showAll(pLog.length),
+      stats: [{ v: pSp.tr, l: t.sTrainer, c: 'var(--color-text)', bg: 'transparent' }, { v: pSp.as, l: t.sAssistant, c: 'var(--color-text)', bg: 'transparent' }, { v: pSp.jun, l: t.s1418, c: 'var(--color-text)', bg: 'transparent' }, { v: this.done(pid), l: t.done, c: 'var(--color-text)', bg: 'var(--color-neutral-100)' }, { v: this.upcoming(pid), l: t.upcomingShort, c: 'var(--color-neutral-700)', bg: 'transparent' }],
+      upcoming: SS.filter(x => this.isAssigned(x.i, pid)).slice(0, 5).map(x => sLite(x.i)), activeBtn: st.inactive[pid] ? t.reactivate : t.deactivate,
+    };
+    const checkRow = (l, d, on, onClick, locked) => ({ l, d, bg: on ? 'var(--color-text)' : 'transparent', mark: on ? '✓' : '', op: locked ? 0.45 : 1, cur: locked ? 'default' : 'pointer', onClick: locked ? null : onClick });
+    const rd = st.roleDraft, togDraft = r => this.setState({ roleDraft: rd.includes(r) ? rd.filter(x => x !== r) : [...rd, r] });
+    const roleEdit = [checkRow(t.trainerBase, t.trainerBaseD, true, null, true), checkRow(t.ht, t.htD, rd.includes('ht'), () => togDraft('ht')), checkRow(t.sa, t.saD, rd.includes('sa'), () => togDraft('sa')), checkRow(t.jun, t.junD, rd.includes('jun'), () => togDraft('jun'))];
+    const iv = st.inv, togInv = r => this.setState({ inv: { ...iv, [r]: !iv[r] } });
+    const inv = { email: iv.email, err: iv.err, roles: [checkRow(t.ht, t.htD, iv.ht, () => togInv('ht')), checkRow(t.sa, t.saD, iv.sa, () => togInv('sa')), checkRow(t.jun, t.junD, iv.jun, () => togInv('jun'))] };
+
+    // settings
+    const prof = { name: st.prof.name ?? TR[me].n, sp: st.prof.sp ?? TR[me].sp };
+    const ntDef = [['assign', t.nAssign], ['subs', t.nSubs], ['survey', t.nSurvey], ['roles', t.nRoles]];
+    const notifToggles = ntDef.map(([k, l]) => ({ l, track: st.nt[k] ? 'var(--color-text)' : 'transparent', knob: st.nt[k] ? 'var(--color-bg)' : 'var(--color-text)', tx: st.nt[k] ? 'translateX(18px)' : 'none', onClick: () => this.setState({ nt: { ...st.nt, [k]: !st.nt[k] } }) }));
+    const slots = SLOTS.map(([d, time, hall, kind]) => ({ wd: WD[L][+d], time, hall: HALL[hall], groups: t.groups[kind] }));
+    const halls = Object.keys(HALL).map(k => ({ name: HALL[k], area: AREA[k], addr: hallA(k), note: hallN(k), mapUrl: mapUrl(k), onEdit: () => this.setState({ modal: 'hall', hallEdit: { k, a: hallA(k), n: hallN(k) } }) }));
+
+    // notifications
+    const nl = [
+      { text: t.n.gap(fmt(S(3).date, L), 'Jonas'), when: agoT('d2'), go: () => this.go('session', { sid: 3 }) },
+      ...(mine[1] != null ? [{ text: t.n.assigned(fmt(S(mine[1]).date, L)), when: agoT('d3'), go: () => this.go('session', { sid: mine[1] }) }] : []),
+    ];
+    if (head) { nl.unshift({ text: t.n.flag('Tobias', fmt(S(5).date, L)), when: agoT('h5'), go: () => this.go('session', { sid: 5 }) }); nl.push({ text: t.n.esc(fmt(S(3).date, L)), when: agoT('d1'), go: () => this.go('gaps') }); }
+    if (admin) nl.push({ text: t.n.inviteIdle, when: agoT('d2'), go: () => this.go('team') });
+    nl.push({ text: t.n.surveyOpen(surveyName), when: agoT('jul'), go: () => this.go('availability', { availTab: 'survey' }) });
+    const notifs = nl.map((n, j) => ({ text: n.text, when: n.when, dot: !st.read && j < 3 ? 'var(--color-accent)' : 'transparent', w: !st.read && j < 3 ? 600 : 400, onClick: n.go }));
+
+    // nav
+    const navDef = [['home', head ? t.dashboard : t.mySessions], ['sessions', t.sessions], ['availability', t.availability], ['gaps', t.gaps, gaps.length ? t.nGaps(gaps.length) : ''], ['team', t.team], ['settings', t.settings]];
+    const active = st.screen === 'session' ? 'sessions' : st.screen === 'profile' ? 'team' : st.screen;
+    const nav = navDef.map(([k, l, meta]) => { const on = active === k; return { l, meta: meta || '', onClick: () => this.go(k), bg: on ? 'var(--color-accent-100)' : 'transparent', c: on ? 'var(--color-accent-700)' : 'var(--color-text)', w: on ? 800 : 500, line: on ? 'var(--color-accent)' : 'transparent' }; });
+    const tabs = navDef.slice(0, 5).map(([k, l, meta]) => { const on = active === k; return { l: k === 'home' ? t.home : l, meta: meta || '', onClick: () => this.go(k), c: on ? 'var(--color-accent)' : 'var(--color-text)', w: on ? 800 : 500, line: on ? 'var(--color-accent)' : 'transparent' }; });
+    const titles = { home: head ? t.dashboard : t.hi(prof.name.split(' ')[0]), sessions: t.sessions, session: sd.date, availability: t.availability, gaps: t.gaps, team: t.team, profile: TR[pid].n, settings: t.settings };
+    const subs = { ...t.pageSub, availability: surveyName, session: t.sessions, profile: t.team };
+
+    const showMatrix = head && st.availTab === 'matrix';
+    const langOpts = [['EN', 'EN'], ['DE', 'DE']].map(([k, l], j) => opt(l, L === k, () => this.setState({ lang: k }), j));
+    const toolbar = [
+      { opts: [['trainer', t.roleT], ['head', t.roleH], ['admin', t.roleA]].map(([k, l], j) => opt(l, st.role === k, () => this.setState({ role: k, screen: 'home', auth: null, ans: {}, prof: {}, mine: false }), j)) },
+      { opts: [['desktop', t.desktop], ['mobile', t.mobile]].map(([k, l], j) => opt(l, st.device === k, () => this.setState({ device: k }), j)) },
+      { opts: langOpts },
+      { opts: [[null, t.app], ['login', t.login], ['invite', t.inviteScr]].map(([k, l], j) => opt(l, st.auth === k, () => this.setState({ auth: k, drawer: false, modal: null }), j)) },
+    ];
+
+    return {
+      t, L: Lx, frameW: mob ? '390px' : '1280px', frameH: mob ? '844px' : '820px', toolbar, langOpts,
+      langOptsLong: [['EN', 'English'], ['DE', 'Deutsch']].map(([k, l], j) => opt(l, L === k, () => this.setState({ lang: k }), j)),
+      isMobile: mob, isDesktop: !mob, isAuth: !!st.auth, isApp: !st.auth, isLogin: st.auth === 'login', isInvite: st.auth === 'invite', signIn: () => this.setState({ auth: null, screen: 'home' }),
+      benefits: t.b.map(([h, p], j) => ({ n: '0' + (j + 1), h, p })),
+      isHead: head, isAdmin: admin, me: { name: prof.name, ini: ini(prof.name), roles: [t.sTrainer, ...myRoles.map(r => t[r])].join(' · ') },
+      nav, tabs, pageTitle: titles[st.screen], pageSub: subs[st.screen] || '',
+      show: { homeTrainer: st.screen === 'home' && !head, dashboard: st.screen === 'home' && head, sessions: st.screen === 'sessions', session: st.screen === 'session', availability: st.screen === 'availability', gaps: st.screen === 'gaps', team: st.screen === 'team', profile: st.screen === 'profile', settings: st.screen === 'settings', survey: !showMatrix, matrixDesk: showMatrix && !mob, matrixMob: showMatrix && mob },
+      goSettings: () => this.go('settings'), goSessions: () => this.go('sessions'), goTeam: () => this.go('team'), goSurvey: () => this.go('availability', { availTab: 'survey' }),
+      setBg: st.screen === 'settings' ? 'var(--color-text)' : 'var(--color-bg)', setFg: st.screen === 'settings' ? 'var(--color-bg)' : 'var(--color-text)',
+      myDone: this.done(me), myUpcomingLbl: t.upcomingLine(this.upcoming(me)), goMyLog: () => this.go('profile', { pid: me, logAll: false }),
+      toggleLog: () => this.setState({ logAll: !st.logAll }), reportMistake: () => this.flash(t.reportedToast), exportCsv: () => this.flash(t.csvToast),
+      teamStrip: (() => { const act = idx.filter(i => !st.inactive[i]); const tot = act.reduce((a, i) => a + this.done(i), 0), up = act.reduce((a, i) => a + this.upcoming(i), 0), subs = act.reduce((a, i) => a + this.split(i).sub, 0);
+        return [{ k: t.done, v: tot }, { k: t.upcomingShort, v: up }, { k: t.asSub, v: subs }, { k: t.avgPer, v: (tot / act.length).toFixed(1) }]; })(),
+      myGaps, hasNext: mine.length > 0, nextS, mineList: mine.slice(1, 6).map(s => ({ ...sLite(s), roleTag: roleTag(s) })), myStats,
+      surveyDue: unanswered > 0 && !st.surveyClosed, surveyDueText: t.surveyDue(unanswered),
+      strip, gapList, noGaps: !gapList.length, gapCountLbl: gaps.length ? t.nGaps(gaps.length) : '', resolvedList, workload,
+      hallOpts, toggleMine: () => this.setState({ mine: !st.mine }), mineBg: st.mine ? 'var(--color-text)' : 'transparent', mineMark: st.mine ? '✓' : '', weeks,
+      sd, availTabs: [['matrix', t.matrixTab], ['survey', t.myAvailTab]].map(([k, l]) => ({ l, onClick: () => this.setState({ availTab: k }), c: st.availTab === k ? 'var(--color-accent-700)' : 'var(--color-text)', line: st.availTab === k ? 'var(--color-accent)' : 'transparent' })),
+      surveyRows, surveyProgress: t.answered(ansCount, svIdx.length), surveyPct: Math.round(ansCount / Math.max(1, svIdx.length) * 100) + '%', saveSurvey: () => this.flash(t.savedToast),
+      surveyName, surveyRange: (SS.find(x => x.cw === sv.a) ? rng(monOf(SS.find(x => x.cw === sv.a).date), plus(monOf(SS.filter(x => x.cw <= sv.b).slice(-1)[0].date), 6)) : '') + ' · ' + t.nSessions(svIdx.length),
+      svChips, svWeekTitle: t.cw(st.svWk) + ' · ' + wkRange(st.svWk), svWeekDone: (() => { const [a, b] = wkDone(st.svWk); return t.answered(a, b); })(),
+      svPrev: () => { const j = svWeeks.indexOf(st.svWk); if (j > 0) this.setState({ svWk: svWeeks[j - 1] }); }, svNext: () => { const j = svWeeks.indexOf(st.svWk); if (j < svWeeks.length - 1) this.setState({ svWk: svWeeks[j + 1] }); },
+      svPrevOp: svWeeks.indexOf(st.svWk) <= 0 ? 0.3 : 1, svNextOp: svWeeks.indexOf(st.svWk) >= svWeeks.length - 1 ? 0.3 : 1,
+      calS: calFor('survey', st.svMo, mo => this.setState({ svMo: mo }), st.svWk, cw => this.setState({ svWk: cw, svCal: false })),
+      calM: calFor('matrix', st.mxMo, mo => this.setState({ mxMo: mo }), st.mxAll ? null : selCw, goWeek),
+      svCalInline: mob && st.svCal, toggleSvCal: () => this.setState({ svCal: !st.svCal }), svCalBg: st.svCal ? 'var(--color-text)' : 'transparent', svCalFg: st.svCal ? 'var(--color-bg)' : 'var(--color-text)',
+      markWeek: () => { const a = { ...st.ans }; SS.filter(x => x.cw === st.svWk).forEach(x => { if (this.avail(x.i, me) === 'N') a[x.i] = 'A'; }); this.setState({ ans: a }); },
+      mxChips: [...mxChipsBase, { l: t.allWeeks, sub: t.cw(WEEKS[0]) + '–' + WEEKS[WEEKS.length - 1], mark: 'transparent', ...chipSt(st.mxAll, 1), onClick: () => this.setState({ mxAll: true, mxCal: false }) }],
+      mxChipsMob: mxChipsBase, mxCalOpen: st.mxCal, toggleMxCal: () => this.setState({ mxCal: !st.mxCal }), mxCalBg: st.mxCal ? 'var(--color-text)' : 'transparent', mxCalFg: st.mxCal ? 'var(--color-bg)' : 'var(--color-text)',
+      laterNote: t.laterNote(sv.a, sv.b),
+      openNs: () => this.setState({ modal: 'ns', ns: { a: null, b: null, dl: L === 'DE' ? 'So 25. Okt.' : 'Sun 25 Oct', err: false } }),
+      ns: st.ns, onNsDl: e => this.setState({ ns: { ...st.ns, dl: e.target.value } }),
+      nsChips: nsW.map((w, k) => ({ l: t.cw(w.cw), sub: rng(w.m, w.m).replace(/^\d+[.]?–/, ''), bg: nsIn(k) ? 'var(--color-text)' : 'transparent', fg: nsIn(k) ? 'var(--color-bg)' : 'var(--color-text)',
+        onClick: () => { const n = st.ns; let a = n.a, b = n.b; if (a == null || b != null) { a = k; b = null; } else if (k < a) { a = k; } else { b = k; } this.setState({ ns: { ...n, a, b, err: false } }); } })),
+      nsSummary: st.ns.a == null ? t.nsPick : t.cw(nsW[st.ns.a].cw) + (st.ns.b != null ? ' – ' + t.cw(nsW[st.ns.b].cw) : '') + ' · ' + rng(nsW[st.ns.a].m, plus(nsW[st.ns.b != null ? st.ns.b : st.ns.a].m, 6)) + ' · ' + t.nWeeks((st.ns.b != null ? st.ns.b : st.ns.a) - st.ns.a + 1),
+      sendNs: () => { const n = st.ns; if (n.a == null) { this.setState({ ns: { ...n, err: true } }); return; } const a = nsW[n.a].cw, b = nsW[n.b != null ? n.b : n.a].cw;
+        this.setState({ modal: null, survey: { n: sv.n + 1, a, b }, surveyClosed: false, svWk: WEEKS.includes(a) ? a : st.svWk }); this.flash(t.nsToast(a, b)); },
+      trackOpts: [['reg', t.regularTrack], ['jun', t.coachTrack]].map(([k, l], j) => opt(l, st.track === k, () => this.setState({ track: k }), j)),
+      surveyStatus: st.surveyClosed ? t.statusClosed : t.statusOpen, surveyTagCls: st.surveyClosed ? 'tag-neutral' : 'tag-accent',
+      surveyLocked: st.surveyClosed, surveyEditable: !st.surveyClosed, surveyIntroText: st.surveyClosed ? t.surveyIntroClosed : t.surveyIntro,
+      surveyBtn: st.surveyClosed ? t.reopenSurvey : t.closeSurvey, closeSurvey: () => { if (!head) return; this.setState({ surveyClosed: !st.surveyClosed }); this.flash(st.surveyClosed ? t.surveyOpenedToast : t.surveyClosedToast); },
+      dk, day, mx: { resp }, legend: ['X', 'A', 'T', 'U', 'N'].map(k => ({ l: t[k], bg: CELL[k].bg, bd: CELL[k].bd })),
+      selPrev: () => this.setState({ sel: Math.max(0, sel - 1) }), selNext: () => this.setState({ sel: Math.min(SS.length - 1, sel + 1) }),
+      sessSeason, sessChips, sessCalOpen: true, toggleSessCal: () => this.setState({ sessCalOpen: !st.sessCalOpen }), sessCalBg: st.sessCalOpen ? 'var(--color-text)' : 'transparent', sessCalFg: st.sessCalOpen ? 'var(--color-bg)' : 'var(--color-text)', sessCal, sessEmpty, sessEmptyText, teamFilters, roster, invites, showPending: admin && st.invites.length > 0, openInvite: () => this.setState({ modal: 'invite', inv: { email: '', ht: false, sa: false, jun: false, err: false } }),
+      pf, openRoles: () => this.setState({ modal: 'roles', roleDraft: [...this.rolesOf(pid)] }), roleEdit,
+      toggleActive: () => this.setState({ inactive: { ...st.inactive, [pid]: !st.inactive[pid] } }),
+      inv, onInvEmail: e => this.setState({ inv: { ...iv, email: e.target.value, err: false } }),
+      sendInvite: () => { if (!/^\S+@\S+\.\S+$/.test(iv.email)) { this.setState({ inv: { ...iv, err: true } }); return; } this.setState({ modal: null, invites: [{ email: iv.email, k: 'justSent' }, ...st.invites] }); this.flash(t.invitedToast(iv.email)); },
+      saveRoles: () => { this.setState({ modal: null, roles: { ...st.roles, [pid]: rd } }); this.flash(t.rolesToast); },
+      ov: { time: st.ov.time, halls: Object.keys(HALL).map((k, j) => ({ name: HALL[k], addr: hallA(k), bt: j ? '1px solid var(--color-divider)' : '0', bg: st.ov.hall === k ? 'var(--color-text)' : 'transparent', fg: st.ov.hall === k ? 'var(--color-bg)' : 'var(--color-text)', onClick: () => this.setState({ ov: { ...st.ov, hall: k } }) })) },
+      onOvTime: e => this.setState({ ov: { ...st.ov, time: e.target.value } }),
+      saveOverride: () => { this.setState({ modal: null, over: { ...st.over, [sid]: { time: st.ov.time, hall: st.ov.hall } } }); this.flash(t.ovToast); },
+      modalOpen: !!st.modal, modal: { ns: st.modal === 'ns', invite: st.modal === 'invite', roles: st.modal === 'roles', override: st.modal === 'override', hall: st.modal === 'hall' },
+      he: { name: st.hallEdit.k ? HALL[st.hallEdit.k] : '', a: st.hallEdit.a, n: st.hallEdit.n },
+      onHallA: e => this.setState({ hallEdit: { ...st.hallEdit, a: e.target.value } }), onHallN: e => this.setState({ hallEdit: { ...st.hallEdit, n: e.target.value } }),
+      saveHall: () => { const k = st.hallEdit.k; this.setState({ modal: null, hallInfo: { ...st.hallInfo, [k]: { a: st.hallEdit.a, n: st.hallEdit.n } } }); this.flash(t.savedToast); }, closeModal: () => this.setState({ modal: null }),
+      prof, onName: e => this.setState({ prof: { ...st.prof, name: e.target.value } }), onSp: e => this.setState({ prof: { ...st.prof, sp: e.target.value } }), saveProfile: () => this.flash(t.savedToast),
+      notifToggles, slots, halls, calUrl: 'webcal://pocketcoach.app/feed/' + st.token + '.ics',
+      copyCal: () => this.flash(t.copiedToast), regenCal: () => { this.setState({ token: Math.random().toString(36).slice(2, 10) }); this.flash(t.regenToast); }, addCal: () => this.flash(t.icsToast),
+      signOut: () => this.setState({ auth: 'login' }),
+      drawerOpen: st.drawer, toggleDrawer: () => this.setState({ drawer: !st.drawer }), notifs, unread: st.read ? 0 : 3, markRead: () => this.setState({ read: true }),
+      hasToast: !!st.toast, toastText: st.toast ? st.toast.text : '', toastUndo: st.toast && st.toast.undo ? st.toast.undo : null,
+    };
+  }
+}
+</script>
+</body>
+</html>
