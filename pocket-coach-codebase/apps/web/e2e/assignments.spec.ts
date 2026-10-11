@@ -58,4 +58,26 @@ test.describe('Session Assignment & Personal Schedule E2E Flow', () => {
     });
     await expect(mySessionsHeading).toBeVisible();
   });
+
+  test('Trainer lands on My Sessions and can switch to the full schedule', async ({ page }) => {
+    // 1. Log in as a regular Trainer
+    await page.goto('/login');
+    await page.getByLabel(/email address/i).fill('trainer1@club.de');
+    await page.getByLabel(/password/i).fill('Password123!');
+    await page.getByRole('button', { name: 'Sign In', exact: true }).click();
+
+    await expect(page).toHaveURL(/\/(trainers|dashboard|sessions|$)/);
+
+    // 2. Sessions page defaults to the trainer's own sessions
+    await page.goto('/sessions');
+    const mySessionsHeading = page.getByRole('heading', {
+      name: /(your assigned sessions|no sessions assigned)/i,
+    });
+    await expect(mySessionsHeading).toBeVisible();
+    await expect(page.getByRole('button', { name: /bulk assign/i })).not.toBeVisible();
+
+    // 3. Full schedule (including other trainers' assignments) is one tap away
+    await page.getByRole('button', { name: /all schedule/i }).click();
+    await expect(mySessionsHeading).not.toBeVisible();
+  });
 });

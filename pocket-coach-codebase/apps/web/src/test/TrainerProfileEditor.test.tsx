@@ -61,6 +61,26 @@ describe('TrainerProfileEditor', () => {
     expect(screen.getByText(/Live Calendar Feed Sync/i)).toBeInTheDocument();
   });
 
+  it('shows the 1418 Coach label as read-only for non-admins', () => {
+    render(<TrainerProfileEditor />);
+
+    expect(screen.getByLabelText(/1418 coach/i)).toBeDisabled();
+    expect(screen.getByText(/managed by a super-admin/i)).toBeInTheDocument();
+  });
+
+  it('lets Super-admins edit the 1418 Coach label', () => {
+    mockUseAuth.mockReturnValue({
+      profile: sampleProfile,
+      roles: ['trainer', 'super_admin'],
+      refreshProfile: mockRefreshProfile,
+      signOut: vi.fn(),
+    });
+    render(<TrainerProfileEditor />);
+
+    expect(screen.getByLabelText(/1418 coach/i)).toBeEnabled();
+    expect(screen.queryByText(/managed by a super-admin/i)).not.toBeInTheDocument();
+  });
+
   it('updates profile settings including avatar_url on form submit', async () => {
     const user = userEvent.setup({ delay: null });
     render(<TrainerProfileEditor />);

@@ -7,10 +7,19 @@ import { InviteModal } from '../features/auth/InviteModal';
 const mockSignUp = vi.fn();
 const mockUpsert = vi.fn();
 
+const mockSharedSignUp = vi.fn();
+
 vi.mock('../lib/supabase', () => ({
-  supabase: {
+  // Account creation must use the isolated client so the admin's session is preserved
+  createIsolatedAuthClient: () => ({
     auth: {
       signUp: (...args: any[]) => mockSignUp(...args),
+      signInWithPassword: vi.fn().mockResolvedValue({ data: { user: null } }),
+    },
+  }),
+  supabase: {
+    auth: {
+      signUp: (...args: any[]) => mockSharedSignUp(...args),
       resetPasswordForEmail: vi.fn().mockResolvedValue({ error: null }),
     },
     from: (table: string) => ({
@@ -103,6 +112,9 @@ describe('InviteModal', () => {
     await waitFor(() => {
       expect(onSuccess).toHaveBeenCalled();
     });
+
+    // The admin's own (shared) client never signs up, so the admin stays logged in
+    expect(mockSharedSignUp).not.toHaveBeenCalled();
   });
 
   it('handles re-inviting an existing user by reactivating profile and role', async () => {

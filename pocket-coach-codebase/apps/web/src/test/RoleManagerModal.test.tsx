@@ -6,6 +6,7 @@ import { RoleManagerModal } from '../features/trainers/RoleManagerModal';
 const mockDelete = vi.fn();
 const mockInsert = vi.fn();
 const mockSelect = vi.fn();
+const mockProfileUpdate = vi.fn();
 
 vi.mock('../lib/supabase', () => ({
   supabase: {
@@ -25,6 +26,16 @@ vi.mock('../lib/supabase', () => ({
             mockInsert(records);
             return Promise.resolve({ error: null });
           },
+        };
+      }
+      if (table === 'profiles') {
+        return {
+          update: (data: Record<string, unknown>) => ({
+            eq: (col: string, val: string) => {
+              mockProfileUpdate(data, col, val);
+              return Promise.resolve({ error: null });
+            },
+          }),
         };
       }
       return {};
@@ -103,5 +114,36 @@ describe('RoleManagerModal', () => {
       expect(mockOnSuccess).toHaveBeenCalled();
       expect(mockOnClose).toHaveBeenCalled();
     });
+  });
+  it('lets a Super-admin set the 14/18 Coach label and saves it with the roles', async () => {
+    const user = userEvent.setup({ delay: null });
+    render(<RoleManagerModal isOpen={true} onClose={vi.fn()} trainer={sampleTrainer} />);
+
+    const labelToggle = await screen.findByRole('checkbox', { name: /14\/18 coach/i });
+    expect(labelToggle).toHaveAttribute('aria-checked', 'false');
+    await user.click(labelToggle);
+    expect(labelToggle).toHaveAttribute('aria-checked', 'true');
+
+    await user.click(screen.getByRole('button', { name: /save changes/i }));
+
+    await waitFor(() => {
+      expect(mockProfileUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({ is_junior_coach: true }),
+        'id',
+        'trainer-456',
+      );
+      expect(mockInsert).toHaveBeenCalled();
+    });
+  });
+
+  it('does not touch the profile when the label is unchanged', async () => {
+    const user = userEvent.setup({ delay: null });
+    render(<RoleManagerModal isOpen={true} onClose={vi.fn()} trainer={sampleTrainer} />);
+
+    await screen.findByRole('checkbox', { name: /14\/18 coach/i });
+    await user.click(screen.getByRole('button', { name: /save changes/i }));
+
+    await waitFor(() => expect(mockInsert).toHaveBeenCalled());
+    expect(mockProfileUpdate).not.toHaveBeenCalled();
   });
 });

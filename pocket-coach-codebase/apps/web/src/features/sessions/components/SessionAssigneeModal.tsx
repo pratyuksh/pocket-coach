@@ -114,6 +114,7 @@ export const SessionAssigneeModal: React.FC<SessionAssigneeModalProps> = ({
         const session_role = row.roleTag === 'primary' ? 'primary' : 'assistant_coach';
 
         await assignTrainer({
+          assignment_id: row.assignmentId,
           session_id: session.id,
           profile_id: row.profileId,
           track,

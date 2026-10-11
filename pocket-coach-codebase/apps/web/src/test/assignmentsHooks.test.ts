@@ -107,13 +107,12 @@ describe('Sub-Phase 1.4 Custom React Data Hooks', () => {
       expect(createdAssignment.profile.display_name).toBe('Coach Alex');
     });
 
-    it('updates an existing assignment if one already exists for session & track', async () => {
+    it('updates the given assignment by id without resetting its status', async () => {
+      const mockUpdate = vi.fn();
+      const mockEq = vi.fn();
       mockSupabaseFrom.mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        maybeSingle: vi.fn().mockResolvedValue({ data: { id: 'asg-existing' }, error: null }),
-        update: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
+        update: mockUpdate.mockReturnValue({
+          eq: mockEq.mockReturnValue({
             select: vi.fn().mockReturnValue({
               single: vi.fn().mockResolvedValue({
                 data: {
@@ -136,6 +135,7 @@ describe('Sub-Phase 1.4 Custom React Data Hooks', () => {
       let updatedAssignment: any;
       await act(async () => {
         updatedAssignment = await result.current.assignTrainer({
+          assignment_id: 'asg-existing',
           session_id: 'sess-1',
           profile_id: 'usr-3',
           track: 'regular',
@@ -143,8 +143,38 @@ describe('Sub-Phase 1.4 Custom React Data Hooks', () => {
         });
       });
 
+      expect(mockEq).toHaveBeenCalledWith('id', 'asg-existing');
+      expect(mockUpdate.mock.calls[0][0]).not.toHaveProperty('status');
       expect(updatedAssignment.id).toBe('asg-existing');
       expect(updatedAssignment.profile.display_name).toBe('Coach Taylor');
+    });
+
+    it('reports a clear error when the trainer is already assigned to the session', async () => {
+      mockSupabaseFrom.mockReturnValue({
+        insert: vi.fn().mockReturnValue({
+          select: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({
+              data: null,
+              error: { code: '23505', message: 'duplicate key value violates unique constraint' },
+            }),
+          }),
+        }),
+      });
+
+      const { result } = renderHook(() => useAssignTrainer());
+
+      await act(async () => {
+        await result.current
+          .assignTrainer({
+            session_id: 'sess-1',
+            profile_id: 'usr-2',
+            track: 'regular',
+            session_role: 'primary',
+          })
+          .catch(() => {});
+      });
+
+      expect(result.current.error).toBe('This trainer is already assigned to this session');
     });
 
     it('removes an assignment when removeAssignment is called', async () => {
@@ -314,6 +344,43 @@ describe('Sub-Phase 1.4 Custom React Data Hooks', () => {
           session_role: 'assistant_coach',
           status: 'active',
           session: { session_date: '2099-12-31' }, // Future date
+        },
+      ];
+
+      mockSupabaseFrom.mockReturnValue({
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockResolvedValue({ data: mockAssignmentsData, error: null }),
+      });
+
+      const { result } = renderHook(() => usePersonalStats('usr-1'));
+
+      await act(async () => {});
+
+      expect(result.current.stats.total_assigned_sessions).toBe(2);
+      expect(result.current.stats.completed_sessions).toBe(1);
+      expect(result.current.stats.primary_role_count).toBe(1);
+      expect(result.current.stats.assistant_role_count).toBe(1);
+    });
+
+    it('excludes replaced assignments and does not complete sessions awaiting a substitute', async () => {
+      const mockAssignmentsData = [
+        {
+          id: 'asg-1',
+          session_role: 'primary',
+          status: 'active',
+          session: { session_date: '2020-01-01' },
+        },
+        {
+          id: 'asg-2',
+          session_role: 'primary',
+          status: 'replaced',
+          session: { session_date: '2020-01-08' },
+        },
+        {
+          id: 'asg-3',
+          session_role: 'assistant_coach',
+          status: 'absent_pending_sub',
+          session: { session_date: '2020-01-15' },
         },
       ];
 

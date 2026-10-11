@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Badge } from '../../components/ui';
 import { supabase } from '../../lib/supabase';
 import type { Profile, UserRole } from '@pocket-coach/shared-types';
-import { Shield, ShieldAlert, Check } from 'lucide-react';
+import { Shield, ShieldAlert, Check, Sprout } from 'lucide-react';
 
 interface RoleManagerModalProps {
   isOpen: boolean;
@@ -18,12 +18,14 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({
   onSuccess,
 }) => {
   const [currentRoles, setCurrentRoles] = useState<UserRole[]>([]);
+  const [isJuniorCoach, setIsJuniorCoach] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (trainer && isOpen) {
+      setIsJuniorCoach(trainer.is_junior_coach);
       setLoading(true);
       setError(null);
       const loadRoles = async () => {
@@ -61,6 +63,16 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({
     setError(null);
 
     try {
+      // The 14/18 Coach profile label is Super-admin managed
+      if (isJuniorCoach !== trainer.is_junior_coach) {
+        const { error: labelErr } = await supabase
+          .from('profiles')
+          .update({ is_junior_coach: isJuniorCoach, updated_at: new Date().toISOString() })
+          .eq('id', trainer.id);
+
+        if (labelErr) throw labelErr;
+      }
+
       // Clear existing roles
       await supabase.from('user_roles').delete().eq('profile_id', trainer.id);
 
@@ -166,6 +178,38 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({
               </div>
             </div>
             {currentRoles.includes('super_admin') && <Check className="w-5 h-5 text-amber-500" />}
+          </div>
+        </div>
+
+        <div className="space-y-2 pt-1">
+          <h5 className="text-xs font-semibold text-[var(--text-secondary)]">Profile Label</h5>
+          <div
+            role="checkbox"
+            aria-checked={isJuniorCoach}
+            tabIndex={0}
+            onClick={() => setIsJuniorCoach(!isJuniorCoach)}
+            onKeyDown={(e) => {
+              if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                setIsJuniorCoach(!isJuniorCoach);
+              }
+            }}
+            className={`p-3.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+              isJuniorCoach
+                ? 'bg-emerald-500/15 border-emerald-500/40'
+                : 'bg-[var(--bg-surface-elevated)] border-[var(--border-subtle)] hover:border-[var(--border-glass)]'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <Sprout className="w-5 h-5 text-emerald-500" />
+              <div>
+                <h4 className="text-sm font-semibold text-[var(--text-primary)]">14/18 Coach</h4>
+                <p className="text-xs text-[var(--text-secondary)]">
+                  Junior player coaching on the separate 14/18 Coach track.
+                </p>
+              </div>
+            </div>
+            {isJuniorCoach && <Check className="w-5 h-5 text-emerald-500" />}
           </div>
         </div>
 

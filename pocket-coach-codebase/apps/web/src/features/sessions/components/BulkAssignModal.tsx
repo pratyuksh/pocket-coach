@@ -7,6 +7,7 @@ import { useAuth } from '../../../hooks/useAuth';
 import type { EnrichedSession } from '../hooks/useSessions';
 import type { AssignmentTrack, SessionRole } from '@pocket-coach/shared-types';
 import { Layers, Filter, Sparkles } from 'lucide-react';
+import { toLocalDateString } from '../../../lib/dates';
 
 interface BulkAssignModalProps {
   isOpen: boolean;
@@ -35,9 +36,11 @@ export const BulkAssignModal: React.FC<BulkAssignModalProps> = ({
   const [locationIdFilter, setLocationIdFilter] = useState<string>('');
   const [localError, setLocalError] = useState<string | null>(null);
 
-  // Compute matching sessions preview count
+  // Compute matching sessions preview count (bulk assign only touches upcoming sessions)
   const matchingSessionsCount = useMemo(() => {
+    const today = toLocalDateString();
     return sessions.filter((s) => {
+      if (s.session_date < today) return false;
       if (dayOfWeekFilter !== '') {
         if (s.day_of_week !== parseInt(dayOfWeekFilter, 10)) return false;
       }
@@ -99,8 +102,8 @@ export const BulkAssignModal: React.FC<BulkAssignModalProps> = ({
             <p className="text-xs text-slate-600 dark:text-slate-300">
               {selectedTrainer ? (
                 <span>
-                  Assigning <span className="font-bold">{selectedTrainer.display_name}</span> across
-                  matching season slots
+                  Adding <span className="font-bold">{selectedTrainer.display_name}</span> to
+                  matching upcoming sessions (sessions they already have are skipped)
                 </span>
               ) : (
                 'Select a trainer and filters below'

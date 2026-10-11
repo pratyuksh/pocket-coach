@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Button } from '../../components/ui';
-import { supabase } from '../../lib/supabase';
+import { supabase, createIsolatedAuthClient } from '../../lib/supabase';
 import { Mail, CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface InviteModalProps {
@@ -26,9 +26,12 @@ export const InviteModal: React.FC<InviteModalProps> = ({ isOpen, onClose, onSuc
 
     try {
       let targetUserId: string | null = null;
+      // Account creation runs on an isolated client so the admin's own session is kept;
+      // the profile and role writes below then run as the admin.
+      const authClient = createIsolatedAuthClient();
 
       // 1. Attempt signup
-      const { data, error: inviteErr } = await supabase.auth.signUp({
+      const { data, error: inviteErr } = await authClient.auth.signUp({
         email,
         password: 'Password123!', // Default temporary setup password for seed/invite
         options: {
@@ -57,7 +60,7 @@ export const InviteModal: React.FC<InviteModalProps> = ({ isOpen, onClose, onSuc
           targetUserId = existingProf.id;
         } else {
           // Attempt sign in fallback to retrieve user id if profile was hard-deleted
-          const { data: signInData } = await supabase.auth.signInWithPassword({
+          const { data: signInData } = await authClient.auth.signInWithPassword({
             email,
             password: 'Password123!',
           });
@@ -83,13 +86,17 @@ export const InviteModal: React.FC<InviteModalProps> = ({ isOpen, onClose, onSuc
           preferred_language: 'de',
         });
 
-        if (profileErr) console.warn('Profile upsert warning:', profileErr);
+        if (profileErr) throw profileErr;
 
-        // Assign user role
-        await supabase.from('user_roles').upsert({
-          profile_id: targetUserId,
-          role,
-        });
+        // Assign user role (no-op if the user already holds it)
+        const { error: roleErr } = await supabase
+          .from('user_roles')
+          .upsert(
+            { profile_id: targetUserId, role },
+            { onConflict: 'profile_id,role', ignoreDuplicates: true },
+          );
+
+        if (roleErr) throw roleErr;
 
         // Trigger Supabase Auth email dispatch (sent to local Mailpit at http://localhost:54324)
         try {

@@ -5,6 +5,7 @@
   "scripts": {
     "start": "supabase start",
     "stop": "supabase stop",
-    "reset": "supabase db reset"
+    "reset": "supabase db reset",
+    "test": "supabase test db"
   }
 }

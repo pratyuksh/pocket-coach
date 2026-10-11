@@ -176,14 +176,17 @@ describe('Sub-Phase 1.4 UI Components', () => {
   });
 
   describe('BulkAssignModal', () => {
-    it('renders matching session count and triggers bulk assign procedure', async () => {
+    it('renders matching upcoming session count and triggers bulk assign procedure', async () => {
       const onClose = vi.fn();
       render(
         <BulkAssignModal
           isOpen={true}
           onClose={onClose}
           seasonId="season-1"
-          sessions={[sampleSession]}
+          sessions={[
+            { ...sampleSession, session_date: '2099-01-06' },
+            { ...sampleSession, id: 'sess-past', session_date: '2000-01-04' },
+          ]}
         />,
       );
 

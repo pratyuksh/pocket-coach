@@ -91,7 +91,10 @@ export const SessionScheduleView: React.FC = () => {
   }, []);
 
   const [selectedMonthFilter, setSelectedMonthFilter] = useState<string>(currentMonthKey);
-  const [activeTab, setActiveTab] = useState<'all' | 'my'>('all');
+  // Trainers land on their own sessions; managers land on the full schedule.
+  // Derived until the user picks a tab, since roles load asynchronously.
+  const [selectedTab, setActiveTab] = useState<'all' | 'my' | null>(null);
+  const activeTab = selectedTab ?? (canManageSeasons ? 'all' : 'my');
   const [assigneeTargetSession, setAssigneeTargetSession] = useState<EnrichedSession | null>(null);
   const [bulkAssignModalOpen, setBulkAssignModalOpen] = useState(false);
   const [setupModalOpen, setSetupModalOpen] = useState(false);

@@ -95,4 +95,8 @@
 * Updated `SessionCard` to dynamically render all assigned coaches with role badges (`Lead:`, `Assistant:`, or 🌱 `1418 Coach`).
 * Updated Vitest unit test suite (68 tests passing) and marked Sub-Phase 1.4 milestone checkboxes as complete in `codebase/implementation-plan.md`.
 
+## 2026-10-11 | test-suite-count-refresh | Updated 2 pages: codebase/implementation-plan.md, wiki/log.md
+* Updated the "Testing Infrastructure" line in `codebase/implementation-plan.md` from the stale 39-test Vitest / 5-test Playwright counts to the current 68-test Vitest suite (13 files) and 8-test Playwright E2E suite (6 files), as of Sub-Phase 1.4.
+* Counts verified by running `vitest run` (13 files, 68 tests passing) and `playwright test --list` (8 tests in 6 files).
+
 <!-- END OF LOG -->

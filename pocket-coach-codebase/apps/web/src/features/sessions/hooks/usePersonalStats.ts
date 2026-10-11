@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { useAuth } from '../../../hooks/useAuth';
+import { toLocalDateString } from '../../../lib/dates';
 import type { PersonalStats } from '@pocket-coach/shared-types';
 
 export function usePersonalStats(profileIdOverride?: string) {
@@ -46,20 +47,23 @@ export function usePersonalStats(profileIdOverride?: string) {
 
       if (fetchErr) throw fetchErr;
 
-      const today = new Date().toISOString().slice(0, 10);
+      const today = toLocalDateString();
       let completedCount = 0;
       let primaryCount = 0;
       let assistantCount = 0;
-      const totalCount = (data || []).length;
+      // Replaced assignments were handed to a substitute, so they don't count for this trainer
+      const heldAssignments = (data || []).filter((item) => item.status !== 'replaced');
+      const totalCount = heldAssignments.length;
 
-      (data || []).forEach((item: any) => {
+      heldAssignments.forEach((item: any) => {
         if (item.session_role === 'primary') {
           primaryCount++;
         } else if (item.session_role === 'assistant_coach') {
           assistantCount++;
         }
 
-        if (item.session && item.session.session_date < today) {
+        // Sessions still awaiting a substitute are not completed by this trainer
+        if (item.status === 'active' && item.session && item.session.session_date < today) {
           completedCount++;
         }
       });

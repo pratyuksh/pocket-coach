@@ -91,7 +91,7 @@ flowchart TD
 - **Preview Page Shells**: Page structures for Training Sessions (`/sessions`), Availability Survey Matrix (`/availability`), and Substitution Gaps (`/substitutions`).
 - **Glassmorphism Design System & Theme Engine**: CSS token variables (`tokens.css`, `global.css`), dark/light mode toggle (`useTheme.tsx`), and UI primitives (`Button`, `Card`, `Badge`, `Modal`, `Toast`, `ThemeToggle`).
 - **Developer Ergonomics**: Demo account 1-tap quick fill buttons (`LoginForm.tsx`), base64 setup link generator (`InviteModal.tsx`), and root helper script `pnpm supabase:reset`.
-- **Testing Infrastructure**: Comprehensive 39-test Vitest suite (`apps/web/src/test/`) and 5-test Playwright E2E suite (`apps/web/e2e/`).
+- **Testing Infrastructure**: Comprehensive 68-test Vitest suite across 13 files (`apps/web/src/test/`) and 8-test Playwright E2E suite across 6 files (`apps/web/e2e/`), as of Sub-Phase 1.4.
 
 #### Testable Milestone 1.2
 - [x] Super-admin logs in and invites a new trainer via email (`/trainers`).

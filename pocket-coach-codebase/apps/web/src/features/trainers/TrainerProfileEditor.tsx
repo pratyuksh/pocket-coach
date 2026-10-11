@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardBody, Button, Toast } from '../../components/ui';
 import { useAuth } from '../../hooks/useAuth';
+import { usePermissions } from '../../hooks/usePermissions';
 import { supabase } from '../../lib/supabase';
 import {
   User,
@@ -17,6 +18,8 @@ import { useNavigate } from 'react-router-dom';
 
 export const TrainerProfileEditor: React.FC = () => {
   const { profile, refreshProfile, signOut } = useAuth();
+  // The 14/18 Coach label is Super-admin managed (enforced by a DB trigger)
+  const { isSuperAdmin } = usePermissions();
   const navigate = useNavigate();
   const [displayName, setDisplayName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
@@ -281,15 +284,23 @@ export const TrainerProfileEditor: React.FC = () => {
                     id="juniorTrack"
                     checked={isJuniorCoach}
                     onChange={(e) => setIsJuniorCoach(e.target.checked)}
-                    className="w-4 h-4 rounded border-[var(--border-subtle)] text-emerald-500 focus:ring-emerald-500 bg-[var(--input-bg)]"
+                    disabled={!isSuperAdmin}
+                    className="w-4 h-4 rounded border-[var(--border-subtle)] text-emerald-500 focus:ring-emerald-500 bg-[var(--input-bg)] disabled:opacity-60 disabled:cursor-not-allowed"
                   />
                   <label
                     htmlFor="juniorTrack"
-                    className="text-xs text-[var(--text-secondary)] cursor-pointer select-none"
+                    className={`text-xs text-[var(--text-secondary)] select-none ${
+                      isSuperAdmin ? 'cursor-pointer' : 'cursor-not-allowed'
+                    }`}
                   >
                     1418 Coach (U14–U18 youth player coach designation)
                   </label>
                 </div>
+                {!isSuperAdmin && (
+                  <p className="text-[11px] text-[var(--text-secondary)] mt-1">
+                    Managed by a Super-admin.
+                  </p>
+                )}
               </div>
             </div>
 

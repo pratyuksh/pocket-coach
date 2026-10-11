@@ -12,3 +12,19 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: true,
   },
 });
+
+/**
+ * Creates a throwaway client whose auth session is kept in memory only. Used when a
+ * Super-admin creates another user's account (invites): calling `signUp` on the shared
+ * client would replace the admin's own session with the new user's.
+ */
+export function createIsolatedAuthClient() {
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+      storageKey: 'pocket-coach-isolated-auth',
+    },
+  });
+}

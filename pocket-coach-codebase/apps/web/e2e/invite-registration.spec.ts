@@ -1,0 +1,76 @@
+import { test, expect, type Page } from '@playwright/test';
+
+async function signedInEmail(page: Page): Promise<string | null> {
+  return page.evaluate(() => {
+    const key = Object.keys(localStorage).find((k) => k.endsWith('-auth-token'));
+    return key ? JSON.parse(localStorage.getItem(key)!).user?.email : null;
+  });
+}
+
+test.describe('Invite Registration E2E Flow', () => {
+  test('Invited head-trainer / 14/18 coach completes setup via the invite link', async ({
+    page,
+    browser,
+  }) => {
+    const inviteEmail = `e2einvite_${Date.now()}@club.de`;
+    const newPassword = 'MyOwnSecret!42';
+
+    // 1. Super Admin invites a Head-trainer with the 14/18 Coach label
+    await page.goto('/login');
+    await page.getByLabel(/email address/i).fill('admin@club.de');
+    await page.getByLabel(/password/i).fill('Password123!');
+    await page.getByRole('button', { name: 'Sign In', exact: true }).click();
+    await expect(page).toHaveURL(/\/(trainers|dashboard|$)/);
+
+    await page.goto('/trainers');
+    await page.getByRole('button', { name: /invite trainer/i }).click();
+    await page.getByLabel(/email address/i).fill(inviteEmail);
+    await page.getByLabel(/display name/i).fill('Invited Coach');
+    await page.getByLabel(/base role/i).selectOption('head_trainer');
+    await page.getByLabel(/mark as 1418 coach/i).check();
+    await page.getByRole('button', { name: /send invitation/i }).click();
+    await expect(page.getByRole('heading', { name: /invitation sent/i })).toBeVisible({
+      timeout: 10000,
+    });
+
+    // 2. Sending the invite must not swap the admin's session for the invitee's
+    expect(await signedInEmail(page)).toBe('admin@club.de');
+
+    // 3. Invitee opens the invite link in a fresh browser and completes setup
+    const inviteeContext = await browser.newContext();
+    const invitee = await inviteeContext.newPage();
+    const token = Buffer.from(inviteEmail).toString('base64');
+    await invitee.goto(`/invite/${token}`);
+
+    await expect(invitee.getByLabel(/account email/i)).toHaveValue(inviteEmail);
+    await invitee.getByLabel(/display name \/ full name/i).fill('Invited Coach Final');
+    await invitee.getByLabel(/^set password/i).fill(newPassword);
+    await invitee.getByLabel(/confirm password/i).fill(newPassword);
+    await invitee.getByRole('button', { name: /complete account setup/i }).click();
+
+    await expect(invitee).toHaveURL(/\/dashboard/, { timeout: 10000 });
+    expect(await signedInEmail(invitee)).toBe(inviteEmail);
+
+    // 4. Role and profile label granted at invite time are in effect
+    await expect(
+      invitee.getByRole('main').getByText('Head Trainer', { exact: true }),
+    ).toBeVisible();
+    await invitee.goto('/settings');
+    await expect(invitee.locator('#settings-name')).toHaveValue('Invited Coach Final');
+    const juniorLabel = invitee.getByLabel(/1418 coach/i);
+    await expect(juniorLabel).toBeChecked();
+    await expect(juniorLabel).toBeDisabled();
+    await inviteeContext.close();
+
+    // 5. The invitee can sign in with the password they chose
+    const loginContext = await browser.newContext();
+    const login = await loginContext.newPage();
+    await login.goto('/login');
+    await login.getByLabel(/email address/i).fill(inviteEmail);
+    await login.getByLabel(/password/i).fill(newPassword);
+    await login.getByRole('button', { name: 'Sign In', exact: true }).click();
+    await expect(login).toHaveURL(/\/(trainers|dashboard|$)/);
+    expect(await signedInEmail(login)).toBe(inviteEmail);
+    await loginContext.close();
+  });
+});
