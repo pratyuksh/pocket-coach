@@ -34,6 +34,8 @@ export const SessionCard: React.FC<SessionCardProps> = ({
 
   return (
     <Card
+      data-testid="session-card"
+      data-session-date={session.session_date}
       variant="interactive"
       className="relative group py-4 px-4 sm:px-5 sm:py-4.5 border border-slate-200/80 dark:border-slate-800/80 hover:border-emerald-500/50 transition-all w-full"
     >

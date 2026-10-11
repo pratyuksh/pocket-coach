@@ -122,6 +122,7 @@ export const BulkAssignModal: React.FC<BulkAssignModalProps> = ({
             Target Trainer:
           </label>
           <select
+            aria-label="Target trainer"
             value={selectedTrainerId}
             onChange={(e) => {
               const id = e.target.value;
@@ -150,6 +151,7 @@ export const BulkAssignModal: React.FC<BulkAssignModalProps> = ({
               Assignment Track:
             </label>
             <select
+              aria-label="Assignment track"
               value={track}
               onChange={(e) => setTrack(e.target.value as AssignmentTrack)}
               disabled={Boolean(selectedTrainerId)}
@@ -168,6 +170,7 @@ export const BulkAssignModal: React.FC<BulkAssignModalProps> = ({
               Session Role:
             </label>
             <select
+              aria-label="Session role"
               value={sessionRole}
               onChange={(e) => setSessionRole(e.target.value as SessionRole)}
               className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
@@ -189,6 +192,7 @@ export const BulkAssignModal: React.FC<BulkAssignModalProps> = ({
             <div className="space-y-1.5">
               <label className="text-[11px] font-semibold text-slate-500">Day of Week:</label>
               <select
+                aria-label="Weekday"
                 value={dayOfWeekFilter}
                 onChange={(e) => setDayOfWeekFilter(e.target.value)}
                 className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white outline-none"
@@ -207,6 +211,7 @@ export const BulkAssignModal: React.FC<BulkAssignModalProps> = ({
                 Sports Hall Location:
               </label>
               <select
+                aria-label="Hall"
                 value={locationIdFilter}
                 onChange={(e) => setLocationIdFilter(e.target.value)}
                 className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white outline-none"

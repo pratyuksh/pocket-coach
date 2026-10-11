@@ -165,7 +165,7 @@ export const TrainerRoster: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
           {trainers.map((t) => (
-            <Card key={t.id} variant="interactive">
+            <Card key={t.id} variant="interactive" data-testid="trainer-card" data-email={t.email}>
               <CardHeader className="flex flex-row items-start justify-between pb-3">
                 <div className="flex items-center gap-3.5">
                   <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-700 text-white font-extrabold flex items-center justify-center text-base shadow-inner font-heading">

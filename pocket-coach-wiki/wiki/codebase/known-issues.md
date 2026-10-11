@@ -32,6 +32,7 @@ Each open issue has a scheduled sub-phase; see [[codebase/implementation-plan#wh
 | # | Issue | Notes |
 |---|---|---|
 | C5 | **Calendar feed link does not work.** Settings builds the URL from the web app's origin and the `calendar-feed` Edge Function does not exist yet. | Delivered in Sub-Phase 1.6; milestone 1.2 should note this. |
+| C7 | **Personal stats are not shown on any screen.** `PersonalStatsCard` and `usePersonalStats` exist but are never rendered (since Sub-Phase 1.4), although the 1.4 milestone was ticked. | Found in 1.4t. Scheduled in 1.4d (trainer home and profile, with an end-to-end assertion). |
 
 ### Missing features introduced by recent behaviour changes
 
@@ -44,7 +45,6 @@ Each open issue has a scheduled sub-phase; see [[codebase/implementation-plan#wh
 
 | # | Issue | Notes |
 |---|---|---|
-| T1 | No end-to-end test covers creating a season (Sub-Phase 1.3) or assigning several trainers to one session in the UI. | |
 | T3 | ESLint reports 73 `no-explicit-any` warnings (0 errors), mostly in older code and tests. | Technical debt; not blocking. |
 | T4 | Three policy names on `availability_responses` exceed Postgres' 63-character limit and are silently shortened (for example "…insert availability response"). | Harmless today; shorten them in a migration before Sub-Phase 2.1 so names match the code. |
 
@@ -71,7 +71,7 @@ Other details still to confirm (hard caps, label exclusivity, undo, invite expir
 
 ## Recently Resolved
 
-Resolved during the Sub-Phase 1.4 hardening pass and Sub-Phase 1.4c (2026-10-11). Details are in [[codebase/architecture/database-schema]] and [[codebase/architecture/auth-and-onboarding]].
+Resolved during the Sub-Phase 1.4 hardening pass, 1.4c and 1.4t (2026-10-11). Details are in [[codebase/architecture/database-schema]] and [[codebase/architecture/auth-and-onboarding]].
 
 | Issue | Resolution |
 |---|---|
@@ -90,6 +90,13 @@ Resolved during the Sub-Phase 1.4 hardening pass and Sub-Phase 1.4c (2026-10-11)
 | No test of the invite registration page | Playwright `invite-registration` test |
 | No automated check of database permissions | pgTAP suite (`pnpm test:db`) running in CI |
 | Migrations never verified from scratch (T2) | Gate run on 2026-10-11: `pnpm supabase:reset` applied all 13 migrations and the seed to an empty database; 77 pgTAP checks, 76 unit tests and 10 end-to-end tests passed. The remote CI run on the next push is still to be observed. |
+| Write permissions on core tables untested (T5) | `write_policies` database tests: anonymous callers and trainers cannot insert, change or delete the seven core tables; Head-trainers can. Permissive policies now fail 34 checks. |
+| **Anonymous insert path on `session_assignments`** (policy contained `OR auth.role() = 'anon'` since 1.4) | Found by the write-policy tests; closed in migration `20261012000003`. Anyone holding the public anon key could previously add trainers to sessions. |
+| Assignee dialog discarded early choices when its data arrived | `useSessionAssignments` reports `loading` from the first render for a new session; unit test added. |
+| No end-to-end test performed an assignment; roles test saved nothing (T6, T7) | Real flows: assignment with limit refusal and additive bulk assign; role grant, label change blocked and allowed, own Super-admin role protected; hall details. |
+| Central hooks and route guards untested (T8) | Unit tests for `useSeasons`, `useSessions`, `useAuth`, `useLocations`, `useTrainers`, `ProtectedRoute`; unit coverage 50.2 % to 67.1 %. |
+| `createSeason` had no rollback (C6) | Atomic `create_season` database function; the web app makes one call. |
+| End-to-end setup fragile (T1, T9) | Throwaway seasons through the API, English locale and Zurich time, season specs in their own project, passes with 2 workers. |
 | Per-track limits not enforced (C1) | Database trigger: at most 3 active regular trainers and 2 active 14/18 coaches per session (Sub-Phase 1.4c) |
 | 14/18 track not checked against the label (C2) | The `junior_coach` track is only for 14/18 coaches, who can only work that track; label changes are blocked while upcoming assignments exist on the track that would become invalid |
 | Swapping two trainers between rows failed (C3) | `set_session_assignments` saves the whole assignee list in one transaction, keyed by trainer |

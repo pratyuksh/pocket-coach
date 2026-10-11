@@ -1,31 +1,18 @@
-import { test, expect, type Page, type Browser } from '@playwright/test';
-
-async function signIn(page: Page, email: string) {
-  await page.goto('/login');
-  await page.getByLabel(/email address/i).fill(email);
-  await page.getByLabel(/password/i).fill('Password123!');
-  await page.getByRole('button', { name: 'Sign In', exact: true }).click();
-  await expect(page).toHaveURL(/\/(trainers|dashboard|sessions|$)/);
-}
-
-function isoDate(daysFromToday: number): string {
-  const d = new Date();
-  d.setDate(d.getDate() + daysFromToday);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-}
-
-/** Selects a season by (partial) name in the schedule's season dropdown. */
-async function selectSeason(page: Page, name: string) {
-  const select = page.locator('select').filter({ has: page.locator('option', { hasText: name }) });
-  const value = await select.locator('option', { hasText: name }).getAttribute('value');
-  await select.selectOption(value as string);
-}
+import { test, expect, type Browser } from '@playwright/test';
+import {
+  ACCOUNTS,
+  apiSignIn,
+  deleteSeasonByName,
+  isoDate,
+  selectSeason,
+  signIn,
+  uniqueName,
+} from './helpers';
 
 async function openTrainerSchedule(browser: Browser, seasonName: string) {
   const context = await browser.newContext();
   const page = await context.newPage();
-  await signIn(page, 'trainer1@club.de');
+  await signIn(page, ACCOUNTS.trainer);
   await page.goto('/sessions');
   await page.getByRole('button', { name: /all schedule/i }).click();
   await selectSeason(page, seasonName);
@@ -33,36 +20,38 @@ async function openTrainerSchedule(browser: Browser, seasonName: string) {
 }
 
 test.describe('Publishing: drafts are hidden from trainers until published', () => {
-  test('Head-trainer creates a draft season, publishes it, then unpublishes it', async ({
+  test('Head-trainer creates a draft season through the wizard, publishes it, then unpublishes it', async ({
     page,
     browser,
+    request,
   }) => {
-    const seasonName = `E2E Publish ${Date.now()}`;
+    const seasonName = uniqueName('E2E Publish');
     const dialog = page.getByRole('dialog');
-
-    // 1. Head-trainer creates a one-week season without making it the active season
-    await signIn(page, 'headtrainer@club.de');
-    await page.goto('/sessions');
-    await page
-      .getByRole('button', { name: /create season/i })
-      .first()
-      .click();
-    await expect(page.getByRole('heading', { name: /create new season/i })).toBeVisible();
-
-    await page.getByPlaceholder('e.g. Season 2026/2027').fill(seasonName);
-    const dates = page.locator('input[type="date"]');
-    await dates.nth(0).fill(isoDate(21));
-    await dates.nth(1).fill(isoDate(27));
-    await page.getByLabel(/set as active season/i).uncheck();
-
-    await page.getByRole('button', { name: /next: configure schedule/i }).click();
-    await page.getByRole('button', { name: /next: review & confirm/i }).click();
-    await page.getByRole('button', { name: /confirm & generate/i }).click();
-    await expect(page.getByRole('heading', { name: /create new season/i })).not.toBeVisible({
-      timeout: 15000,
-    });
+    const headToken = await apiSignIn(request, ACCOUNTS.head);
 
     try {
+      // 1. Head-trainer creates a one-week season without making it the active season
+      await signIn(page, ACCOUNTS.head);
+      await page.goto('/sessions');
+      await page
+        .getByRole('button', { name: /create season/i })
+        .first()
+        .click();
+      await expect(page.getByRole('heading', { name: /create new season/i })).toBeVisible();
+
+      await page.getByPlaceholder('e.g. Season 2026/2027').fill(seasonName);
+      const dates = page.locator('input[type="date"]');
+      await dates.nth(0).fill(isoDate(21));
+      await dates.nth(1).fill(isoDate(27));
+      await page.getByLabel(/set as active season/i).uncheck();
+
+      await page.getByRole('button', { name: /next: configure schedule/i }).click();
+      await page.getByRole('button', { name: /next: review & confirm/i }).click();
+      await page.getByRole('button', { name: /confirm & generate/i }).click();
+      await expect(page.getByRole('heading', { name: /create new season/i })).not.toBeVisible({
+        timeout: 15000,
+      });
+
       // 2. The generated sessions start as drafts and the head-trainer sees them
       await selectSeason(page, seasonName);
       await expect(page.getByText('Draft', { exact: true }).first()).toBeVisible();
@@ -110,17 +99,7 @@ test.describe('Publishing: drafts are hidden from trainers until published', () 
       await trainer.context.close();
     } finally {
       // Clean up the throwaway season so other tests and local data are unaffected
-      await page.goto('/sessions');
-      await selectSeason(page, seasonName).catch(() => {});
-      const deleteBtn = page.getByRole('button', { name: /delete season/i }).first();
-      if (await deleteBtn.isVisible().catch(() => false)) {
-        await deleteBtn.click();
-        await page
-          .getByRole('button', { name: /^delete season$/i })
-          .last()
-          .click();
-        await expect(page.getByText(seasonName)).toHaveCount(0, { timeout: 10000 });
-      }
+      await deleteSeasonByName(request, headToken, seasonName);
     }
   });
 });

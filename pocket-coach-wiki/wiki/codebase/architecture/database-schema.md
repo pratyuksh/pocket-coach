@@ -240,7 +240,7 @@ All tables have RLS enabled. `Head-trainer+` = Head-trainer or Super-admin (the 
 | `player_groups` | All authenticated | Head-trainer+ | Head-trainer+ | Head-trainer+ |
 | `sessions` | Published sessions; Head-trainer+: all, including drafts | Head-trainer+ (also created by `generate_season_sessions`, as drafts) | Head-trainer+ | Head-trainer+ |
 | `session_player_groups` | Of published sessions; Head-trainer+: all | Head-trainer+ | Head-trainer+ | Head-trainer+ |
-| `session_assignments` | Of published sessions (trainers may see each other's assignments); Head-trainer+: all | Head-trainer+ | Head-trainer+ | Head-trainer+ |
+| `session_assignments` | Of published sessions (trainers may see each other's assignments); Head-trainer+: all | Head-trainer+, signed in (an earlier anonymous fallback was removed in `20261012000003`) | Head-trainer+ | Head-trainer+ |
 | `availability_surveys` | All authenticated | Head-trainer+ | Head-trainer+ | Head-trainer+ |
 | `availability_responses` | Own responses; Head-trainer+: all (matrix) | Own responses while the survey is `open`; Head-trainer+: any | Own responses while the survey is `open`; Head-trainer+: any | Own responses while the survey is `open`; Head-trainer+: any |
 | `substitution_requests` | Of published sessions; Head-trainer+: all | Own request only (`original_trainer_id` = caller, still `open`, no volunteer); Head-trainer+: any | Head-trainer+ (volunteering and escalation go through server-side functions in Sub-Phase 1.5) | Head-trainer+ |
@@ -272,6 +272,7 @@ All tables have RLS enabled. `Head-trainer+` = Head-trainer or Super-admin (the 
 |---|---|
 | `generate_season_sessions(season_id)` | Generates one session (with its player-group links and the staffing targets from the training day) for every configured training-day slot in the season's date range. Generated sessions are **drafts**. **Refuses to run (`season_in_use`, SQLSTATE `55000`) if any session of the season already has an assignment or a time override**, because it deletes and recreates all sessions of the season. |
 | `bulk_assign_trainer(season_id, profile_id, day_of_week, location_id, track, session_role, assigned_by)` | Adds the trainer to every matching **upcoming** session (session date today or later, Europe/Zurich), filtered by weekday and/or hall. **Additive**: it never replaces an existing assignee on the track, and skips sessions where the trainer is already actively assigned. **Skips sessions that are already full** on the track and refuses a track that does not match the trainer's 14/18 label (`track_label_mismatch`). Returns the number of sessions affected. The `assigned_by` argument is **ignored**; the caller's `auth.uid()` is always recorded. |
+| `create_season(name, start_date, end_date, is_active, groups, slots)` | Creates a season, its player groups, training days (hall and staffing targets, defaults 3 regular, Wednesday 2, and 1 14/18 coach) and group links, then generates the sessions (as drafts), **in one transaction**. Deactivates the other seasons only if everything succeeds, so a failure partway changes nothing. Validates before writing (`invalid_input`, `invalid_range`). Returns `{"season_id", "generated"}`. |
 | `set_session_assignments(session_id, rows)` | Saves a session's whole assignee list in one transaction. `rows` is `[{profile_id, track, session_role}]`. Active assignments not listed are removed; listed trainers are added or updated; flagged-absent and replaced rows (substitution history) are never touched. Keyed by trainer, so two trainers can swap roles. Locks the session row. Returns the number of active assignments. |
 | `set_user_roles(profile_id, roles, is_junior_coach)` | **Super-admin only.** Atomically replaces a user's roles (the base `trainer` role is always kept; only differences are written) and, if given, the 14/18 label. Refuses to remove the caller's own Super-admin role (`cannot_remove_own_super_admin`). A blocked label change (below) rolls back the role change too. |
 | `publish_sessions(season_id, from, to)` | Sets `published_at` on the drafts in the date range. Returns `{"published": n}`. |
@@ -295,7 +296,7 @@ All tables have RLS enabled. `Head-trainer+` = Head-trainer or Super-admin (the 
 
 ### Automated permission tests
 
-The policies, functions, triggers and constraints above are covered by pgTAP tests in `packages/supabase/tests/` (`permissions.test.sql`, `feature_tables_rls.test.sql`, `data_foundations.test.sql`, `publishing.test.sql`; 138 checks). Run them with `pnpm test:db`; CI runs them before the Playwright suite. The tests exercise anonymous callers (with the `anon` JWT claim PostgREST sends), a regular trainer, a Head-trainer and a Super-admin.
+The policies, functions, triggers and constraints above are covered by pgTAP tests in `packages/supabase/tests/` (`permissions`, `feature_tables_rls`, `data_foundations`, `publishing`, `write_policies` and `season_creation`; 222 checks). `write_policies` covers insert, update and delete on the seven core tables for anonymous callers, trainers and Head-trainers; `season_creation` covers `create_season` (including the full rollback) and the content of generated sessions. Run them with `pnpm test:db`; CI runs them before the Playwright suite. The tests exercise anonymous callers (with the `anon` JWT claim PostgREST sends), a regular trainer, a Head-trainer and a Super-admin.
 
 ---
 
@@ -321,6 +322,8 @@ Migrations live in `packages/supabase/migrations/`. All 14 base tables were crea
 | `20261012000000_staffing_targets_hall_details_error_codes` | `required_regular` / `required_junior` on training days and sessions (backfilled and added to the template), `locations.address` and `trainer_note`, stable error codes in `generate_season_sessions` |
 | `20261012000001_assignment_rules_and_atomic_saves` | `enforce_assignment_rules` and label-change guard triggers, new `bulk_assign_trainer`, `set_session_assignments`, `set_user_roles` |
 | `20261012000002_publishing` | `sessions.published_at` (existing sessions backfilled as published), published-only read policies, `publish_sessions`, `unpublish_sessions` |
+| `20261012000003_remove_anon_assignment_insert` | Removes the anonymous fallback from the `session_assignments` insert policy (Head-trainer+, signed in only) |
+| `20261012000004_create_season` | Atomic `create_season` function |
 
 ## Related pages
 

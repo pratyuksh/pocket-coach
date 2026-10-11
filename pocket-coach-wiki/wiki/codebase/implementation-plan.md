@@ -1,6 +1,6 @@
 # Implementation Plan (Phase 1)
 
-**Summary**: Streamlined, testable implementation plan for PocketCoach Phase 1 (Sessions & Trainer Management). Sub-Phases 1.1–1.4c are delivered and summarized; the remaining work is reordered around the Modernist UI design and five product decisions taken on 2026-10-11 (no survey yet, coverage-based gaps, published assignments, session log for later payouts, light mode only). Availability Surveys & Matrix Dashboard stay in Phase 2.
+**Summary**: Streamlined, testable implementation plan for PocketCoach Phase 1 (Sessions & Trainer Management). Sub-Phases 1.1–1.4c and 1.4t are delivered and summarized; the remaining work is reordered around the Modernist UI design and five product decisions taken on 2026-10-11 (no survey yet, coverage-based gaps, published assignments, session log for later payouts, light mode only). Availability Surveys & Matrix Dashboard stay in Phase 2.
 
 **Sources**: `pocke-coach-design-prototype/PocketCoach.dc.html` (design prototype, read 2026-10-11)
 
@@ -11,9 +11,10 @@
 ## Table of Contents
 - [Overview & Execution Order](#overview--execution-order)
 - [Decisions of 2026-10-11](#decisions-of-2026-10-11)
-- [Delivered: Sub-Phases 1.1–1.4c](#delivered-sub-phases-1114c)
+- [Delivered: Sub-Phases 1.1–1.4c and 1.4t](#delivered-sub-phases-1114c-and-14t)
 - [Design Reference](#design-reference)
 - [Sub-Phase 1.4c: Data Foundations](#sub-phase-14c-data-foundations)
+- [Sub-Phase 1.4t: Test Hardening](#sub-phase-14t-test-hardening)
 - [Sub-Phase 1.4d: Modernist UI, App Shell & Localization](#sub-phase-14d-modernist-ui-app-shell--localization)
 - [Sub-Phase 1.6a: Notifications, PWA Shell & Server-side Invites](#sub-phase-16a-notifications-pwa-shell--server-side-invites)
 - [Sub-Phase 1.5: Substitutions, Coverage Gaps & Session Log](#sub-phase-15-substitutions-coverage-gaps--session-log)
@@ -34,18 +35,20 @@ Each sub-phase ends in a compiled, tested application. Sub-Phase numbers 1.5 and
 |---|---|---|---|
 | 0 | **Gate** ✅ done 2026-10-11 | `pnpm supabase:reset && pnpm test:db` from an empty database; local CI checks green | S |
 | 1 | **1.4c** Data foundations ✅ done 2026-10-11 | Staffing targets, publishing, hall details, per-track limits, atomic save functions | M |
-| 2 | **1.4d** Modernist UI, shell & localization | New look, navigation, all existing screens restyled, EN/DE, light mode only | L |
-| 3 | **1.6a** Notifications, PWA shell, invites | Notification bell and push, install banner, server-side invites, invite-only access | M–L |
-| 4 | **1.5** Substitutions & coverage gaps | Gaps, flag, volunteer, 48 h escalation, session log | L |
-| 5 | **1.6b** Calendar feed, offline, sign-off | Working calendar link, offline reads, final localization checks | M |
+| 2 | **1.4t** Test hardening ✅ done 2026-10-11 | Write-policy and generated-session tests, real end-to-end assignment and role flows, unit tests for central hooks, atomic `create_season`, resilient end-to-end setup | M |
+| 3 | **1.4d** Modernist UI, shell & localization | New look, navigation, all existing screens restyled, EN/DE, light mode only | L |
+| 4 | **1.6a** Notifications, PWA shell, invites | Notification bell and push, install banner, server-side invites, invite-only access | M–L |
+| 5 | **1.5** Substitutions & coverage gaps | Gaps, flag, volunteer, 48 h escalation, session log | L |
+| 6 | **1.6b** Calendar feed, offline, sign-off | Working calendar link, offline reads, final localization checks | M |
 | — | **Pilot readiness gate** | Checklist before real users | — |
-| 6 | **Phase 2.1** Availability surveys | After the pilot | L |
+| 7 | **Phase 2.1** Availability surveys | After the pilot | L |
 
 ```mermaid
 flowchart TD
-    DONE["Delivered: 1.1 – 1.4c"] --> G["Gate: fresh-database run (done)"]
+    DONE["Delivered: 1.1 – 1.4c, 1.4t"] --> G["Gate: fresh-database run (done)"]
     G --> S14C["1.4c Data foundations (done)"]
-    S14C --> S14D["1.4d Modernist UI, shell & localization"]
+    S14C --> S14T["1.4t Test hardening (done)"]
+    S14T --> S14D["1.4d Modernist UI, shell & localization"]
     S14D --> S16A["1.6a Notifications, PWA shell, invites"]
     S16A --> S15["1.5 Substitutions & coverage gaps"]
     S15 --> S16B["1.6b Calendar feed, offline, sign-off"]
@@ -56,6 +59,7 @@ flowchart TD
 **Why this order**
 - Restyling and localization come before new screens so 1.5, 1.6 and 2.1 are built once, in the new look and in two languages.
 - Staffing targets and publishing are data the redesigned Sessions screens display, so they precede the UI.
+- Test hardening precedes the UI rebuild: 1.4d changes almost every component, and the review found no end-to-end test that performs an assignment and no database test for write permissions on the core tables. Behavior-level tests written first show whether the restyle broke anything.
 - Notifications precede substitutions: the substitution flow is a notification flow ([[requirements/sessions-and-assignment]]), and the 48 h escalation needs the dispatcher.
 - Server-side invites share the Edge Function setup with notifications, so they ride along in 1.6a.
 
@@ -76,7 +80,7 @@ flowchart TD
 
 ---
 
-## Delivered: Sub-Phases 1.1–1.4c
+## Delivered: Sub-Phases 1.1–1.4c and 1.4t
 
 Schema, policies, functions and migration names are documented in [[codebase/architecture/database-schema]]; the invite flow in [[codebase/architecture/auth-and-onboarding]].
 
@@ -85,11 +89,13 @@ Schema, policies, functions and migration names are documented in [[codebase/arc
 | **1.1 Foundation** | Turborepo monorepo (`apps/web`, `packages/shared-types`, `packages/supabase`), local Supabase with seed accounts (`admin@club.de`, `headtrainer@club.de`, `trainer1@club.de`, `junior1@club.de`, password `Password123!` for development), responsive shell (sidebar and bottom nav), router, UI primitives. |
 | **1.2 Auth & roles** | Email/password and Google sign-in (client ID and secret go in `packages/supabase/config.toml` under `[auth.external.google]`), Super-admin invites, base Trainer role, profile editing, role manager, role-based RLS. The calendar link and "Regenerate link" are present but the feed itself ships in 1.6b. |
 | **1.3 Seasons & sessions** | Halls, season templates (*Standard Junior Season*), season wizard, automatic session generation with hall and player groups, schedule view with filters, per-session override, season and session deletion. The default weekly slots are listed in [[requirements/sessions-and-assignment]]. |
-| **1.4 Assignments** | Per-session assignee modal (regular and 14/18 tracks), bulk assign, My Sessions list, personal stats, trainers default to My Sessions. |
+| **1.4 Assignments** | Per-session assignee modal (regular and 14/18 tracks), bulk assign, My Sessions list, trainers default to My Sessions. A personal-stats hook and card exist but are **not shown on any screen** (found in 1.4t; wired in 1.4d). |
 | **1.4b Hardening** | Authorization checks on all database functions, closed open policies, no anonymous role grants, profile-field protection, unique active assignment, additive upcoming-only bulk assign, regeneration guard, isolated-client invites, pgTAP permission suite in CI. |
 | **1.4c Data foundations** | Staffing targets per slot (Tue, Thu, Fri 3 + 1; Wednesday 2 + 1), hard limits of 3 regular and 2 14/18 per session, 14/18 track tied to the label, blocked label changes, atomic `set_session_assignments` and `set_user_roles`, publishing with `publish_sessions` / `unpublish_sessions` and a Publish dialog, Draft badge, hall address and note, translatable error codes. Details: [[codebase/architecture/database-schema]]. |
 
-Acceptance criteria for all of the above are met. Test counts at the end of 1.4c: 88 Vitest (16 files), 11 Playwright (8 files), 138 pgTAP checks across 4 files (`pnpm test:db`, run in CI before the Playwright suite).
+| **1.4t Test hardening** | Write-policy and generated-session database tests, atomic `create_season`, real end-to-end flows (assignment with limits and bulk assign, roles and label, hall details, publishing), unit tests for the central hooks and route guards, English-locale end-to-end setup, coverage summary in CI. Closed an anonymous insert path on `session_assignments` and a form race in the assignee dialog. |
+
+Acceptance criteria for the delivered work are met, except the personal-stats display noted above. Test counts at the end of 1.4t: 127 Vitest (21 files, 67.1 % statement coverage), 13 Playwright (10 files), 222 pgTAP checks across 6 files (`pnpm test:db`, run in CI before the Playwright suite).
 
 ---
 
@@ -150,6 +156,65 @@ The visual and navigation target is the **Modernist ledger** prototype in `pocke
 
 ---
 
+## Sub-Phase 1.4t: Test Hardening
+
+**Goal**: Close the coverage gaps found in the review of 2026-10-11 before 1.4d rebuilds the UI, so the restyle is protected by tests that check behavior, not appearance. **Status: delivered 2026-10-11** (migrations `20261012000003` and `04`). Results and the three findings made while implementing it are under [Outcome](#outcome-of-14t).
+
+#### Baseline (after 1.4c)
+
+| Suite | Size | Notes |
+|---|---|---|
+| Unit (Vitest) | 88 tests, 16 files | 50.2 % statements, 46.0 % branches, 44.1 % functions. 0 % on `useSeasons`, `useSessions`, `useAuth`, `useLocations`, `useTrainers`, `ProtectedRoute`, `SessionScheduleView`, the auth pages, the Dashboard and the layout components. |
+| End-to-end (Playwright) | 11 tests, 8 files | Covers login, sign-out, invite and invite registration, publishing, trainer default view, calendar token. |
+| Database (pgTAP) | 138 checks, 4 files | Strong on functions, triggers, read rules and the tables added in 1.4b and 1.4c. |
+
+#### Findings (see [[codebase/known-issues]])
+1. **Write permissions on core tables are untested.** Adding permissive write policies on `seasons`, `training_days`, `locations`, `player_groups`, `season_templates`, `sessions` and `session_assignments` left all 138 database checks green, so nothing would notice a trainer being able to change them. Generated-session content (targets, weekdays, halls, groups) is untested too.
+2. **No end-to-end test performs an assignment.** The assignments test only opens dialogs, and its assign step sits behind `if (isVisible)`; on the empty database CI starts with there are no sessions, so the step never runs.
+3. **The roles end-to-end test only opens and closes the dialog**; no role or label change is saved or checked.
+4. **Central hooks and pages have no unit tests** (list above).
+5. **`createSeason` has no rollback.** It writes the season, groups, training days and links from the browser one by one and has already deactivated other seasons first, so a failure partway leaves a half-built season.
+6. **Parallel CI risk (not observed):** CI runs end-to-end tests with 2 workers, and the publishing test creates and deletes a season that other tests may read.
+
+#### Work
+
+##### Database
+- `write_policies.test.sql`: for each of the seven tables, a trainer and an anonymous caller are denied insert, update and delete (updates and deletes assert the row is unchanged), and a Head-trainer is allowed; also Super-admin-only profile deletes. Confirm the new tests fail when permissive policies are added (the same mutation check that exposed the gap).
+- `generate_season_sessions` output test: sessions fall on the right weekdays and dates, copy hall, times, player groups and staffing targets (Tuesday 3 + 1, Wednesday 2 + 1), start as drafts, and the count is correct.
+- **`create_season` function** (new migration, Head-trainer+): creates the season, player groups, training days (hall, staffing targets), group links and the generated sessions in one transaction, and deactivates other seasons only on success. Errors use the stable codes (`invalid_range`, `invalid_input`). pgTAP covers the happy path and a failure partway (for example a staffing target above the limit): nothing is created and the previously active season stays active. The web app's `createSeason` becomes a single call.
+
+##### End-to-end
+- A shared helper creates and cleans up a throwaway season (not active, one week) so tests never depend on existing data or leave any behind; the publishing test uses it too.
+- **Assignment flow**: the Head-trainer assigns two trainers, one of them a 14/18 coach, through the session dialog; the trainer sees the session in My Sessions and the personal stats update; a fourth regular trainer is refused with the readable message. Bulk assign adds a trainer to a weekday without replacing others. The `if (isVisible)` guards are replaced by real preconditions.
+- **Roles flow**: a Super-admin grants Head-trainer, reloads and sees it persist; a label change is blocked with the readable message while the person has upcoming assignments and succeeds when they have none. This replaces the misleading "manage and update" test.
+- Hall details: edit an address and note and see them saved.
+
+##### Unit
+- `useSeasons` (single `create_season` call, error mapping, delete, generate), `useSessions` (filters, enrichment, publish, unpublish, override, delete), `useAuth` (profile and roles loading, missing profile, sign-out, auth-state changes), `ProtectedRoute` and `PublicOnlyRoute` (redirects), `useLocations`, `useTrainers`.
+
+##### Configuration and CI
+- Playwright runs with the English locale and stable test ids where role and name are ambiguous, so the German default and moved strings in 1.4d do not break selectors.
+- Specs that create seasons run serially in their own project, after the parallel specs.
+- Add `@vitest/coverage-v8` and print a coverage summary in CI (`pnpm test:coverage`). It does not fail the build; record the 50.2 % baseline and set thresholds only after 1.4d.
+
+#### Deferred to 1.4d (written against the new components)
+Shell and navigation by role, Dashboard, schedule view filters and "only mine", session card rendering, training-day row, auth page error cases, language toggle. `theme.spec` and `useTheme.test` are removed with light-mode-only.
+
+#### Testable Milestone 1.4t
+- [x] Adding permissive write policies to any of the seven tables makes `pnpm test:db` fail (34 checks fail; none did before).
+- [x] `create_season` rolls back completely on failure (pgTAP: nothing created, the previously active season stays active); the web app uses it.
+- [x] A real assignment, a bulk assignment and a role and label change each have an end-to-end test that fails if the step is skipped (verified by disabling the limit rule and the label guard: both flows fail).
+- [x] Unit coverage of the listed hooks and route guards is above 80 % statements (`useSeasons` 91.9 %, `useSessions` 91.7 %, `useAuth` 97.9 %, `useLocations` 87.5 %, `useTrainers` 100 %, `ProtectedRoute` 100 %); overall unit coverage is 67.1 % and is reported in CI.
+- [x] End-to-end tests run in English locale and Zurich time; season-creating specs run in their own project after the parallel ones; the suite passes with 2 workers, also on an empty database.
+
+#### Outcome of 1.4t
+- **Security fix found by the new tests**: the insert policy on `session_assignments` still contained `OR auth.role() = 'anon'` (from Sub-Phase 1.4), so anyone holding the public anon key could add trainers to sessions without logging in. The same fallback had been removed from `profiles` and `user_roles` in 1.4b but this table was missed because no test wrote to it as a logged-out or regular user. Closed in `20261012000003`; a scan of all policies found no other explicit anonymous path.
+- **Bug found by the real assignment flow**: the assignee dialog showed its form, editable, for one render before it started loading the session's assignments; when the data arrived the form reset and discarded what the user had already chosen. `useSessionAssignments` now reports `loading` from the first render for a new session (unit test added).
+- **Gap found**: `PersonalStatsCard` and `usePersonalStats` have been unused since 1.4: no screen shows personal stats, although the 1.4 milestone was ticked. Scheduled in 1.4d (trainer home and profile) together with an end-to-end assertion.
+- Also: `create_season` replaces the browser-side sequence of writes; test ids and accessible names were added to session cards, roster cards and the assignee and bulk-assign selects.
+
+---
+
 ## Sub-Phase 1.4d: Modernist UI, App Shell & Localization
 
 **Goal**: Make the frontend look and navigate like the design, in English and German, light mode only, with the existing screens fully migrated. Every later sub-phase builds on this foundation.
@@ -180,7 +245,7 @@ The visual and navigation target is the **Modernist ledger** prototype in `pocke
 - A test fails the build if any key is missing in either language.
 
 #### Tests
-- Existing Vitest and Playwright suites updated. New Playwright coverage for season creation (known issue T1) and for assigning several trainers to one session. Responsive smoke runs at 390 px and 1280 px.
+- Existing Vitest and Playwright suites updated to the new components (selectors by role and test id, English locale). The season-creation and assignment end-to-end tests come from 1.4t. New tests are written with the new components: shell and navigation by role, Dashboard, schedule filters, session card, auth page error cases, language toggle. Responsive smoke runs at 390 px and 1280 px.
 
 #### Testable Milestone 1.4d
 - [ ] Every existing screen renders in the Modernist style on desktop and mobile; no dark-mode controls remain.
@@ -188,7 +253,8 @@ The visual and navigation target is the **Modernist ledger** prototype in `pocke
 - [ ] Switching English ↔ Deutsch translates all migrated screens, including error messages; the missing-key test passes.
 - [ ] Trainer and Head-trainer see the navigation and home screens described in the design.
 - [ ] No request leaves the app to Google Fonts.
-- [ ] Season creation and multi-trainer assignment have end-to-end tests.
+- [ ] The end-to-end suites from 1.4t still pass against the new UI (selectors updated, no behavior changes).
+- [ ] Personal stats (trainer, assistant, 14/18, completed, upcoming) are shown on the trainer home and the profile, and the assignment end-to-end test asserts them.
 
 ---
 
@@ -307,7 +373,8 @@ Season planning with blocks and themes, session notes (Tiptap), email fallback f
 | S1 temporary password and guessable link; S2 public signup; S3 registration with email confirmation | 1.6a |
 | C1 per-track limits; C2 track versus label; C3 assignee swap; C4 atomic role save | 1.4c, done 2026-10-11 |
 | C5 calendar feed link | 1.6b |
-| T1 season-creation and multi-trainer E2E tests | 1.4d |
+| T1 season-creation and multi-trainer E2E tests; T5 write policies untested; T6 no real assignment E2E; T7 roles E2E saves nothing; T8 central hooks without unit tests; T9 end-to-end setup (locale, parallel runs); C6 `createSeason` without rollback | 1.4t, done 2026-10-11 |
+| C7 personal stats not shown on any screen | 1.4d |
 | T2 fresh-database run | Gate (step 0), done 2026-10-11 |
 | T4 long policy names on `availability_responses` | Before 2.1 (small migration) |
 | F1, F2, T3 | Backlog |
@@ -338,6 +405,7 @@ Items beyond the decisions above, proposed so work can start; each should be con
 | **1.1–1.4b** | Delivered | `pnpm test`, `pnpm test:e2e`, `pnpm test:db` |
 | **Gate** | Clean migrations (done 2026-10-11: 13 migrations applied, 77 pgTAP checks, 76 unit and 10 E2E tests passed) | `pnpm supabase:reset && pnpm test:db` |
 | **1.4c Data** (done) | Targets, limits, publishing, atomic saves | pgTAP (`data_foundations`, `publishing`) + Playwright `publishing` flow |
+| **1.4t Test hardening** (done) | Write-policy and output tests, real E2E flows, hook tests, atomic `create_season` | `pnpm test:db` (mutation check on write policies), Playwright with 2 workers, coverage summary in CI |
 | **1.4d UI** | Modernist look, EN/DE, light only | Playwright at 390 and 1280 px, missing-key test, no Google Fonts requests |
 | **1.6a Notifications** | Bell, push, PWA, invite-only | Publish → notification; invite → set password; signup rejected |
 | **1.5 Substitutions** | Gaps, flag, volunteer, escalation, log | pgTAP + two-connection concurrency test + Playwright |

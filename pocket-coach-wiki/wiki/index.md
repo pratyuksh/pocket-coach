@@ -24,7 +24,7 @@
 |---|---|---|
 | [[codebase/data-privacy-gdpr]] | GDPR compliance strategy, data residency, sub-processor agreements, and data erasure | - |
 | [[codebase/feasibility-and-costs]] | Technical feasibility of the requirements and operational hosting cost estimations | - |
-| [[codebase/implementation-plan]] | Streamlined Phase 1 plan: delivered 1.1–1.4b, execution order for 1.4c (data), 1.4d (Modernist UI, i18n, light only), 1.6a, 1.5, 1.6b, pilot gate, Phase 2, and the 2026-10-11 decisions | `pocke-coach-design-prototype/PocketCoach.dc.html` |
+| [[codebase/implementation-plan]] | Streamlined Phase 1 plan: delivered 1.1–1.4c, execution order for 1.4t (test hardening), 1.4d (Modernist UI, i18n, light only), 1.6a, 1.5, 1.6b, pilot gate, Phase 2, and the 2026-10-11 decisions | `pocke-coach-design-prototype/PocketCoach.dc.html` |
 | [[codebase/known-issues]] | Open problems found while hardening Phase 1 (invite security, assignment limits, test gaps), where each is scheduled, plan gaps decided or open, and what was resolved | - |
 | [[codebase/risk-analysis]] | Primary technical risks (incl. database authorization and invite security) and mitigation strategies | - |
 

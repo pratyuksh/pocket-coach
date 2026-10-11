@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../../lib/supabase';
+import { describeDbError } from '../../../lib/dbErrors';
 import type { Season, SeasonTemplate } from '@pocket-coach/shared-types';
 
 export interface CreateSeasonSlotInput {
@@ -78,102 +79,54 @@ export function useSeasons() {
     return (data as number) || 0;
   };
 
+  /**
+   * Creates the season, its player groups, training days (with hall and staffing targets) and all
+   * sessions in one database call (`create_season`). Either everything is created, or nothing
+   * changes, including which season is active.
+   */
   const createSeason = async (
     input: CreateSeasonInput,
   ): Promise<{ season: Season; generatedCount: number }> => {
     try {
       setError(null);
 
-      // If making active, deactivate other seasons first
-      if (input.is_active) {
-        await supabase
-          .from('seasons')
-          .update({ is_active: false })
-          .neq('id', '00000000-0000-0000-0000-000000000000');
-      }
+      const { data, error: rpcErr } = await supabase.rpc('create_season', {
+        p_name: input.name.trim(),
+        p_start_date: input.start_date,
+        p_end_date: input.end_date,
+        p_is_active: input.is_active ?? true,
+        p_groups: input.player_groups.map((g) => ({
+          name: g.name,
+          description: g.description ?? '',
+          sort_order: g.sort_order,
+        })),
+        p_slots: input.slots.map((slot) => ({
+          day_of_week: slot.day_of_week,
+          default_start_time: slot.default_start_time,
+          default_end_time: slot.default_end_time,
+          location_id: slot.location_id,
+          player_group_names: slot.player_group_names,
+          required_regular: slot.required_regular,
+          required_junior: slot.required_junior,
+        })),
+      });
 
-      // 1. Insert Season
-      const { data: seasonData, error: seasonErr } = await supabase
+      if (rpcErr) throw rpcErr;
+      const { season_id, generated } = data as { season_id: string; generated: number };
+
+      const { data: seasonData, error: fetchErr } = await supabase
         .from('seasons')
-        .insert([
-          {
-            name: input.name.trim(),
-            start_date: input.start_date,
-            end_date: input.end_date,
-            is_active: input.is_active ?? true,
-          },
-        ])
-        .select()
+        .select('*')
+        .eq('id', season_id)
         .single();
-
-      if (seasonErr) throw seasonErr;
-      const newSeason = seasonData as Season;
-
-      // 2. Insert Player Groups
-      const groupMap = new Map<string, string>(); // name -> inserted id
-      if (input.player_groups.length > 0) {
-        const groupsToInsert = input.player_groups.map((pg) => ({
-          season_id: newSeason.id,
-          name: pg.name,
-          description: pg.description || null,
-          sort_order: pg.sort_order,
-        }));
-
-        const { data: insertedGroups, error: groupErr } = await supabase
-          .from('player_groups')
-          .insert(groupsToInsert)
-          .select();
-
-        if (groupErr) throw groupErr;
-        (insertedGroups || []).forEach((g: any) => groupMap.set(g.name, g.id));
-      }
-
-      // 3. Insert Training Days & link Player Groups
-      for (const slot of input.slots) {
-        const { data: tdData, error: tdErr } = await supabase
-          .from('training_days')
-          .insert([
-            {
-              season_id: newSeason.id,
-              day_of_week: slot.day_of_week,
-              default_start_time: slot.default_start_time,
-              default_end_time: slot.default_end_time,
-              location_id: slot.location_id,
-              required_regular: slot.required_regular,
-              required_junior: slot.required_junior,
-            },
-          ])
-          .select()
-          .single();
-
-        if (tdErr) throw tdErr;
-
-        // Link player groups for this slot
-        const groupIdsToLink = slot.player_group_names
-          .map((name) => groupMap.get(name))
-          .filter((id): id is string => Boolean(id));
-
-        if (groupIdsToLink.length > 0) {
-          const links = groupIdsToLink.map((pgId) => ({
-            training_day_id: tdData.id,
-            player_group_id: pgId,
-          }));
-
-          const { error: linkErr } = await supabase
-            .from('training_day_player_groups')
-            .insert(links);
-          if (linkErr) throw linkErr;
-        }
-      }
-
-      // 4. Batch generate sessions via stored RPC procedure
-      const generatedCount = await generateSessions(newSeason.id);
+      if (fetchErr) throw fetchErr;
 
       await fetchSeasons();
-      return { season: newSeason, generatedCount };
-    } catch (err: any) {
-      setError(err.message || 'Failed to create season');
-      throw err;
+      return { season: seasonData as Season, generatedCount: generated };
+    } catch (err: unknown) {
+      const message = describeDbError(err, 'Failed to create season');
+      setError(message);
+      throw new Error(message);
     }
   };
 

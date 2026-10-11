@@ -48,8 +48,9 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup
 
-      - name: Run unit & component tests
-        run: pnpm test
+      # Same tests as `pnpm test`, plus a coverage summary in the log (no thresholds yet)
+      - name: Run unit & component tests with coverage
+        run: pnpm test:coverage
 
   integration-tests:
     name: Integration & E2E Tests

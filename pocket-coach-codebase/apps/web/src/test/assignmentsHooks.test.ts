@@ -50,6 +50,33 @@ describe('Sub-Phase 1.4 Custom React Data Hooks', () => {
       expect(result.current.assignments[0].profile?.display_name).toBe('Trainer One');
     });
 
+    it('reports loading from the first render when the session changes', async () => {
+      mockSupabaseFrom.mockReturnValue({
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        order: vi.fn().mockResolvedValue({ data: [], error: null }),
+      });
+
+      const seen: boolean[] = [];
+      const { rerender } = renderHook(
+        ({ id }: { id?: string }) => {
+          const r = useSessionAssignments(id);
+          seen.push(r.loading);
+          return r;
+        },
+        { initialProps: { id: undefined as string | undefined } },
+      );
+      await act(async () => {});
+      expect(seen[seen.length - 1]).toBe(false); // nothing to load without a session
+
+      seen.length = 0;
+      rerender({ id: 'sess-2' });
+      // The render caused by the new id must already say "loading"
+      expect(seen[0]).toBe(true);
+      await act(async () => {});
+      expect(seen[seen.length - 1]).toBe(false);
+    });
+
     it('sets error state when fetching assignments fails', async () => {
       mockSupabaseFrom.mockReturnValue({
         select: vi.fn().mockReturnThis(),

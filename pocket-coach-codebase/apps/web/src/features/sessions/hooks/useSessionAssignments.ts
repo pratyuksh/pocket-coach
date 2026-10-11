@@ -5,6 +5,8 @@ import type { EnrichedSessionAssignment } from '@pocket-coach/shared-types';
 export function useSessionAssignments(sessionId?: string) {
   const [assignments, setAssignments] = useState<EnrichedSessionAssignment[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  // The session whose assignments were last loaded (or failed to load)
+  const [loadedFor, setLoadedFor] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
 
   const fetchAssignments = useCallback(async () => {
@@ -40,6 +42,7 @@ export function useSessionAssignments(sessionId?: string) {
     } catch (err: any) {
       setError(err.message || 'Failed to fetch session assignments');
     } finally {
+      setLoadedFor(sessionId);
       setLoading(false);
     }
   }, [sessionId]);
@@ -50,7 +53,10 @@ export function useSessionAssignments(sessionId?: string) {
 
   return {
     assignments,
-    loading,
+    // True from the very first render for a new session, before the fetch effect has even run.
+    // Otherwise a form built on these assignments is shown and editable for one render, and the
+    // user's early choices are overwritten when the data arrives.
+    loading: loading || (Boolean(sessionId) && loadedFor !== sessionId),
     error,
     refetch: fetchAssignments,
   };

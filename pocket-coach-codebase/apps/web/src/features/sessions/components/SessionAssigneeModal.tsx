@@ -186,6 +186,7 @@ export const SessionAssigneeModal: React.FC<SessionAssigneeModalProps> = ({
                   >
                     {/* Role Tag Selector */}
                     <select
+                      aria-label={`Role of coach ${idx + 1}`}
                       value={row.roleTag}
                       onChange={(e) => handleRowChange(idx, 'roleTag', e.target.value)}
                       className="px-2.5 py-2 text-xs font-semibold rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white shrink-0 outline-none focus:ring-2 focus:ring-emerald-500"
@@ -197,6 +198,7 @@ export const SessionAssigneeModal: React.FC<SessionAssigneeModalProps> = ({
 
                     {/* Trainer Selector */}
                     <select
+                      aria-label={`Coach ${idx + 1}`}
                       value={row.profileId}
                       onChange={(e) => handleRowChange(idx, 'profileId', e.target.value)}
                       className="flex-1 px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500"
