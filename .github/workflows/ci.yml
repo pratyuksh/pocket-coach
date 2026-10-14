@@ -34,6 +34,10 @@ jobs:
       - name: TypeScript typecheck
         run: pnpm typecheck
 
+      # Demo accounts and the seed credentials card are development-only (Sub-Phase 1.4d)
+      - name: Production bundle has no development-only content
+        run: pnpm check:bundle
+
   unit-tests:
     name: Unit & Component Tests
     runs-on: ubuntu-latest

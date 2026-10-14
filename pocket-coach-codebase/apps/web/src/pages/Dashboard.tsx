@@ -212,36 +212,38 @@ export const DashboardPage: React.FC = () => {
           </CardBody>
         </Card>
 
-        {/* System & Seed Account Info Card */}
-        <Card variant="glass">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-cyan-500" />
-              <CardTitle className="text-base">Test Credentials</CardTitle>
-            </div>
-          </CardHeader>
+        {/* Seed account info: development builds only, never shipped to production */}
+        {import.meta.env.DEV && (
+          <Card variant="glass">
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Clock className="w-5 h-5 text-cyan-500" />
+                <CardTitle className="text-base">Test Credentials</CardTitle>
+              </div>
+            </CardHeader>
 
-          <CardBody className="space-y-3 text-xs">
-            <div className="p-3 rounded-xl bg-[var(--bg-surface-elevated)] border border-[var(--border-glass)] space-y-1.5 font-mono">
-              <div className="flex justify-between items-center text-[var(--text-primary)]">
-                <span className="text-amber-500 font-bold">Super Admin:</span>
-                <span className="text-[var(--text-secondary)]">admin@club.de</span>
+            <CardBody className="space-y-3 text-xs">
+              <div className="p-3 rounded-xl bg-[var(--bg-surface-elevated)] border border-[var(--border-glass)] space-y-1.5 font-mono">
+                <div className="flex justify-between items-center text-[var(--text-primary)]">
+                  <span className="text-amber-500 font-bold">Super Admin:</span>
+                  <span className="text-[var(--text-secondary)]">admin@club.de</span>
+                </div>
+                <div className="flex justify-between items-center text-[var(--text-primary)]">
+                  <span className="text-cyan-500 font-bold">Head Trainer:</span>
+                  <span className="text-[var(--text-secondary)]">headtrainer@club.de</span>
+                </div>
+                <div className="flex justify-between items-center text-[var(--text-primary)]">
+                  <span className="text-emerald-500 font-bold">Trainer:</span>
+                  <span className="text-[var(--text-secondary)]">trainer1@club.de</span>
+                </div>
+                <div className="pt-1.5 border-t border-[var(--border-glass)] text-[var(--text-secondary)] text-[10px] flex justify-between">
+                  <span>Password for all:</span>
+                  <span className="text-emerald-500 font-bold">Password123!</span>
+                </div>
               </div>
-              <div className="flex justify-between items-center text-[var(--text-primary)]">
-                <span className="text-cyan-500 font-bold">Head Trainer:</span>
-                <span className="text-[var(--text-secondary)]">headtrainer@club.de</span>
-              </div>
-              <div className="flex justify-between items-center text-[var(--text-primary)]">
-                <span className="text-emerald-500 font-bold">Trainer:</span>
-                <span className="text-[var(--text-secondary)]">trainer1@club.de</span>
-              </div>
-              <div className="pt-1.5 border-t border-[var(--border-glass)] text-[var(--text-secondary)] text-[10px] flex justify-between">
-                <span>Password for all:</span>
-                <span className="text-emerald-500 font-bold">Password123!</span>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
+            </CardBody>
+          </Card>
+        )}
       </div>
     </div>
   );

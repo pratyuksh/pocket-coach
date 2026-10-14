@@ -44,6 +44,15 @@
         "title": "Vertretung ohne WhatsApp",
         "body": "Du kannst nicht? Ein Tap informiert alle. Wer zuerst einspringt, ist dabei."
       }
-    }
+    },
+    "errors": {
+      "invalidCredentials": "E-Mail oder Passwort ist falsch.",
+      "alreadyRegistered": "Für diese E-Mail gibt es bereits ein Konto. Melde dich stattdessen an.",
+      "passwordTooShort": "Das Passwort muss mindestens {{min}} Zeichen lang sein.",
+      "signInFailed": "Anmeldung fehlgeschlagen. Bitte versuche es erneut.",
+      "googleFailed": "Anmeldung mit Google nicht möglich.",
+      "setupFailed": "Die Einrichtung konnte nicht abgeschlossen werden. Bitte versuche es erneut."
+    },
+    "benefitsLabel": "Was PocketCoach kann"
   }
 }

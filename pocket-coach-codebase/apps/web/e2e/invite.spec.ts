@@ -1,12 +1,11 @@
 import { test, expect } from '@playwright/test';
+import { submitSignIn } from './helpers';
 
 test.describe('Invite Trainer E2E Flow', () => {
   test('Super Admin can open invite modal and send invitation', async ({ page }) => {
     // 1. Log in as Super Admin
     await page.goto('/login');
-    await page.getByLabel(/email address/i).fill('admin@club.de');
-    await page.getByLabel(/password/i).fill('Password123!');
-    await page.getByRole('button', { name: 'Sign In', exact: true }).click();
+    await submitSignIn(page, 'admin@club.de', 'Password123!');
 
     // Wait for login redirection to complete
     await expect(page).toHaveURL(/\/(trainers|dashboard|$)/);

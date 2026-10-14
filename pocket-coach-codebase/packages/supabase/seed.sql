@@ -61,10 +61,10 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.profiles (
     id, display_name, email, avatar_url, specialty, is_junior_coach, is_active, preferred_language
 ) VALUES
-  ('00000000-0000-0000-0000-000000000001', 'Super Admin', 'admin@club.de', NULL, 'Club Administration & Operations', FALSE, TRUE, 'de'),
-  ('00000000-0000-0000-0000-000000000002', 'Head Trainer', 'headtrainer@club.de', NULL, 'Advanced Tactics & Season Planning', FALSE, TRUE, 'de'),
-  ('00000000-0000-0000-0000-000000000003', 'Max Trainer', 'trainer1@club.de', NULL, 'Youth Basic Fundamentals', FALSE, TRUE, 'de'),
-  ('00000000-0000-0000-0000-000000000004', 'Lukas Junior', 'junior1@club.de', NULL, 'U18 Assistant Coach', TRUE, TRUE, 'de')
+  ('00000000-0000-0000-0000-000000000001', 'Super Admin', 'admin@club.de', NULL, 'Club Administration & Operations', FALSE, TRUE, 'en'),
+  ('00000000-0000-0000-0000-000000000002', 'Head Trainer', 'headtrainer@club.de', NULL, 'Advanced Tactics & Season Planning', FALSE, TRUE, 'en'),
+  ('00000000-0000-0000-0000-000000000003', 'Max Trainer', 'trainer1@club.de', NULL, 'Youth Basic Fundamentals', FALSE, TRUE, 'en'),
+  ('00000000-0000-0000-0000-000000000004', 'Lukas Junior', 'junior1@club.de', NULL, 'U18 Assistant Coach', TRUE, TRUE, 'en')
 ON CONFLICT (id) DO NOTHING;
 
 -- Populate User Roles

@@ -39,11 +39,16 @@ export function uniqueName(prefix: string): string {
 // UI
 // ---------------------------------------------------------------------------------------------
 
+/** Fills and submits the sign-in form on the page that is already showing it. */
+export async function submitSignIn(page: Page, email: string, password: string) {
+  await page.getByLabel('Email', { exact: true }).fill(email);
+  await page.getByLabel('Password', { exact: true }).fill(password);
+  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+}
+
 export async function signIn(page: Page, email: string) {
   await page.goto('/login');
-  await page.getByLabel(/email address/i).fill(email);
-  await page.getByLabel(/password/i).fill(PASSWORD);
-  await page.getByRole('button', { name: 'Sign In', exact: true }).click();
+  await submitSignIn(page, email, PASSWORD);
   await expect(page).toHaveURL(/\/(trainers|dashboard|sessions|$)/);
 }
 

@@ -20,7 +20,7 @@ describe('GoogleOAuthButton', () => {
 
   it('renders Google Sign-In button', () => {
     render(<GoogleOAuthButton />);
-    expect(screen.getByRole('button', { name: /sign in with google/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /continue with google/i })).toBeInTheDocument();
   });
 
   it('triggers supabase.auth.signInWithOAuth with google provider when clicked', async () => {
@@ -32,7 +32,7 @@ describe('GoogleOAuthButton', () => {
 
     render(<GoogleOAuthButton />);
 
-    const btn = screen.getByRole('button', { name: /sign in with google/i });
+    const btn = screen.getByRole('button', { name: /continue with google/i });
     await user.click(btn);
 
     await waitFor(() => {
@@ -55,7 +55,7 @@ describe('GoogleOAuthButton', () => {
 
     render(<GoogleOAuthButton onError={mockOnError} />);
 
-    const btn = screen.getByRole('button', { name: /sign in with google/i });
+    const btn = screen.getByRole('button', { name: /continue with google/i });
     await user.click(btn);
 
     await waitFor(() => {

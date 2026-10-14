@@ -233,9 +233,11 @@ Shell and navigation by role, Dashboard, schedule view filters and "only mine", 
 - **Auth**: login with invite-only wording, Google button, language switch; invite acceptance; `/register` removed from the UI. Details:
   - Layout follows the design: a shared `AuthLayout` (wordmark, EN | DE switch, content, GDPR footer) with a split screen on desktop (form left, three numbered benefit rows right) and a single column on mobile. Used by login and invite acceptance.
   - Login: flat labelled fields, primary "Sign in →" and secondary "Continue with Google", left-aligned, 44 px high. Submit logic is unchanged. Errors appear in an inline `role="alert"` block.
-  - **Demo-account quick-fill buttons and the shared development password are shown in development builds only** (`import.meta.env.DEV`) and are absent from the production bundle (checked in CI by searching the built output for `Password123!`).
+  - **Demo-account quick-fill buttons and the Dashboard's "Test Credentials" card (seed emails and shared password) are shown in development builds only** (`import.meta.env.DEV`). CI builds the app and fails if the bundle contains them (`pnpm check:bundle`). The invite flow's temporary password (known issue S1) is still in the bundle until server-side invites ship in 1.6a; the check then also covers the password.
   - **"Forgot password?" is left out** until a reset flow exists (known issue F3, 1.6a).
   - Invite acceptance follows the design's three fields (email read-only, your name, choose a password); the confirm-password field is dropped. Benefit and invite copy do not mention availability (Phase 2.1). `/register` redirects to `/login`.
+  - The invite screen has no Google button (the design shows one): a Google sign-in creates an account without profile or role (known issue S3), so it waits for the server-side invites in 1.6a. The invitee's language choice is saved to their profile.
+  - Supabase auth errors are mapped by error code to translated messages; unknown errors show the server's text.
   - The old `.auth-btn-*`, `.styled-input`, `.input-group` and `.divider-*` rules are deleted from `global.css`.
 - **Home and Dashboard**: as in [Design Reference](#design-reference).
 - **Sessions**: week chips with month calendar, hall filter, "only mine", coverage per session (for example 2/3 · 1/2, from the staffing targets), changed marker; session detail with tracks, open slots, override modal, hall address and map link; assignment panel with candidates sorted by fewest sessions; publish control for Head-trainer+.
@@ -259,7 +261,7 @@ Shell and navigation by role, Dashboard, schedule view filters and "only mine", 
 - [ ] Switching English ↔ Deutsch translates all migrated screens, including error messages; the missing-key test passes.
 - [ ] Trainer and Head-trainer see the navigation and home screens described in the design.
 - [ ] No request leaves the app to Google Fonts.
-- [ ] Login and invite screens match the prototype at 390 px and 1280 px; the production build contains no demo accounts or shared password and no "Forgot password?" button.
+- [x] Login and invite screens match the prototype at 390 px and 1280 px; the production build contains no demo accounts or seed credentials (the invite flow's temporary password stays until 1.6a, S1) and no "Forgot password?" button (done 2026-10-14).
 - [ ] The end-to-end suites from 1.4t still pass against the new UI (selectors updated, no behavior changes).
 - [ ] Personal stats (trainer, assistant, 14/18, completed, upcoming) are shown on the trainer home and the profile, and the assignment end-to-end test asserts them.
 

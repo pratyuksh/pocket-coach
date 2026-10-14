@@ -165,4 +165,11 @@
 * Finding: a `*/` inside a CSS comment (a path with `*`) ended the comment early and silently dropped the `@theme` block, so no new utilities were generated; found through the build warning. Replaced the second benefit row of the prototype (availability) with Phase 1 copy about published assignments.
 * Not yet done in 1.4d: shell and navigation, the screens, remaining strings, login and invite pages (next), end-to-end updates.
 
+## 2026-10-14 | sub-phase-1-4d-login-page | Updated 3 pages: codebase/implementation-plan.md, wiki/log.md
+* Login and invite screens built on the 1.4d foundation: shared `AuthLayout` (wordmark, EN | DE switch, privacy line, three numbered benefits on desktop), flat labelled form, primary and secondary buttons, translated error messages by Supabase error code; invite acceptance with the design's three fields and the chosen language saved to the profile; `/register` redirects to `/login`; legacy auth CSS deleted. Unit tests 144, end-to-end 15 (new: wrong password, language switch, `/register` redirect), all passing.
+* Development-only content: demo-account buttons on the login screen and the Dashboard's "Test Credentials" card now render only in development builds. New CI step `pnpm check:bundle` builds the app and fails if they appear in the bundle. The invite flow's temporary password (S1) remains until 1.6a.
+* Seed accounts now use English (`preferred_language = 'en'`) so the English-locale end-to-end suite keeps working: signing in applies the profile's language.
+* Found while checking screenshots: unlayered `* { padding: 0 }` and heading rules in `global.css` overrode Tailwind utilities (no padding anywhere, wrong heading sizes). Reset removed (Tailwind's preflight does it) and base rules moved into `@layer base`; this also gives the not-yet-migrated screens their padding back.
+* Not done: no Google button on the invite screen (S3, waits for 1.6a); "Forgot password?" omitted (F3).
+
 <!-- END OF LOG -->

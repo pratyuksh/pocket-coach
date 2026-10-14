@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { submitSignIn } from './helpers';
 
 test.describe('Profile Settings & Calendar Feed E2E Flow', () => {
   test('should allow user to update profile settings and regenerate calendar feed token', async ({
@@ -6,9 +7,7 @@ test.describe('Profile Settings & Calendar Feed E2E Flow', () => {
   }) => {
     // 1. Log in as Trainer
     await page.goto('/login');
-    await page.getByLabel(/email address/i).fill('trainer1@club.de');
-    await page.getByLabel(/password/i).fill('Password123!');
-    await page.getByRole('button', { name: 'Sign In', exact: true }).click();
+    await submitSignIn(page, 'trainer1@club.de', 'Password123!');
 
     await expect(page).toHaveURL(/\/(trainers|dashboard|$)/);
 

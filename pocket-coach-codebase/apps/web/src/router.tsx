@@ -7,7 +7,7 @@ import { AvailabilityPage } from './pages/Availability';
 import { SubstitutionsPage } from './pages/Substitutions';
 import { TrainersPage } from './pages/Trainers';
 import { SettingsPage } from './pages/Settings';
-import { LoginPage, RegisterPage, InvitePage } from './pages/Auth';
+import { LoginPage, InvitePage } from './pages/Auth';
 
 export const router = createBrowserRouter([
   {
@@ -35,6 +35,7 @@ export const router = createBrowserRouter([
       </PublicOnlyRoute>
     ),
   },
-  { path: '/register', element: <RegisterPage /> },
+  // Invite-only: the public registration page is gone; old links land on the sign-in screen.
+  { path: '/register', element: <Navigate to="/login" replace /> },
   { path: '/invite/:token', element: <InvitePage /> },
 ]);

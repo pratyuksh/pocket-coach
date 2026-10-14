@@ -44,6 +44,15 @@
         "title": "Substitutes without WhatsApp",
         "body": "Can't make it? One tap tells everyone. The first volunteer is in."
       }
-    }
+    },
+    "errors": {
+      "invalidCredentials": "Email or password is incorrect.",
+      "alreadyRegistered": "An account with this email already exists. Sign in instead.",
+      "passwordTooShort": "Password must be at least {{min}} characters.",
+      "signInFailed": "Sign-in failed. Please try again.",
+      "googleFailed": "Could not sign in with Google.",
+      "setupFailed": "Could not complete the setup. Please try again."
+    },
+    "benefitsLabel": "What PocketCoach does"
   }
 }

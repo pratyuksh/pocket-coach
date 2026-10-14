@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { submitSignIn } from './helpers';
 
 async function signedInEmail(page: Page): Promise<string | null> {
   return page.evaluate(() => {
@@ -17,9 +18,7 @@ test.describe('Invite Registration E2E Flow', () => {
 
     // 1. Super Admin invites a Head-trainer with the 14/18 Coach label
     await page.goto('/login');
-    await page.getByLabel(/email address/i).fill('admin@club.de');
-    await page.getByLabel(/password/i).fill('Password123!');
-    await page.getByRole('button', { name: 'Sign In', exact: true }).click();
+    await submitSignIn(page, 'admin@club.de', 'Password123!');
     await expect(page).toHaveURL(/\/(trainers|dashboard|$)/);
 
     await page.goto('/trainers');
@@ -42,11 +41,10 @@ test.describe('Invite Registration E2E Flow', () => {
     const token = Buffer.from(inviteEmail).toString('base64');
     await invitee.goto(`/invite/${token}`);
 
-    await expect(invitee.getByLabel(/account email/i)).toHaveValue(inviteEmail);
-    await invitee.getByLabel(/display name \/ full name/i).fill('Invited Coach Final');
-    await invitee.getByLabel(/^set password/i).fill(newPassword);
-    await invitee.getByLabel(/confirm password/i).fill(newPassword);
-    await invitee.getByRole('button', { name: /complete account setup/i }).click();
+    await expect(invitee.getByLabel('Email', { exact: true })).toHaveValue(inviteEmail);
+    await invitee.getByLabel('Your name').fill('Invited Coach Final');
+    await invitee.getByLabel('Choose a password').fill(newPassword);
+    await invitee.getByRole('button', { name: 'Create account' }).click();
 
     await expect(invitee).toHaveURL(/\/dashboard/, { timeout: 10000 });
     expect(await signedInEmail(invitee)).toBe(inviteEmail);
@@ -66,9 +64,7 @@ test.describe('Invite Registration E2E Flow', () => {
     const loginContext = await browser.newContext();
     const login = await loginContext.newPage();
     await login.goto('/login');
-    await login.getByLabel(/email address/i).fill(inviteEmail);
-    await login.getByLabel(/password/i).fill(newPassword);
-    await login.getByRole('button', { name: 'Sign In', exact: true }).click();
+    await submitSignIn(login, inviteEmail, newPassword);
     await expect(login).toHaveURL(/\/(trainers|dashboard|$)/);
     expect(await signedInEmail(login)).toBe(inviteEmail);
     await loginContext.close();

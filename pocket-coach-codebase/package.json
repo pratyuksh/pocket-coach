@@ -13,6 +13,7 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,css,json,md}\"",
     "test": "pnpm --filter @pocket-coach/web test",
     "test:coverage": "pnpm --filter @pocket-coach/web test:coverage",
+    "check:bundle": "pnpm --filter @pocket-coach/web build && pnpm --filter @pocket-coach/web check:bundle",
     "test:e2e": "pnpm --filter @pocket-coach/web test:e2e",
     "test:db": "pnpm --filter @pocket-coach/supabase test",
     "supabase:start": "pnpm --filter @pocket-coach/supabase start",
