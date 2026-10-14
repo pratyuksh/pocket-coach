@@ -26,9 +26,7 @@ export const MySessionsList: React.FC = () => {
     return (
       <Card className="py-16 text-center space-y-4">
         <Calendar className="w-10 h-10 text-slate-400 mx-auto" />
-        <h3 className="text-base font-bold text-slate-900 dark:text-white font-heading">
-          No Sessions Assigned
-        </h3>
+        <h3 className="text-base font-bold text-slate-900 font-heading">No Sessions Assigned</h3>
         <p className="text-xs text-slate-500 max-w-md mx-auto">
           You currently have no training session assignments scheduled. Head-trainers can assign you
           to regular training slots or hall locations.
@@ -42,7 +40,7 @@ export const MySessionsList: React.FC = () => {
       <div className="flex items-center justify-between px-1">
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-emerald-500" />
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white font-heading">
+          <h3 className="text-sm font-bold text-slate-900 font-heading">
             Your Assigned Sessions ({mySessions.length})
           </h3>
         </div>
@@ -59,11 +57,11 @@ export const MySessionsList: React.FC = () => {
           return (
             <Card
               key={item.assignment_id}
-              className="p-4 sm:p-5 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/40 transition-all"
+              className="p-4 sm:p-5 border border-slate-200 hover:border-emerald-500/40 transition-all"
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex flex-col items-center justify-center w-12 h-12 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
+                  <div className="flex flex-col items-center justify-center w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 shrink-0">
                     <span className="text-[9px] font-black uppercase tracking-wider">
                       {weekdayName.slice(0, 3)}
                     </span>
@@ -72,12 +70,12 @@ export const MySessionsList: React.FC = () => {
 
                   <div className="space-y-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-slate-900 dark:text-white font-heading">
+                      <span className="text-sm font-bold text-slate-900 font-heading">
                         {weekdayName}, {s.session_date}
                       </span>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
                       <span className="flex items-center gap-1 font-mono font-medium">
                         <Clock className="w-3.5 h-3.5 text-emerald-500" />
                         {startTime} – {endTime}

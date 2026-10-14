@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { LoginForm } from '../features/auth/LoginForm';
-import { Card, CardHeader, CardTitle, CardBody, Button, ThemeToggle } from '../components/ui';
+import { Card, CardHeader, CardTitle, CardBody, Button } from '../components/ui';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Sparkles } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -11,11 +11,6 @@ export const LoginPage: React.FC = () => {
       {/* Ambient background glow mesh */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[var(--ambient-glow-1)] rounded-full blur-[140px] pointer-events-none" />
       <div className="absolute bottom-10 right-1/4 w-[400px] h-[400px] bg-[var(--ambient-glow-2)] rounded-full blur-[120px] pointer-events-none" />
-
-      {/* Floating Theme Toggle in top-right */}
-      <div className="absolute top-6 right-6 z-30">
-        <ThemeToggle />
-      </div>
 
       {/* Brand logo header near top of page */}
       <div className="absolute top-8 sm:top-12 left-1/2 -translate-x-1/2 flex items-center gap-3 z-20">

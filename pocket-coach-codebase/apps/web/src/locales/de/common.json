@@ -1,0 +1,49 @@
+{
+  "app": {
+    "name": "PocketCoach"
+  },
+  "language": {
+    "label": "Sprache",
+    "en": "EN",
+    "de": "DE"
+  },
+  "actions": {
+    "close": "Schliessen",
+    "dismiss": "Ausblenden",
+    "undo": "Rückgängig"
+  },
+  "status": {
+    "loading": "Lädt"
+  },
+  "auth": {
+    "signInTitle": "Anmelden",
+    "signIn": "Anmelden",
+    "signingIn": "Anmeldung läuft…",
+    "google": "Weiter mit Google",
+    "googleConnecting": "Verbindung wird hergestellt…",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "inviteOnly": "PocketCoach ist nur für das Trainerteam. Eine Einladung erhältst du von einem Super-Admin.",
+    "invitedTitle": "Du bist ins Trainerteam eingeladen",
+    "invitedBody": "Du wurdest als Trainer hinzugefügt. Richte dein Konto ein, um deine Trainings zu sehen und Vertretungen zu übernehmen.",
+    "yourName": "Dein Name",
+    "choosePassword": "Passwort wählen",
+    "createAccount": "Konto erstellen",
+    "creatingAccount": "Konto wird erstellt…",
+    "privacy": "Gehostet in Frankfurt. Wir speichern nur Name und E-Mail.",
+    "benefits": {
+      "sessions": {
+        "title": "Alle Trainings an einem Ort",
+        "body": "Zeiten, Hallen und Co-Trainer, auf Handy oder Computer."
+      },
+      "published": {
+        "title": "Einteilungen, auf die du dich verlassen kannst",
+        "body": "Du siehst ein Training, sobald die Cheftrainer es veröffentlicht haben. Was du siehst, gilt."
+      },
+      "substitutes": {
+        "title": "Vertretung ohne WhatsApp",
+        "body": "Du kannst nicht? Ein Tap informiert alle. Wer zuerst einspringt, ist dabei."
+      }
+    }
+  }
+}

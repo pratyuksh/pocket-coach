@@ -58,18 +58,16 @@ export const SessionOverrideModal: React.FC<SessionOverrideModalProps> = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Override Session Details" maxWidth="lg">
       <form onSubmit={handleSave} className="space-y-5">
-        <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-1">
-          <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-            Target Session Date
-          </div>
-          <div className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+        <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+          <div className="text-xs font-semibold text-slate-500">Target Session Date</div>
+          <div className="text-base font-bold text-slate-900 flex items-center gap-2">
             <span>📅 {session.session_date}</span>
             {session.is_time_overridden && <Badge variant="warning">Previously Overridden</Badge>}
           </div>
         </div>
 
         {error && (
-          <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-sm flex items-center gap-2">
+          <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 text-sm flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -78,7 +76,7 @@ export const SessionOverrideModal: React.FC<SessionOverrideModalProps> = ({
         {/* Time Inputs */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1">
+            <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
               <Clock className="w-3.5 h-3.5 text-emerald-500" /> Start Time
             </label>
             <input
@@ -86,11 +84,11 @@ export const SessionOverrideModal: React.FC<SessionOverrideModalProps> = ({
               value={startTime.slice(0, 5)}
               onChange={(e) => setStartTime(e.target.value)}
               required
-              className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-mono focus:ring-2 focus:ring-emerald-500 outline-none"
+              className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 font-mono focus:ring-2 focus:ring-emerald-500 outline-none"
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1">
+            <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
               <Clock className="w-3.5 h-3.5 text-emerald-500" /> End Time
             </label>
             <input
@@ -98,20 +96,20 @@ export const SessionOverrideModal: React.FC<SessionOverrideModalProps> = ({
               value={endTime.slice(0, 5)}
               onChange={(e) => setEndTime(e.target.value)}
               required
-              className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-mono focus:ring-2 focus:ring-emerald-500 outline-none"
+              className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 font-mono focus:ring-2 focus:ring-emerald-500 outline-none"
             />
           </div>
         </div>
 
         {/* Hall Location Select */}
         <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1">
+          <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
             <MapPin className="w-3.5 h-3.5 text-emerald-500" /> Sports Hall Location
           </label>
           <select
             value={locationId || ''}
             onChange={(e) => setLocationId(e.target.value || null)}
-            className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+            className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none"
           >
             <option value="">-- No Location Assigned --</option>
             {locations.map((loc) => (
@@ -125,7 +123,7 @@ export const SessionOverrideModal: React.FC<SessionOverrideModalProps> = ({
         {/* Attending Groups Info */}
         {session.player_groups && session.player_groups.length > 0 && (
           <div className="pt-2">
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+            <label className="block text-xs font-semibold text-slate-500 mb-1">
               Attending Player Groups
             </label>
             <div className="flex flex-wrap gap-1.5">
@@ -138,7 +136,7 @@ export const SessionOverrideModal: React.FC<SessionOverrideModalProps> = ({
           </div>
         )}
 
-        <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+        <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
           <Button type="button" variant="outline" onClick={onClose}>
             Cancel
           </Button>

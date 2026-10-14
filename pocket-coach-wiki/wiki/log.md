@@ -153,4 +153,16 @@
 * Verified by breaking things on purpose: permissive write policies now fail 34 database checks (none before); disabling the assignment-limit trigger or the label guard fails the corresponding end-to-end flow; four code mutations in the new unit tests were each caught.
 * `known-issues.md`: T1, T5-T9 and C6 resolved, new C7 open; `database-schema.md` and `risk-analysis.md` updated. The from-scratch run after 1.4t (18 migrations, seed, 222 database checks, 13 end-to-end tests) passed; the local development season was rebuilt afterwards with `create_season`.
 
+## 2026-10-14 | login-page-plan-1-4d | Updated 3 pages: codebase/implementation-plan.md, codebase/known-issues.md, wiki/log.md
+* Planned the 1.4d login page against the prototype: shared `AuthLayout` with split screen, EN | DE switch, flat form, invite acceptance in the same layout.
+* Decisions: demo accounts and the shared development password appear in development builds only and are checked absent from the production bundle; "Forgot password?" is omitted until a reset flow exists (new known issue F3, scheduled in 1.6a); invite acceptance follows the design's three fields (no confirm-password).
+* Added a login/invite milestone to 1.4d.
+
+## 2026-10-14 | sub-phase-1-4d-foundation | Updated 1 page: wiki/log.md
+* Started Sub-Phase 1.4d with the foundation (code in `apps/web`): Modernist tokens in `tokens.css` (Tailwind `@theme`, zero radius) with legacy variable aliases kept until each screen is migrated; Archivo self-hosted through `@fontsource/archivo`, Google Fonts links removed; light mode only (theme provider, toggle, tests and 176 `dark:` classes removed).
+* Primitives restyled (`Button`, `Card`, `Spinner`, `Toast` with Undo, `Dialog`; `Modal` kept as an alias; legacy variant names still accepted) and added (`Tag`, `Field`/`Input`, `SegmentedControl`).
+* i18n set up with `react-i18next`, typed keys, `locales/en` and `locales/de` (common and auth strings so far), `useLanguage` and `LanguageSync` (browser or saved choice before sign-in, `profiles.preferred_language` after), and a missing-key test. Unit tests: 137 passing.
+* Finding: a `*/` inside a CSS comment (a path with `*`) ended the comment early and silently dropped the `@theme` block, so no new utilities were generated; found through the build warning. Replaced the second benefit row of the prototype (availability) with Phase 1 copy about published assignments.
+* Not yet done in 1.4d: shell and navigation, the screens, remaining strings, login and invite pages (next), end-to-end updates.
+
 <!-- END OF LOG -->

@@ -137,7 +137,7 @@ export const LoginForm: React.FC = () => {
               setEmail('admin@club.de');
               setPassword('Password123!');
             }}
-            className="py-2.5 px-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30 text-[11px] font-bold transition-all cursor-pointer text-center truncate"
+            className="py-2.5 px-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 border border-amber-500/30 text-[11px] font-bold transition-all cursor-pointer text-center truncate"
           >
             Super Admin
           </button>
@@ -147,7 +147,7 @@ export const LoginForm: React.FC = () => {
               setEmail('headtrainer@club.de');
               setPassword('Password123!');
             }}
-            className="py-2.5 px-2.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-600 dark:text-cyan-300 border border-cyan-500/30 text-[11px] font-bold transition-all cursor-pointer text-center truncate"
+            className="py-2.5 px-2.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-600 border border-cyan-500/30 text-[11px] font-bold transition-all cursor-pointer text-center truncate"
           >
             Head Trainer
           </button>
@@ -157,7 +157,7 @@ export const LoginForm: React.FC = () => {
               setEmail('trainer1@club.de');
               setPassword('Password123!');
             }}
-            className="py-2.5 px-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30 text-[11px] font-bold transition-all cursor-pointer text-center truncate"
+            className="py-2.5 px-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 border border-emerald-500/30 text-[11px] font-bold transition-all cursor-pointer text-center truncate"
           >
             Trainer
           </button>

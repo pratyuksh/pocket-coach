@@ -1,0 +1,49 @@
+{
+  "app": {
+    "name": "PocketCoach"
+  },
+  "language": {
+    "label": "Language",
+    "en": "EN",
+    "de": "DE"
+  },
+  "actions": {
+    "close": "Close",
+    "dismiss": "Dismiss",
+    "undo": "Undo"
+  },
+  "status": {
+    "loading": "Loading"
+  },
+  "auth": {
+    "signInTitle": "Sign in",
+    "signIn": "Sign in",
+    "signingIn": "Signing in…",
+    "google": "Continue with Google",
+    "googleConnecting": "Connecting…",
+    "email": "Email",
+    "password": "Password",
+    "inviteOnly": "PocketCoach is for the coaching staff only. Ask a super-admin for an invite.",
+    "invitedTitle": "You're invited to the coaching team",
+    "invitedBody": "You have been added as a trainer. Set up your account to see your sessions and pick up substitutions.",
+    "yourName": "Your name",
+    "choosePassword": "Choose a password",
+    "createAccount": "Create account",
+    "creatingAccount": "Creating account…",
+    "privacy": "Hosted in Frankfurt. We store only your name and email.",
+    "benefits": {
+      "sessions": {
+        "title": "Every session in one place",
+        "body": "Times, halls and co-trainers, on your phone or computer."
+      },
+      "published": {
+        "title": "Assignments you can rely on",
+        "body": "You see a session once the head trainers have published it, so what you see is final."
+      },
+      "substitutes": {
+        "title": "Substitutes without WhatsApp",
+        "body": "Can't make it? One tap tells everyone. The first volunteer is in."
+      }
+    }
+  }
+}

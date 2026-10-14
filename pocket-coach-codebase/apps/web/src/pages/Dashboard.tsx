@@ -23,7 +23,7 @@ export const DashboardPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* High Impact Hero Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 dark:from-emerald-950 dark:via-slate-900 dark:to-slate-950 border border-emerald-500/30 p-6 sm:p-8 shadow-2xl shadow-emerald-950/40 text-white">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 border border-emerald-500/30 p-6 sm:p-8 shadow-2xl shadow-emerald-950/40 text-white">
         {/* Glow accent mesh inside banner */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-teal-500/10 rounded-full blur-2xl pointer-events-none" />
@@ -45,7 +45,7 @@ export const DashboardPage: React.FC = () => {
             <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-heading">
               Welcome back{profile?.display_name ? `, ${profile.display_name}` : ''}!
             </h2>
-            <p className="text-emerald-100 dark:text-slate-300 text-sm leading-relaxed">
+            <p className="text-emerald-100 text-sm leading-relaxed">
               Streamlined sports club management active. Monitor trainer rosters, assign coaching
               roles, collect availability surveys, and solve substitution gaps in real-time.
             </p>

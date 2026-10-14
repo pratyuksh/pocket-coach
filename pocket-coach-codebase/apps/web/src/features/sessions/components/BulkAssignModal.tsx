@@ -96,11 +96,11 @@ export const BulkAssignModal: React.FC<BulkAssignModalProps> = ({
         {/* Dynamic Matching Preview Count Banner */}
         <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-blue-500/10 border border-emerald-500/20 flex items-center justify-between">
           <div className="space-y-0.5">
-            <div className="flex items-center gap-1.5 text-xs font-extrabold text-emerald-600 dark:text-emerald-400 font-heading">
+            <div className="flex items-center gap-1.5 text-xs font-extrabold text-emerald-600 font-heading">
               <Sparkles className="w-4 h-4 text-emerald-500" />
               Batch Assignment Preview
             </div>
-            <p className="text-xs text-slate-600 dark:text-slate-300">
+            <p className="text-xs text-slate-600">
               {selectedTrainer ? (
                 <span>
                   Adding <span className="font-bold">{selectedTrainer.display_name}</span> to
@@ -118,7 +118,7 @@ export const BulkAssignModal: React.FC<BulkAssignModalProps> = ({
 
         {/* Trainer Selection */}
         <div className="space-y-2">
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+          <label className="text-xs font-bold uppercase tracking-wider text-slate-700">
             Target Trainer:
           </label>
           <select
@@ -132,7 +132,7 @@ export const BulkAssignModal: React.FC<BulkAssignModalProps> = ({
               if (picked) setTrack(picked.is_junior_coach ? 'junior_coach' : 'regular');
             }}
             required
-            className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+            className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none"
           >
             <option value="">-- Select Trainer --</option>
             {trainers.map((t) => (
@@ -147,7 +147,7 @@ export const BulkAssignModal: React.FC<BulkAssignModalProps> = ({
         {/* Track & Role Selection Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-700">
               Assignment Track:
             </label>
             <select
@@ -158,7 +158,7 @@ export const BulkAssignModal: React.FC<BulkAssignModalProps> = ({
               title={
                 selectedTrainerId ? "The track follows the trainer's 14/18 Coach label" : undefined
               }
-              className="w-full px-3.5 py-2 text-xs disabled:opacity-60 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+              className="w-full px-3.5 py-2 text-xs disabled:opacity-60 rounded-xl border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none"
             >
               <option value="regular">Regular Track (Primary)</option>
               <option value="junior_coach">1418 Coach Track (Support)</option>
@@ -166,14 +166,14 @@ export const BulkAssignModal: React.FC<BulkAssignModalProps> = ({
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-700">
               Session Role:
             </label>
             <select
               aria-label="Session role"
               value={sessionRole}
               onChange={(e) => setSessionRole(e.target.value as SessionRole)}
-              className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+              className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none"
             >
               <option value="primary">Primary Trainer</option>
               <option value="assistant_coach">Assistant Coach</option>
@@ -182,8 +182,8 @@ export const BulkAssignModal: React.FC<BulkAssignModalProps> = ({
         </div>
 
         {/* Filters Grid */}
-        <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-4">
-          <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
+        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
+          <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
             <Filter className="w-4 h-4 text-emerald-500" /> Filter Criteria (Optional):
           </div>
 
@@ -195,7 +195,7 @@ export const BulkAssignModal: React.FC<BulkAssignModalProps> = ({
                 aria-label="Weekday"
                 value={dayOfWeekFilter}
                 onChange={(e) => setDayOfWeekFilter(e.target.value)}
-                className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white outline-none"
+                className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-900 outline-none"
               >
                 <option value="">All Weekdays</option>
                 <option value="2">Tuesdays</option>
@@ -214,7 +214,7 @@ export const BulkAssignModal: React.FC<BulkAssignModalProps> = ({
                 aria-label="Hall"
                 value={locationIdFilter}
                 onChange={(e) => setLocationIdFilter(e.target.value)}
-                className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white outline-none"
+                className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-900 outline-none"
               >
                 <option value="">All Sports Halls ({locations.length})</option>
                 {locations.map((loc) => (
@@ -228,7 +228,7 @@ export const BulkAssignModal: React.FC<BulkAssignModalProps> = ({
         </div>
 
         {/* Submit / Cancel buttons */}
-        <div className="pt-4 flex justify-end gap-2 border-t border-slate-200 dark:border-slate-800">
+        <div className="pt-4 flex justify-end gap-2 border-t border-slate-200">
           <Button type="button" variant="secondary" onClick={onClose} disabled={loading}>
             Cancel
           </Button>

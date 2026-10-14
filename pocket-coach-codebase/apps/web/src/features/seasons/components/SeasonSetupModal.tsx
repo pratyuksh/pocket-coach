@@ -180,55 +180,55 @@ export const SeasonSetupModal: React.FC<SeasonSetupModalProps> = ({
       <Modal isOpen={isOpen} onClose={onClose} title="Create New Season" maxWidth="xl">
         <div className="space-y-6">
           {/* Step Progress Bar */}
-          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
             <div className="flex items-center gap-2">
               <span
                 className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
                   step === 1
                     ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30'
-                    : 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+                    : 'bg-emerald-500/20 text-emerald-600'
                 }`}
               >
                 1
               </span>
               <span
-                className={`text-xs font-semibold ${step === 1 ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}
+                className={`text-xs font-semibold ${step === 1 ? 'text-slate-900' : 'text-slate-400'}`}
               >
                 Dates & Template
               </span>
             </div>
-            <div className="w-8 h-0.5 bg-slate-200 dark:bg-slate-800" />
+            <div className="w-8 h-0.5 bg-slate-200" />
             <div className="flex items-center gap-2">
               <span
                 className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
                   step === 2
                     ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30'
                     : step > 2
-                      ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
+                      ? 'bg-emerald-500/20 text-emerald-600'
+                      : 'bg-slate-100 text-slate-400'
                 }`}
               >
                 2
               </span>
               <span
-                className={`text-xs font-semibold ${step === 2 ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}
+                className={`text-xs font-semibold ${step === 2 ? 'text-slate-900' : 'text-slate-400'}`}
               >
                 Schedule & Halls
               </span>
             </div>
-            <div className="w-8 h-0.5 bg-slate-200 dark:bg-slate-800" />
+            <div className="w-8 h-0.5 bg-slate-200" />
             <div className="flex items-center gap-2">
               <span
                 className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
                   step === 3
                     ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
+                    : 'bg-slate-100 text-slate-400'
                 }`}
               >
                 3
               </span>
               <span
-                className={`text-xs font-semibold ${step === 3 ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}
+                className={`text-xs font-semibold ${step === 3 ? 'text-slate-900' : 'text-slate-400'}`}
               >
                 Generate
               </span>
@@ -236,7 +236,7 @@ export const SeasonSetupModal: React.FC<SeasonSetupModalProps> = ({
           </div>
 
           {error && (
-            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-sm flex items-center gap-2">
+            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 text-sm flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
@@ -247,7 +247,7 @@ export const SeasonSetupModal: React.FC<SeasonSetupModalProps> = ({
             <div className="space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="sm:col-span-3">
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Season Name *
                   </label>
                   <input
@@ -256,12 +256,12 @@ export const SeasonSetupModal: React.FC<SeasonSetupModalProps> = ({
                     onChange={(e) => setSeasonName(e.target.value)}
                     placeholder="e.g. Season 2026/2027"
                     required
-                    className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-emerald-500 outline-none"
+                    className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 font-medium focus:ring-2 focus:ring-emerald-500 outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Start Date *
                   </label>
                   <input
@@ -269,12 +269,12 @@ export const SeasonSetupModal: React.FC<SeasonSetupModalProps> = ({
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
                     required
-                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     End Date *
                   </label>
                   <input
@@ -282,7 +282,7 @@ export const SeasonSetupModal: React.FC<SeasonSetupModalProps> = ({
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
                     required
-                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none"
                   />
                 </div>
 
@@ -294,7 +294,7 @@ export const SeasonSetupModal: React.FC<SeasonSetupModalProps> = ({
                       onChange={(e) => setIsActive(e.target.checked)}
                       className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 accent-emerald-500"
                     />
-                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    <span className="text-sm font-semibold text-slate-700">
                       Set as Active Season
                     </span>
                   </label>
@@ -307,7 +307,7 @@ export const SeasonSetupModal: React.FC<SeasonSetupModalProps> = ({
                 onSelectTemplate={(tpl) => setSelectedTemplate(tpl)}
               />
 
-              <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex justify-end pt-4 border-t border-slate-100">
                 <Button
                   variant="primary"
                   onClick={() => setStep(2)}
@@ -324,11 +324,11 @@ export const SeasonSetupModal: React.FC<SeasonSetupModalProps> = ({
             <div className="space-y-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                     <SlidersHorizontal className="w-4 h-4 text-emerald-500" />
                     Weekly Training Slots ({slots.length})
                   </h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <p className="text-xs text-slate-500">
                     Configure time, sports hall location, and attending groups for each recurring
                     weekday slot.
                   </p>
@@ -346,7 +346,7 @@ export const SeasonSetupModal: React.FC<SeasonSetupModalProps> = ({
               {/* Slot Rows */}
               <div className="space-y-3 max-h-[360px] overflow-y-auto pr-1">
                 {slots.length === 0 ? (
-                  <div className="py-8 text-center text-sm text-slate-500 border border-dashed border-slate-300 dark:border-slate-700 rounded-2xl">
+                  <div className="py-8 text-center text-sm text-slate-500 border border-dashed border-slate-300 rounded-2xl">
                     No weekly training slots configured. Click "Add Slot" to add one.
                   </div>
                 ) : (
@@ -363,7 +363,7 @@ export const SeasonSetupModal: React.FC<SeasonSetupModalProps> = ({
                 )}
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-between pt-4 border-t border-slate-100">
                 <Button variant="outline" onClick={() => setStep(1)}>
                   <ArrowLeft className="w-4 h-4 mr-1" /> Back
                 </Button>
@@ -408,10 +408,10 @@ export const SeasonSetupModal: React.FC<SeasonSetupModalProps> = ({
               </div>
 
               <div className="space-y-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
                   Configured Schedule Summary
                 </h4>
-                <div className="divide-y divide-slate-100 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden bg-white dark:bg-slate-900">
+                <div className="divide-y divide-slate-100 border border-slate-200 rounded-2xl overflow-hidden bg-white">
                   {slots.map((s) => {
                     const loc = locations.find((l) => l.id === s.location_id);
                     const dayNames = [
@@ -428,18 +428,14 @@ export const SeasonSetupModal: React.FC<SeasonSetupModalProps> = ({
                         key={s.id}
                         className="p-3.5 flex flex-wrap items-center justify-between gap-2 text-sm"
                       >
-                        <div className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                        <div className="font-semibold text-slate-900 flex items-center gap-2">
                           <span>{dayNames[s.day_of_week]}</span>
-                          <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-lg">
+                          <span className="text-xs font-mono text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-lg">
                             {s.default_start_time.slice(0, 5)} - {s.default_end_time.slice(0, 5)}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                          {loc && (
-                            <span className="font-medium text-slate-700 dark:text-slate-300">
-                              📍 {loc.name}
-                            </span>
-                          )}
+                        <div className="flex items-center gap-2 text-xs text-slate-500">
+                          {loc && <span className="font-medium text-slate-700">📍 {loc.name}</span>}
                           <span className="text-slate-400">|</span>
                           <span>{s.player_group_names.join(', ')}</span>
                           <span className="text-slate-400">|</span>
@@ -453,7 +449,7 @@ export const SeasonSetupModal: React.FC<SeasonSetupModalProps> = ({
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-between pt-4 border-t border-slate-100">
                 <Button variant="outline" onClick={() => setStep(2)}>
                   <ArrowLeft className="w-4 h-4 mr-1" /> Back
                 </Button>

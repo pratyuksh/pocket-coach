@@ -74,12 +74,12 @@ export const LocationManagerModal: React.FC<LocationManagerModalProps> = ({ isOp
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Sports Hall Locations" maxWidth="lg">
       <div className="space-y-6">
-        <p className="text-sm text-slate-600 dark:text-slate-300">
+        <p className="text-sm text-slate-600">
           Manage training halls available for season schedule setup and session overrides.
         </p>
 
         {(error || formError) && (
-          <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-sm flex items-center gap-2">
+          <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 text-sm flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{formError || error}</span>
           </div>
@@ -89,28 +89,26 @@ export const LocationManagerModal: React.FC<LocationManagerModalProps> = ({ isOp
         {canManageSeasons && (
           <form
             onSubmit={handleAddLocation}
-            className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-3"
+            className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3"
           >
-            <h4 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+            <h4 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
               <Building2 className="w-4 h-4 text-emerald-500" />
               Add New Hall Location
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
-                  Hall Name *
-                </label>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Hall Name *</label>
                 <input
                   type="text"
                   value={newHallName}
                   onChange={(e) => setNewHallName(e.target.value)}
                   placeholder="e.g. Sporthalle Borrweg"
                   required
-                  className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+                  className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-slate-700 mb-1">
                   District / Area
                 </label>
                 <input
@@ -118,7 +116,7 @@ export const LocationManagerModal: React.FC<LocationManagerModalProps> = ({ isOp
                   value={newDistrict}
                   onChange={(e) => setNewDistrict(e.target.value)}
                   placeholder="e.g. Friesenberg"
-                  className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+                  className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none"
                 />
               </div>
             </div>
@@ -126,7 +124,7 @@ export const LocationManagerModal: React.FC<LocationManagerModalProps> = ({ isOp
               <div>
                 <label
                   htmlFor="new-hall-address"
-                  className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1"
+                  className="block text-xs font-medium text-slate-700 mb-1"
                 >
                   Address
                 </label>
@@ -136,13 +134,13 @@ export const LocationManagerModal: React.FC<LocationManagerModalProps> = ({ isOp
                   value={newAddress}
                   onChange={(e) => setNewAddress(e.target.value)}
                   placeholder="Street, postcode, city"
-                  className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+                  className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none"
                 />
               </div>
               <div>
                 <label
                   htmlFor="new-hall-note"
-                  className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1"
+                  className="block text-xs font-medium text-slate-700 mb-1"
                 >
                   Note for trainers
                 </label>
@@ -152,7 +150,7 @@ export const LocationManagerModal: React.FC<LocationManagerModalProps> = ({ isOp
                   value={newNote}
                   onChange={(e) => setNewNote(e.target.value)}
                   placeholder="e.g. Entrance, parking, key"
-                  className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+                  className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none"
                 />
               </div>
             </div>
@@ -172,7 +170,7 @@ export const LocationManagerModal: React.FC<LocationManagerModalProps> = ({ isOp
 
         {/* Existing Locations List */}
         <div className="space-y-2">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
             Available Halls ({locations.length})
           </h4>
 
@@ -183,20 +181,18 @@ export const LocationManagerModal: React.FC<LocationManagerModalProps> = ({ isOp
               No sports hall locations found.
             </div>
           ) : (
-            <div className="divide-y divide-slate-100 dark:divide-slate-800 max-h-60 overflow-y-auto pr-1">
+            <div className="divide-y divide-slate-100 max-h-60 overflow-y-auto pr-1">
               {locations.map((loc) => (
                 <div key={loc.id} className="py-3 flex items-center justify-between gap-3">
                   <div className="flex items-start gap-2.5">
                     <MapPin className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
                     <div>
-                      <div className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                      <div className="text-sm font-semibold text-slate-900 flex items-center gap-2">
                         {loc.name}
                         {!loc.is_active && <Badge variant="neutral">Inactive</Badge>}
                       </div>
                       {loc.district_area && (
-                        <div className="text-xs text-slate-500 dark:text-slate-400">
-                          {loc.district_area}
-                        </div>
+                        <div className="text-xs text-slate-500">{loc.district_area}</div>
                       )}
                       {editingId === loc.id ? (
                         <div className="mt-2 space-y-2">
@@ -206,7 +202,7 @@ export const LocationManagerModal: React.FC<LocationManagerModalProps> = ({ isOp
                             value={editAddress}
                             onChange={(e) => setEditAddress(e.target.value)}
                             placeholder="Street, postcode, city"
-                            className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+                            className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none"
                           />
                           <input
                             type="text"
@@ -214,7 +210,7 @@ export const LocationManagerModal: React.FC<LocationManagerModalProps> = ({ isOp
                             value={editNote}
                             onChange={(e) => setEditNote(e.target.value)}
                             placeholder="e.g. Entrance, parking, key"
-                            className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
+                            className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none"
                           />
                           <div className="flex gap-2">
                             <Button
@@ -238,14 +234,10 @@ export const LocationManagerModal: React.FC<LocationManagerModalProps> = ({ isOp
                       ) : (
                         <>
                           {loc.address && (
-                            <div className="text-xs text-slate-500 dark:text-slate-400">
-                              {loc.address}
-                            </div>
+                            <div className="text-xs text-slate-500">{loc.address}</div>
                           )}
                           {loc.trainer_note && (
-                            <div className="text-xs italic text-slate-500 dark:text-slate-400">
-                              {loc.trainer_note}
-                            </div>
+                            <div className="text-xs italic text-slate-500">{loc.trainer_note}</div>
                           )}
                         </>
                       )}

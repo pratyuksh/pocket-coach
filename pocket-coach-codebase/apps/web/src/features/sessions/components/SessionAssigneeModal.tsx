@@ -125,9 +125,9 @@ export const SessionAssigneeModal: React.FC<SessionAssigneeModalProps> = ({
     <Modal isOpen={isOpen} onClose={onClose} title="Assign Trainers to Session">
       <div className="space-y-6 py-2">
         {/* Session Meta Header */}
-        <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-2">
+        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
+            <div className="flex items-center gap-2 text-sm font-bold text-slate-900">
               <Calendar className="w-4 h-4 text-emerald-500" />
               {session.session_date}
             </div>
@@ -136,7 +136,7 @@ export const SessionAssigneeModal: React.FC<SessionAssigneeModalProps> = ({
               {startTime} – {endTime}
             </Badge>
           </div>
-          <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+          <div className="flex items-center gap-2 text-xs text-slate-600">
             <MapPin className="w-3.5 h-3.5 text-teal-500 shrink-0" />
             <span className="truncate">
               {session.location ? session.location.name : 'No Hall Assigned'}
@@ -155,7 +155,7 @@ export const SessionAssigneeModal: React.FC<SessionAssigneeModalProps> = ({
         ) : (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
                 Assigned Coaches ({coachRows.filter((r) => r.profileId).length})
               </span>
               <Button
@@ -182,14 +182,14 @@ export const SessionAssigneeModal: React.FC<SessionAssigneeModalProps> = ({
                 return (
                   <div
                     key={idx}
-                    className="p-3 rounded-xl bg-slate-50/80 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5"
+                    className="p-3 rounded-xl bg-slate-50/80 border border-slate-200 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5"
                   >
                     {/* Role Tag Selector */}
                     <select
                       aria-label={`Role of coach ${idx + 1}`}
                       value={row.roleTag}
                       onChange={(e) => handleRowChange(idx, 'roleTag', e.target.value)}
-                      className="px-2.5 py-2 text-xs font-semibold rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white shrink-0 outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="px-2.5 py-2 text-xs font-semibold rounded-lg border border-slate-300 bg-white text-slate-900 shrink-0 outline-none focus:ring-2 focus:ring-emerald-500"
                     >
                       <option value="primary">Lead Coach (Primary)</option>
                       <option value="assistant_coach">Assistant Coach</option>
@@ -201,7 +201,7 @@ export const SessionAssigneeModal: React.FC<SessionAssigneeModalProps> = ({
                       aria-label={`Coach ${idx + 1}`}
                       value={row.profileId}
                       onChange={(e) => handleRowChange(idx, 'profileId', e.target.value)}
-                      className="flex-1 px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="flex-1 px-3 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500"
                     >
                       <option value="">-- Select Coach --</option>
                       {selectableTrainers.map((t) => (
@@ -229,7 +229,7 @@ export const SessionAssigneeModal: React.FC<SessionAssigneeModalProps> = ({
         )}
 
         {/* Modal Actions */}
-        <div className="pt-4 flex justify-end gap-2 border-t border-slate-200 dark:border-slate-800">
+        <div className="pt-4 flex justify-end gap-2 border-t border-slate-200">
           <Button type="button" variant="secondary" onClick={onClose} disabled={saving}>
             Cancel
           </Button>

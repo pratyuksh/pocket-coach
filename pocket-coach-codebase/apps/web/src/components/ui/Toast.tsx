@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
+import { X } from 'lucide-react';
 
 interface ToastProps {
   id?: string;
@@ -7,13 +7,27 @@ interface ToastProps {
   message: string;
   onClose: () => void;
   durationMs?: number;
+  /** Optional action, for example "Undo". */
+  actionLabel?: string;
+  onAction?: () => void;
+  /** Accessible name of the dismiss button. */
+  dismissLabel?: string;
 }
+
+const EDGE = {
+  success: 'border-t-text',
+  info: 'border-t-text',
+  error: 'border-t-accent',
+} as const;
 
 export const Toast: React.FC<ToastProps> = ({
   type = 'info',
   message,
   onClose,
   durationMs = 4000,
+  actionLabel,
+  onAction,
+  dismissLabel = 'Dismiss toast',
 }) => {
   useEffect(() => {
     if (durationMs <= 0) return;
@@ -21,41 +35,29 @@ export const Toast: React.FC<ToastProps> = ({
     return () => clearTimeout(timer);
   }, [durationMs, onClose]);
 
-  const getIcon = () => {
-    switch (type) {
-      case 'success':
-        return <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />;
-      case 'error':
-        return <AlertCircle className="w-5 h-5 text-rose-400 shrink-0" />;
-      case 'info':
-      default:
-        return <Info className="w-5 h-5 text-cyan-400 shrink-0" />;
-    }
-  };
-
-  const getBorderColor = () => {
-    switch (type) {
-      case 'success':
-        return 'border-emerald-500/30 bg-emerald-950/80';
-      case 'error':
-        return 'border-rose-500/30 bg-rose-950/80';
-      case 'info':
-      default:
-        return 'border-cyan-500/30 bg-slate-900/90';
-    }
-  };
-
   return (
     <div
-      className={`flex items-center gap-3 px-4 py-3 rounded-xl border backdrop-blur-md shadow-xl text-slate-100 animate-in slide-in-from-bottom-5 duration-200 ${getBorderColor()}`}
+      className={`flex items-center gap-3 px-4 py-3 bg-text text-bg border-t-2 ${EDGE[type]}`}
       role="alert"
     >
-      {getIcon()}
-      <span className="text-sm font-medium">{message}</span>
+      <span className="text-sm font-semibold">{message}</span>
+      {actionLabel && onAction && (
+        <button
+          type="button"
+          onClick={() => {
+            onAction();
+            onClose();
+          }}
+          className="ml-2 text-sm font-extrabold underline underline-offset-4 cursor-pointer"
+        >
+          {actionLabel}
+        </button>
+      )}
       <button
+        type="button"
         onClick={onClose}
-        className="p-1 ml-auto text-slate-400 hover:text-white transition-colors"
-        aria-label="Dismiss toast"
+        className="p-1 ml-auto opacity-70 hover:opacity-100 cursor-pointer"
+        aria-label={dismissLabel}
       >
         <X className="w-4 h-4" />
       </button>

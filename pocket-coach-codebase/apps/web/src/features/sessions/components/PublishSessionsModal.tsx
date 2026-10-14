@@ -91,12 +91,12 @@ export const PublishSessionsModal: React.FC<PublishSessionsModalProps> = ({
     });
 
   const inputClass =
-    'w-full px-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none';
+    'w-full px-3 py-2 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none';
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Publish Sessions">
       <div className="space-y-5">
-        <p className="text-sm text-slate-600 dark:text-slate-300">
+        <p className="text-sm text-slate-600">
           Drafts are visible to Head-trainers only. Publishing a date range shows its sessions and
           assignments to all trainers. Unpublishing returns sessions to draft as long as they have
           not started and have no substitution requests.
@@ -105,7 +105,7 @@ export const PublishSessionsModal: React.FC<PublishSessionsModalProps> = ({
         {error && (
           <div
             role="alert"
-            className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-sm flex items-center gap-2"
+            className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 text-sm flex items-center gap-2"
           >
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
@@ -114,7 +114,7 @@ export const PublishSessionsModal: React.FC<PublishSessionsModalProps> = ({
         {message && (
           <div
             role="status"
-            className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-sm flex items-center gap-2"
+            className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 text-sm flex items-center gap-2"
           >
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>{message}</span>
@@ -125,7 +125,7 @@ export const PublishSessionsModal: React.FC<PublishSessionsModalProps> = ({
           <div>
             <label
               htmlFor="publish-from"
-              className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+              className="block text-xs font-semibold text-slate-700 mb-1"
             >
               From
             </label>
@@ -138,10 +138,7 @@ export const PublishSessionsModal: React.FC<PublishSessionsModalProps> = ({
             />
           </div>
           <div>
-            <label
-              htmlFor="publish-to"
-              className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
-            >
+            <label htmlFor="publish-to" className="block text-xs font-semibold text-slate-700 mb-1">
               To
             </label>
             <input
@@ -155,17 +152,15 @@ export const PublishSessionsModal: React.FC<PublishSessionsModalProps> = ({
         </div>
 
         {!rangeValid && from && to && (
-          <p className="text-xs text-rose-600 dark:text-rose-400">
-            The end date is before the start date.
-          </p>
+          <p className="text-xs text-rose-600">The end date is before the start date.</p>
         )}
 
-        <div className="text-xs text-slate-500 dark:text-slate-400" data-testid="publish-preview">
+        <div className="text-xs text-slate-500" data-testid="publish-preview">
           In this range: {draftCount} {draftCount === 1 ? 'draft' : 'drafts'}, {publishedCount}{' '}
           published.
         </div>
 
-        <div className="flex flex-wrap justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+        <div className="flex flex-wrap justify-end gap-2 pt-3 border-t border-slate-100">
           <Button variant="ghost" onClick={onClose} disabled={busy}>
             Close
           </Button>

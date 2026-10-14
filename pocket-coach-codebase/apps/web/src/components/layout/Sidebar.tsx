@@ -49,7 +49,7 @@ export const Sidebar: React.FC = () => {
               className={({ isActive }) =>
                 `relative flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-200 ${
                   isActive
-                    ? 'bg-gradient-to-r from-emerald-500/15 to-teal-500/10 text-emerald-600 dark:text-emerald-300 border border-emerald-500/40 shadow-sm'
+                    ? 'bg-gradient-to-r from-emerald-500/15 to-teal-500/10 text-emerald-600 border border-emerald-500/40 shadow-sm'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-elevated)] border border-transparent'
                 }`
               }
@@ -57,7 +57,7 @@ export const Sidebar: React.FC = () => {
               {({ isActive }) => (
                 <>
                   {isActive && (
-                    <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-emerald-500 dark:bg-emerald-400 shadow-glow" />
+                    <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-emerald-500 shadow-glow" />
                   )}
                   <Icon
                     className={`w-5 h-5 shrink-0 transition-colors ${isActive ? 'text-emerald-500' : 'text-[var(--text-muted)]'}`}

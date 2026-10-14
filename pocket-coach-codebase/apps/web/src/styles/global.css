@@ -1,7 +1,8 @@
 @import 'tailwindcss';
+@import '@fontsource/archivo/400.css';
+@import '@fontsource/archivo/600.css';
+@import '@fontsource/archivo/800.css';
 @import './tokens.css';
-
-@variant dark (&:where([data-theme="dark"], [data-theme="dark"] *, .dark, .dark *));
 
 *,
 *::before,
@@ -14,28 +15,22 @@
 html,
 body {
   height: 100%;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
+  background-color: var(--color-bg);
+  color: var(--color-text);
   font-family: var(--font-body);
   font-size: 15px;
-  line-height: 1.5;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
-  transition:
-    background-color 0.25s ease,
-    color 0.25s ease;
 }
 
 #root {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  transition:
-    background-color 0.25s ease,
-    color 0.25s ease;
+  background-color: var(--color-bg);
+  color: var(--color-text);
 }
 
 h1,
@@ -45,9 +40,23 @@ h4,
 h5,
 h6 {
   font-family: var(--font-heading);
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  color: var(--text-primary);
+  font-weight: var(--font-heading-weight);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  color: var(--color-text);
+}
+
+h1 {
+  font-size: 42px;
+}
+h2 {
+  font-size: 32px;
+}
+h3 {
+  font-size: 25px;
+}
+h4 {
+  font-size: 20px;
 }
 
 .font-heading {
@@ -59,13 +68,34 @@ h6 {
 }
 
 a {
-  color: var(--primary);
+  color: var(--color-accent-700);
   text-decoration: none;
-  transition: all 0.15s ease;
+  text-underline-offset: 3px;
 }
 
 a:hover {
-  color: var(--primary-hover);
+  text-decoration: underline;
+}
+
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  opacity: var(--disabled-opacity);
+  cursor: not-allowed;
 }
 
 /* Chrome/Safari Autofill Fix */
@@ -73,11 +103,12 @@ input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-  -webkit-text-fill-color: var(--input-text) !important;
-  -webkit-box-shadow: 0 0 0px 1000px var(--input-bg) inset !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+  -webkit-box-shadow: 0 0 0px 1000px var(--color-surface) inset !important;
   transition: background-color 5000s ease-in-out 0s;
 }
 
+/* Legacy auth form styles: removed when the login page is migrated (1.4d). */
 /* Bulletproof Form & Input Utilities */
 .input-group {
   position: relative;
@@ -234,7 +265,7 @@ input:-webkit-autofill:active {
 
 ::-webkit-scrollbar-thumb {
   background: var(--border-subtle);
-  border-radius: 9999px;
+  border-radius: 0;
 }
 
 ::-webkit-scrollbar-thumb:hover {

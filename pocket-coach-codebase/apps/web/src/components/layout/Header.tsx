@@ -2,7 +2,7 @@ import React from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { usePermissions } from '../../hooks/usePermissions';
 import { Bell, LogOut, LogIn, ShieldAlert, Sparkles } from 'lucide-react';
-import { Badge, ThemeToggle } from '../ui';
+import { Badge } from '../ui';
 import { Link, useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
@@ -58,8 +58,6 @@ export const Header: React.FC<HeaderProps> = ({ title = 'Dashboard' }) => {
       <div className="flex items-center gap-3">
         {user && getPrimaryRoleBadge()}
 
-        <ThemeToggle />
-
         <button
           className="relative p-2 rounded-xl text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-elevated)] transition-all duration-150 border border-transparent hover:border-[var(--border-glass)]"
           aria-label="Notifications"
@@ -71,7 +69,7 @@ export const Header: React.FC<HeaderProps> = ({ title = 'Dashboard' }) => {
         <div className="flex items-center gap-2 pl-2 border-l border-[var(--border-glass)]">
           {user ? (
             <div className="flex items-center gap-2.5 bg-[var(--bg-surface-elevated)] p-1.5 pr-2 rounded-xl border border-[var(--border-glass)]">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-600 to-teal-700 dark:from-emerald-900 dark:to-slate-800 border border-emerald-500/40 flex items-center justify-center text-white dark:text-emerald-400 font-bold text-xs shadow-inner">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-600 to-teal-700 border border-emerald-500/40 flex items-center justify-center text-white font-bold text-xs shadow-inner">
                 {profile?.display_name
                   ? profile.display_name.charAt(0).toUpperCase()
                   : user.email?.charAt(0).toUpperCase()}
@@ -94,7 +92,7 @@ export const Header: React.FC<HeaderProps> = ({ title = 'Dashboard' }) => {
             </div>
           ) : (
             <Link to="/login">
-              <button className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 hover:bg-emerald-500/25 text-xs font-bold border border-emerald-500/40 transition-all duration-200 shadow-sm">
+              <button className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-500/15 text-emerald-600 hover:bg-emerald-500/25 text-xs font-bold border border-emerald-500/40 transition-all duration-200 shadow-sm">
                 <LogIn className="w-3.5 h-3.5" />
                 <span>Sign In</span>
               </button>
