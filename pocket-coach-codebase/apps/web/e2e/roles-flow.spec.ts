@@ -11,19 +11,24 @@ import {
   uniqueName,
 } from './helpers';
 
-const card = (page: Page, email: string) =>
-  page.locator(`[data-testid="trainer-card"][data-email="${email}"]`);
+const row = (page: Page, email: string) =>
+  page.locator(`[data-testid="team-member"][data-email="${email}"]`);
 
+/** Opens a person's profile from the team list and their role dialog from there. */
 async function openRoles(page: Page, email: string) {
-  await card(page, email)
-    .getByRole('button', { name: /^roles$/i })
-    .click();
-  const dialog = page.getByRole('dialog');
-  await expect(dialog.getByRole('heading', { name: /manage roles/i })).toBeVisible();
+  await page.goto('/trainers');
+  await row(page, email).getByRole('link').click();
+  await page.getByRole('button', { name: 'Edit roles' }).click();
+  const dialog = page.getByRole('dialog', { name: /^Roles · / });
+  await expect(dialog).toBeVisible();
   // wait until the person's current roles have loaded
-  await expect(dialog.getByRole('checkbox', { name: /14\/18 coach/i })).toBeVisible();
+  await expect(dialog.getByRole('checkbox', { name: '14/18 coach' })).toBeVisible();
   return dialog;
 }
+
+/** The role tags in the header of a profile (the heading of the page is the person's name). */
+const profileTag = (page: Page, text: string) =>
+  page.getByTestId('profile-tags').getByText(text, { exact: true });
 
 test.describe('Role management flow (saves, persists, and is guarded)', () => {
   test('Super-admin saves roles and the label; guarded changes are refused with a readable message', async ({
@@ -38,18 +43,15 @@ test.describe('Role management flow (saves, persists, and is guarded)', () => {
 
     try {
       await signIn(page, ACCOUNTS.admin);
-      await page.goto('/trainers');
-      await expect(card(page, email)).toBeVisible();
-
-      // 1. Grant Head Trainer: saved, shown on the card, and still there after a reload
+      // 1. Grant Head Trainer: saved, shown on the profile, and still there after a reload
       let dialog = await openRoles(page, email);
-      await dialog.getByText('Head Trainer', { exact: true }).click();
-      await dialog.getByRole('button', { name: /save changes/i }).click();
+      await dialog.getByRole('checkbox', { name: 'Head trainer' }).click();
+      await dialog.getByRole('button', { name: 'Save', exact: true }).click();
       await expect(dialog).not.toBeVisible();
-      await expect(card(page, email).getByText('Head Trainer', { exact: true })).toBeVisible();
+      await expect(profileTag(page, 'Head trainer')).toBeVisible();
 
       await page.reload();
-      await expect(card(page, email).getByText('Head Trainer', { exact: true })).toBeVisible();
+      await expect(profileTag(page, 'Head trainer')).toBeVisible();
 
       // 2. The 14/18 label cannot change while the person has an upcoming regular assignment
       const sessionId = await sessionIdByDate(
@@ -63,37 +65,34 @@ test.describe('Role management flow (saves, persists, and is guarded)', () => {
       ]);
 
       dialog = await openRoles(page, email);
-      await dialog.getByRole('checkbox', { name: /14\/18 coach/i }).click();
-      await dialog.getByRole('button', { name: /save changes/i }).click();
-      await expect(dialog.getByRole('alert').or(dialog)).toContainText(/upcoming assignments/i);
+      await dialog.getByRole('checkbox', { name: '14/18 coach' }).click();
+      await dialog.getByRole('button', { name: 'Save', exact: true }).click();
+      await expect(dialog.getByRole('alert')).toContainText(/upcoming assignments/i);
       await expect(dialog).toBeVisible();
-      await dialog.getByRole('button', { name: /cancel/i }).click();
-      await expect(card(page, email).getByText('1418 Coach')).toHaveCount(0);
+      await dialog.getByRole('button', { name: 'Cancel' }).click();
+      await expect(profileTag(page, '14/18 coach')).toHaveCount(0);
 
       // 3. Once the assignment is gone the same change succeeds and persists
       await setAssignments(request, headToken, sessionId, []);
       dialog = await openRoles(page, email);
-      await dialog.getByRole('checkbox', { name: /14\/18 coach/i }).click();
-      await dialog.getByRole('button', { name: /save changes/i }).click();
+      await dialog.getByRole('checkbox', { name: '14/18 coach' }).click();
+      await dialog.getByRole('button', { name: 'Save', exact: true }).click();
       await expect(dialog).not.toBeVisible();
-      await expect(card(page, email).getByText('1418 Coach')).toBeVisible();
+      await expect(profileTag(page, '14/18 coach')).toBeVisible();
 
       await page.reload();
-      await expect(card(page, email).getByText('1418 Coach')).toBeVisible();
-      await expect(card(page, email).getByText('Head Trainer', { exact: true })).toBeVisible();
+      await expect(profileTag(page, '14/18 coach')).toBeVisible();
+      await expect(profileTag(page, 'Head trainer')).toBeVisible();
 
       // 4. A Super-admin cannot remove their own Super-admin role
       dialog = await openRoles(page, ACCOUNTS.admin);
-      await dialog.getByText('Super Admin', { exact: true }).click();
-      await dialog.getByRole('button', { name: /save changes/i }).click();
-      await expect(dialog).toContainText(/cannot remove your own super-admin role/i);
-      await dialog.getByRole('button', { name: /cancel/i }).click();
-      // The role badge (not the person's display name, which is also "Super Admin") is still there
-      await expect(
-        card(page, ACCOUNTS.admin)
-          .locator('span')
-          .filter({ hasText: /^Super Admin$/ }),
-      ).toBeVisible();
+      await dialog.getByRole('checkbox', { name: 'Super-admin' }).click();
+      await dialog.getByRole('button', { name: 'Save', exact: true }).click();
+      await expect(dialog.getByRole('alert')).toContainText(
+        /cannot remove your own super-admin role/i,
+      );
+      await dialog.getByRole('button', { name: 'Cancel' }).click();
+      await expect(profileTag(page, 'Super-admin')).toBeVisible();
     } finally {
       await deleteTestSeason(request, headToken, season.id);
     }

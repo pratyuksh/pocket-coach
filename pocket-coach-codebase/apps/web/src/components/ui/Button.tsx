@@ -20,7 +20,7 @@ const VARIANT_STYLES: Record<'primary' | 'secondary' | 'ghost' | 'icon', string>
   primary: 'bg-accent text-bg border border-transparent hover:bg-accent-600 active:bg-accent-700',
   secondary: 'bg-transparent text-text border border-divider hover:bg-text/7 active:bg-text/15',
   ghost:
-    'bg-transparent text-accent-700 border border-transparent px-1 hover:bg-accent/10 active:bg-accent/20',
+    'bg-transparent text-accent border border-transparent px-1 hover:bg-accent/10 active:bg-accent/20',
   icon: 'bg-transparent text-text border border-transparent size-9 !p-0 justify-center hover:bg-text/7 active:bg-text/15',
 };
 

@@ -277,6 +277,7 @@ All tables have RLS enabled. `Head-trainer+` = Head-trainer or Super-admin (the 
 | `set_user_roles(profile_id, roles, is_junior_coach)` | **Super-admin only.** Atomically replaces a user's roles (the base `trainer` role is always kept; only differences are written) and, if given, the 14/18 label. Refuses to remove the caller's own Super-admin role (`cannot_remove_own_super_admin`). A blocked label change (below) rolls back the role change too. |
 | `publish_sessions(season_id, from, to)` | Sets `published_at` on the drafts in the date range. Returns `{"published": n}`. |
 | `unpublish_sessions(season_id, from, to)` | Returns published sessions in the range to draft, **only** if they have not started (Europe/Zurich) and have no substitution requests. Returns `{"unpublished": n, "skipped": m}`. Does not recall notifications already sent (from 1.6a on). |
+| `team_session_stats(season_id, profile_id DEFAULT NULL)` | Per person with assignments in the season: completed sessions split into `as_trainer`, `as_assistant` and `as_junior` (disjoint: 14/18 track first, then assistant, then trainer; they add up to `completed`), `upcoming` and `as_substitute`. Uses the same definition of completed as `session_log`. Without a person: Head-trainer+ only. With a person: Head-trainer+ for anyone, any other caller only for themselves (`42501` otherwise). |
 
 ### Triggers
 
@@ -294,9 +295,13 @@ All tables have RLS enabled. `Head-trainer+` = Head-trainer or Super-admin (the 
 
 > **Staffing targets versus limits.** The limits above (3 and 2) are maxima. What counts as fully staffed is the session's `required_regular` / `required_junior` (confirmed values: Tue, Thu, Fri 3 + 1; both Wednesday slots 2 + 1). A published session below its target has a coverage gap ([[codebase/architecture/substitution-flow]]).
 
+### Session log view
+
+`session_log` (security invoker, so the read rules apply; `authenticated` only) lists one row per **completed** assignment, **only the caller's own, or everyone's for a Head-trainer+**: the assignment is `active` (flagged and replaced trainers did not do the session; a substitute's own assignment counts for them), the session is published, and it has ended in Europe/Zurich time. It carries trainer, season, hall, date and times, track, session role and `is_substitute`. This is the shared definition behind the counts on the Team page and the basis for later pay-outs.
+
 ### Automated permission tests
 
-The policies, functions, triggers and constraints above are covered by pgTAP tests in `packages/supabase/tests/` (`permissions`, `feature_tables_rls`, `data_foundations`, `publishing`, `write_policies` and `season_creation`; 222 checks). `write_policies` covers insert, update and delete on the seven core tables for anonymous callers, trainers and Head-trainers; `season_creation` covers `create_season` (including the full rollback) and the content of generated sessions. Run them with `pnpm test:db`; CI runs them before the Playwright suite. The tests exercise anonymous callers (with the `anon` JWT claim PostgREST sends), a regular trainer, a Head-trainer and a Super-admin.
+The policies, functions, triggers and constraints above are covered by pgTAP tests in `packages/supabase/tests/` (`permissions`, `feature_tables_rls`, `data_foundations`, `publishing`, `write_policies`, `season_creation` and `team_stats`; 248 checks). `write_policies` covers insert, update and delete on the seven core tables for anonymous callers, trainers and Head-trainers; `season_creation` covers `create_season` (including the full rollback) and the content of generated sessions. Run them with `pnpm test:db`; CI runs them before the Playwright suite. The tests exercise anonymous callers (with the `anon` JWT claim PostgREST sends), a regular trainer, a Head-trainer and a Super-admin.
 
 ---
 
@@ -324,6 +329,8 @@ Migrations live in `packages/supabase/migrations/`. All 14 base tables were crea
 | `20261012000002_publishing` | `sessions.published_at` (existing sessions backfilled as published), published-only read policies, `publish_sessions`, `unpublish_sessions` |
 | `20261012000003_remove_anon_assignment_insert` | Removes the anonymous fallback from the `session_assignments` insert policy (Head-trainer+, signed in only) |
 | `20261012000004_create_season` | Atomic `create_season` function |
+| `20261014000000_session_log_and_team_stats` | `session_log` view (the shared definition of a completed session) and `team_session_stats` |
+| `20261014000001_person_stats_and_log_visibility` | `team_session_stats` takes an optional person (a trainer may ask only for themselves); `session_log` shows trainers only their own rows |
 
 ## Related pages
 

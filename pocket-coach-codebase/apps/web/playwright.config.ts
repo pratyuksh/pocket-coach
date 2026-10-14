@@ -22,6 +22,7 @@ const SEASON_SPECS = /(assignments|assignment-flow|roles-flow|publishing|hall-de
 
 export default defineConfig({
   testDir: './e2e',
+  globalTeardown: './e2e/global-teardown.ts',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   // Fail the whole run instead of hanging the CI job indefinitely

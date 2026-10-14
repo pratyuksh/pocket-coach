@@ -29,7 +29,7 @@
     "choosePassword": "Passwort wählen",
     "createAccount": "Konto erstellen",
     "creatingAccount": "Konto wird erstellt…",
-    "privacy": "Gehostet in Frankfurt. Wir speichern nur Name und E-Mail.",
+    "privacy": "Gehostet in der Schweiz. Wir speichern nur Name und E-Mail.",
     "benefits": {
       "sessions": {
         "title": "Alle Trainings an einem Ort",
@@ -150,5 +150,116 @@
     "markRead": "Alle gelesen",
     "empty": "Noch keine Mitteilungen.",
     "unread": "{{count}} ungelesen"
+  },
+  "dbErrors": {
+    "not_authorized": "Dafür fehlt dir die Berechtigung.",
+    "season_not_found": "Die Saison wurde nicht gefunden.",
+    "season_in_use": "Diese Saison hat bereits Trainereinteilungen oder Zeitänderungen, ihre Trainings können nicht neu erzeugt werden.",
+    "session_not_found": "Das Training wurde nicht gefunden.",
+    "assignment_duplicate": "Dieser Trainer ist diesem Training bereits zugeteilt.",
+    "assignment_limit_reached": "Dieses Training hat auf dieser Schiene bereits die Höchstzahl an Trainern (3 reguläre, 2 14/18-Coaches).",
+    "track_label_mismatch": "Nur Trainer mit dem 14/18-Label können auf der 14/18-Schiene eingeteilt werden, und sie können nicht auf der regulären Schiene sein.",
+    "label_change_blocked": "Das 14/18-Label kann nicht geändert werden, solange die Person kommende Einteilungen auf der anderen Schiene hat. Entferne zuerst diese Einteilungen.",
+    "cannot_remove_own_super_admin": "Du kannst deine eigene Super-Admin-Rolle nicht entfernen.",
+    "invalid_range": "Der Datumsbereich ist ungültig.",
+    "invalid_input": "Einige Angaben sind ungültig. Bitte prüfe das Formular.",
+    "profile_not_found": "Die Person wurde nicht gefunden."
+  },
+  "team": {
+    "listLabel": "Teammitglieder",
+    "filters": {
+      "label": "Filter",
+      "everyone": "Alle",
+      "trainers": "Trainer",
+      "heads": "Cheftrainer",
+      "juniors": "14/18-Coaches"
+    },
+    "invite": "Trainer einladen",
+    "loading": "Team wird geladen…",
+    "empty": "Keine Trainer gefunden.",
+    "noMatch": "Niemand passt zu diesem Filter.",
+    "loadError": "Das Team konnte nicht geladen werden.",
+    "cancel": "Abbrechen",
+    "columns": {
+      "trainer": "Trainer",
+      "assistant": "Hilfs.",
+      "junior": "14/18",
+      "completed": "Geleistet",
+      "upcoming": "Geplant"
+    },
+    "strip": {
+      "label": "Saisontotal",
+      "completed": "Geleistet",
+      "upcoming": "Geplant",
+      "substitute": "Als Vertretung",
+      "average": "Schnitt pro Trainer"
+    },
+    "countedNote": "Automatisch aus den Einteilungen gezählt, inkl. Vertretungen, für {{season}}. Grundlage für die Entschädigung.",
+    "statsError": "Die Trainingszahlen konnten nicht geladen werden.",
+    "noValue": "keine",
+    "deactivateTitle": "Konto deaktivieren",
+    "deactivateBody": "Das Konto von {{name}} deaktivieren? Der Zugang wird entzogen.",
+    "deactivateConfirm": "Deaktivieren",
+    "deactivating": "Wird deaktiviert…",
+    "deactivateFailed": "Das Konto konnte nicht deaktiviert werden."
+  },
+  "rolesDialog": {
+    "title": "Rollen · {{name}}",
+    "body": "Alle sind Trainer. Zusätzliche Rollen geben mehr Rechte; das 14/18-Label ändert die Einteilungsschiene.",
+    "trainerD": "Immer aktiv: Trainings und Vertretungen",
+    "headD": "Saisonplanung, Veröffentlichen, Einteilungen",
+    "superD": "Einladungen, Rollen, Hallen, Club-Einstellungen",
+    "juniorD": "Nur ein Label: wird auf der 14/18-Schiene eingeteilt",
+    "save": "Speichern",
+    "saving": "Wird gespeichert…",
+    "cancel": "Abbrechen",
+    "loadFailed": "Die aktuellen Rollen konnten nicht geladen werden.",
+    "saveFailed": "Die Rollen konnten nicht aktualisiert werden."
+  },
+  "invite": {
+    "title": "Trainer einladen",
+    "body": "Sie erhalten einen Link per E-Mail und starten als Trainer. Zusätzliche Rollen können jetzt oder später vergeben werden.",
+    "email": "E-Mail",
+    "emailPlaceholder": "name@beispiel.ch",
+    "send": "Einladung senden",
+    "sending": "Wird gesendet…",
+    "cancel": "Abbrechen",
+    "sentTitle": "Einladung gesendet",
+    "sentBody": "Für {{email}} wurde ein Konto erstellt. Mit diesem Link wird es eingerichtet.",
+    "link": "Einladungslink",
+    "copy": "Link kopieren",
+    "copied": "Link kopiert.",
+    "done": "Fertig",
+    "failed": "Die Einladung konnte nicht gesendet werden."
+  },
+  "profile": {
+    "back": "← Zurück",
+    "notFound": "Diese Person wurde nicht gefunden.",
+    "loadError": "Das Profil konnte nicht geladen werden.",
+    "completedHeading": "Geleistete Trainings · {{season}}",
+    "asOf": "Bis {{date}}",
+    "noSeason": "Noch keine Saison.",
+    "stats": {
+      "trainer": "Trainer",
+      "assistant": "Hilfstrainer",
+      "junior": "14/18-Coach",
+      "completed": "Geleistet",
+      "upcoming": "Geplant"
+    },
+    "upcomingHeading": "Demnächst",
+    "noUpcoming": "Noch nichts eingeteilt.",
+    "log": {
+      "title": "Trainingsprotokoll",
+      "count": "{{count}} geleistet",
+      "showAll": "Alle {{count}} anzeigen",
+      "showLess": "Weniger anzeigen",
+      "empty": "Noch keine geleisteten Trainings.",
+      "substitute": "Vertretung",
+      "number": "Nr. {{n}}"
+    },
+    "speciality": "Verantwortung / Schwerpunkt",
+    "email": "E-Mail",
+    "editRoles": "Rollen bearbeiten",
+    "deactivate": "Konto deaktivieren"
   }
 }

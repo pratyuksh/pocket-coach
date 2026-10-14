@@ -12,9 +12,9 @@
 
 As a tool operating in a German/European badminton club, the application must adhere to the General Data Protection Regulation (GDPR) standards.
 
-### 1. Data Residency (EU-Only Storage)
-To ensure compliance, all user and operational data must reside within the European Union.
-* **Database & Authentication**: Choose the **Frankfurt, Germany** region when setting up the database/BaaS instance (e.g., `eu-central-1` in AWS for Supabase, or `europe-west3` in GCP for Firebase).
+### 1. Data Residency (Switzerland)
+Decision 2026-10-14: the app tells users on the login screen that it is **hosted in Switzerland**, so the production database must be in a Swiss region. The earlier plan was EU-only (Frankfurt); before launch, confirm that the Swiss region is available for the production project and that the data-protection basis for the club still holds with this choice.
+* **Database & Authentication**: Choose the **Zurich, Switzerland** region when setting up the database/BaaS instance (Supabase: Central EU (Zurich), `eu-central-2`; to be confirmed when the production project is created).
 * **Hosting Logs**: Cloudflare Pages / Vercel cache and route requests through European edge locations, keeping IP processing compliant with EU standards.
 
 ### 2. Data Processing Agreements (DPAs)
@@ -40,7 +40,7 @@ Trainers can request to have their accounts removed (source: overview-roles-auth
 ---
 
 ## Checklist for Launch
-1. Configure database region to **Frankfurt (Germany)**.
+1. Configure database region to **Zurich (Switzerland)**; the login screen says "Hosted in Switzerland".
 2. Accept DPAs inside the Supabase/Firebase, Cloudflare, and Resend consoles.
 3. Publish a brief privacy policy page visible on the login screen, explaining the legitimate interest in processing emails and names for club coaching scheduling.
 

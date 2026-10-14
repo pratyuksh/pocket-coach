@@ -4,7 +4,7 @@ import { Button } from '../../components/ui';
 import { formatDate, formatTimeRange, weekdayShort } from '../../lib/dates';
 import { SeasonSetupModal } from '../seasons/components/SeasonSetupModal';
 import type { useActiveSeason } from '../seasons/hooks/useActiveSeason';
-import { SettingsSection } from './SettingsSection';
+import { Section } from '../../components/ui';
 
 type ActiveSeason = ReturnType<typeof useActiveSeason>;
 
@@ -19,7 +19,7 @@ export const SeasonSection: React.FC<Pick<ActiveSeason, 'season' | 'slots' | 're
   const [wizardOpen, setWizardOpen] = useState(false);
 
   return (
-    <SettingsSection
+    <Section
       title={t('settings.season.title')}
       action={
         <Button variant="ghost" className="!px-0" onClick={() => setWizardOpen(true)}>
@@ -67,6 +67,6 @@ export const SeasonSection: React.FC<Pick<ActiveSeason, 'season' | 'slots' | 're
           void refetch();
         }}
       />
-    </SettingsSection>
+    </Section>
   );
 };

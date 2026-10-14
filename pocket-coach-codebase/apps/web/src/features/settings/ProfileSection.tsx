@@ -6,7 +6,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { usePermissions } from '../../hooks/usePermissions';
 import { supabase } from '../../lib/supabase';
 import { AuthError } from '../auth/AuthLayout';
-import { SettingsSection } from './SettingsSection';
+import { Section } from '../../components/ui';
 
 interface Props {
   onNotice: (message: string) => void;
@@ -56,7 +56,7 @@ export const ProfileSection: React.FC<Props> = ({ onNotice }) => {
   };
 
   return (
-    <SettingsSection title={t('settings.profile.title')}>
+    <Section title={t('settings.profile.title')}>
       {error && <AuthError message={error} />}
       <form onSubmit={handleSave} className="flex flex-col gap-3">
         <Field label={t('settings.profile.name')}>
@@ -102,6 +102,6 @@ export const ProfileSection: React.FC<Props> = ({ onNotice }) => {
           {saving ? t('settings.profile.saving') : t('settings.profile.save')}
         </Button>
       </form>
-    </SettingsSection>
+    </Section>
   );
 };

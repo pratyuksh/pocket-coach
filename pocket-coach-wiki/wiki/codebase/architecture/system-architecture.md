@@ -42,7 +42,7 @@ Training blocks, weekly themes, global theme library, season theme lists, publis
 
 | Decision | Resolution |
 |---|---|
-| Backend-as-a-Service | **Supabase** (Frankfurt `eu-central-1`) |
+| Backend-as-a-Service | **Supabase** (Zurich `eu-central-2`) |
 | Real-time engine | **Supabase Realtime** (WebSocket) for availability matrix + substitution updates |
 | Monorepo | **Turborepo + pnpm workspaces** (`apps/web` + `packages/*`) |
 | Sessions without themes | **Accepted** — sessions auto-generated from training days, no theme until Phase 2 |
@@ -61,7 +61,7 @@ Training blocks, weekly themes, global theme library, season theme lists, publis
 | **Styling** | Vanilla CSS + CSS Modules | CSS custom properties for design tokens. |
 | **Server State** | TanStack Query v5 | Caching, offline persistence (IndexedDB adapter), background sync. |
 | **Routing** | React Router v7 | Client-side routing with lazy loading. |
-| **Backend / DB** | Supabase (PostgreSQL) | EU-hosted BaaS — Auth, Realtime, Edge Functions, RLS. Frankfurt `eu-central-1`. |
+| **Backend / DB** | Supabase (PostgreSQL) | Swiss-hosted BaaS — Auth, Realtime, Edge Functions, RLS. Zurich `eu-central-2`. |
 | **Auth** | Supabase Auth | Email/password + Google OAuth. Apple Sign-In deferred. |
 | **Push Notifications** | Firebase Cloud Messaging | Free, reliable. Service worker for PWA. |
 | **Email (Phase 2)** | Resend | Free tier (3k/mo), EU-compliant. Deferred — Supabase Auth handles invitation emails natively. |
@@ -90,7 +90,7 @@ graph TB
         CF["Cloudflare Pages"]
     end
 
-    subgraph Supabase["Supabase - Frankfurt eu-central-1"]
+    subgraph Supabase["Supabase - Zurich eu-central-2"]
         AUTH["Supabase Auth"]
         DB["PostgreSQL"]
         RLS["Row-Level Security"]

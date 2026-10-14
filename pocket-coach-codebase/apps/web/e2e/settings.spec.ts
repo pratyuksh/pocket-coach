@@ -41,7 +41,10 @@ test.describe('Settings (in the app shell)', () => {
     const initial = await link.innerText();
     expect(initial).toContain('/functions/v1/calendar-feed?token=');
 
-    await page.getByRole('button', { name: 'Regenerate link' }).click();
+    // Ghost buttons use the same accent as the primary button, as in the design
+    const regenerate = page.getByRole('button', { name: 'Regenerate link' });
+    await expect(regenerate).toHaveCSS('color', 'rgb(236, 48, 19)');
+    await regenerate.click();
 
     await expect(page.getByRole('alert')).toHaveText(
       'New link created. The old one has stopped working.',

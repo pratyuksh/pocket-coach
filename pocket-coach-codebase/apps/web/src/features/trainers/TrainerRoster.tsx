@@ -1,326 +1,318 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardBody, Button, Badge, Modal } from '../../components/ui';
-import { supabase } from '../../lib/supabase';
-import { usePermissions } from '../../hooks/usePermissions';
-import { useAuth } from '../../hooks/useAuth';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { isHeadTrainer } from '@pocket-coach/shared-types';
 import type { Profile, UserRole } from '@pocket-coach/shared-types';
-import {
-  Users,
-  UserPlus,
-  Tag,
-  Mail,
-  RefreshCw,
-  ShieldCheck,
-  Award,
-  Trash2,
-  AlertCircle,
-} from 'lucide-react';
+import { Button, SegmentedControl, Tag } from '../../components/ui';
+import { usePermissions } from '../../hooks/usePermissions';
+import { supabase } from '../../lib/supabase';
+import { AuthError } from '../auth/AuthLayout';
 import { InviteModal } from '../auth/InviteModal';
-import { RoleManagerModal } from './RoleManagerModal';
+import { useActiveSeason } from '../seasons/hooks/useActiveSeason';
+import { EMPTY_STATS, useTeamStats, type MemberStats } from './hooks/useTeamStats';
+import { roleTagLabels, type TrainerWithRoles } from './roleTags';
 
-interface TrainerWithRoles extends Profile {
-  roles: UserRole[];
-}
+type TeamFilter = 'everyone' | 'trainers' | 'heads' | 'juniors';
 
+const matchesFilter = (member: TrainerWithRoles, filter: TeamFilter): boolean => {
+  switch (filter) {
+    case 'trainers':
+      return !member.is_junior_coach;
+    case 'heads':
+      return isHeadTrainer(member.roles);
+    case 'juniors':
+      return member.is_junior_coach;
+    default:
+      return true;
+  }
+};
+
+/**
+ * Column layout of the roster for Head-trainers and above (from the design): name, then Trainer,
+ * Assistant, 14/18, Completed and Upcoming. On a phone only the name and Completed remain.
+ */
+const STATS_COLUMNS =
+  'grid grid-cols-[minmax(0,1fr)_84px] md:grid-cols-[minmax(0,1fr)_88px_88px_88px_88px_96px]';
+
+const STAT_HEAD =
+  'items-end justify-end self-stretch border-l border-divider pr-3.5 text-right text-[10px] tracking-[0.04em]';
+
+const StatCell: React.FC<{
+  value: number;
+  label: string;
+  strong?: boolean;
+  muted?: boolean;
+  className?: string;
+}> = ({ value, label, strong, muted, className = '' }) => (
+  <span
+    role="cell"
+    aria-label={`${label}: ${value}`}
+    className={`flex items-center justify-end self-stretch border-l border-divider pr-3.5 tabular-nums ${
+      strong ? 'font-heading text-[17px] font-extrabold' : 'text-[15px] font-semibold'
+    } ${value === 0 && !strong ? 'text-neutral-500' : muted ? 'text-neutral-700' : ''} ${className}`}
+  >
+    {value === 0 && !strong ? '–' : value}
+  </span>
+);
+
+const SummaryStrip: React.FC<{
+  members: TrainerWithRoles[];
+  stats: Record<string, MemberStats>;
+  language: string;
+}> = ({ members, stats, language }) => {
+  const { t } = useTranslation();
+  const counts = members.map((m) => stats[m.id] ?? EMPTY_STATS);
+  const completed = counts.reduce((sum, m) => sum + m.completed, 0);
+  const upcoming = counts.reduce((sum, m) => sum + m.upcoming, 0);
+  const substitute = counts.reduce((sum, m) => sum + m.asSubstitute, 0);
+  const average = members.length > 0 ? completed / members.length : 0;
+  const tiles = [
+    { key: 'completed', value: String(completed) },
+    { key: 'upcoming', value: String(upcoming) },
+    { key: 'substitute', value: String(substitute) },
+    {
+      key: 'average',
+      value: new Intl.NumberFormat(language.startsWith('de') ? 'de-CH' : 'en-GB', {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1,
+      }).format(average),
+    },
+  ] as const;
+
+  return (
+    <dl
+      aria-label={t('team.strip.label')}
+      className="grid grid-cols-2 border-y-2 border-divider md:grid-cols-4"
+    >
+      {tiles.map((tile) => (
+        <div key={tile.key} className="flex flex-col gap-0.5 border-l border-divider px-3.5 py-2.5">
+          <dt className="text-xs text-neutral-700">{t(`team.strip.${tile.key}`)}</dt>
+          <dd className="whitespace-nowrap font-heading text-[26px] font-extrabold leading-[1.1] tabular-nums">
+            {tile.value}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+};
+
+/**
+ * The team: who is on it, with their roles. Filters carry counts. A row opens the person's
+ * profile (counts, sessions, roles). Head-trainers and above also see the session counts.
+ */
 export const TrainerRoster: React.FC = () => {
-  const { user } = useAuth();
+  const { t, i18n } = useTranslation();
   const permissions = usePermissions();
-  const [trainers, setTrainers] = useState<TrainerWithRoles[]>([]);
+  // Head-trainers and above see the session counts (the database enforces this too)
+  const showStats = permissions.isHeadTrainer;
+  const { season } = useActiveSeason();
+  const { stats, error: statsError } = useTeamStats(season?.id, showStats);
+  const [members, setMembers] = useState<TrainerWithRoles[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [filter, setFilter] = useState<TeamFilter>('everyone');
   const [isInviteOpen, setIsInviteOpen] = useState(false);
-  const [selectedTrainerForRole, setSelectedTrainerForRole] = useState<Profile | null>(null);
-  const [trainerToRemove, setTrainerToRemove] = useState<Profile | null>(null);
-  const [deleting, setDeleting] = useState(false);
-  const [removeError, setRemoveError] = useState<string | null>(null);
 
-  const fetchRoster = async () => {
+  const fetchRoster = useCallback(async () => {
     setLoading(true);
+    setLoadError(false);
     try {
       const { data: profilesData, error: profErr } = await supabase
         .from('profiles')
         .select('*')
         .eq('is_active', true)
         .order('display_name', { ascending: true });
-
       if (profErr) throw profErr;
 
       const { data: rolesData, error: rolesErr } = await supabase.from('user_roles').select('*');
-
       if (rolesErr) throw rolesErr;
 
       const rolesByProfile = (rolesData || []).reduce(
-        (acc: Record<string, UserRole[]>, row: any) => {
-          if (!acc[row.profile_id]) acc[row.profile_id] = [];
-          acc[row.profile_id].push(row.role as UserRole);
+        (acc: Record<string, UserRole[]>, row: { profile_id: string; role: string }) => {
+          (acc[row.profile_id] ??= []).push(row.role as UserRole);
           return acc;
         },
         {},
       );
 
-      const combined: TrainerWithRoles[] = (profilesData || []).map((p: any) => ({
-        ...(p as Profile),
-        roles: rolesByProfile[p.id] || ['trainer'],
-      }));
-
-      setTrainers(combined);
+      setMembers(
+        (profilesData || []).map((p: Profile) => ({
+          ...p,
+          roles: rolesByProfile[p.id] || ['trainer'],
+        })),
+      );
     } catch (err) {
       console.error('Error fetching roster:', err);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleRemoveTrainer = async () => {
-    if (!trainerToRemove) return;
-    setDeleting(true);
-    setRemoveError(null);
-    try {
-      const { error: rolesDeleteErr } = await supabase
-        .from('user_roles')
-        .delete()
-        .eq('profile_id', trainerToRemove.id);
-
-      if (rolesDeleteErr) throw rolesDeleteErr;
-
-      // Deactivate profile (soft delete)
-      const { error: deactivateErr } = await supabase
-        .from('profiles')
-        .update({ is_active: false })
-        .eq('id', trainerToRemove.id);
-
-      if (deactivateErr) throw deactivateErr;
-
-      setTrainerToRemove(null);
-      await fetchRoster();
-    } catch (err: any) {
-      console.error('Error removing trainer:', err);
-      setRemoveError(err?.message || 'Failed to remove trainer from roster.');
-    } finally {
-      setDeleting(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchRoster();
   }, []);
 
+  useEffect(() => {
+    void fetchRoster();
+  }, [fetchRoster]);
+
+  const counts = useMemo(
+    () => ({
+      everyone: members.length,
+      trainers: members.filter((m) => matchesFilter(m, 'trainers')).length,
+      heads: members.filter((m) => matchesFilter(m, 'heads')).length,
+      juniors: members.filter((m) => matchesFilter(m, 'juniors')).length,
+    }),
+    [members],
+  );
+  const visible = members.filter((m) => matchesFilter(m, filter));
+
+  const filterOptions: ReadonlyArray<{ value: TeamFilter; label: string }> = (
+    ['everyone', 'trainers', 'heads', 'juniors'] as const
+  ).map((value) => ({
+    value,
+    label: `${t(`team.filters.${value}`)} (${counts[value]})`,
+  }));
+
   return (
-    <div className="space-y-6">
-      {/* Header bar with actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[var(--bg-glass)] backdrop-blur-2xl p-5 rounded-3xl border border-[var(--border-glass)] shadow-[var(--shadow-main)]">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-500">
-              <Users className="w-5 h-5" />
-            </div>
-            <h2 className="text-xl font-extrabold text-[var(--text-primary)] tracking-tight font-heading">
-              Club Trainer Roster
-            </h2>
-          </div>
-          <p className="text-xs text-[var(--text-secondary)] pl-9">
-            Manage active club trainers, assigned coaching roles, and team specialties.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={fetchRoster}
-            leftIcon={<RefreshCw className="w-4 h-4" />}
-          >
-            Refresh
-          </Button>
-
-          {permissions.canInviteTrainers && (
-            <Button
-              variant="gradient"
-              size="sm"
-              leftIcon={<UserPlus className="w-4 h-4" />}
-              onClick={() => setIsInviteOpen(true)}
-            >
-              Invite Trainer
-            </Button>
-          )}
-        </div>
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <SegmentedControl
+          ariaLabel={t('team.filters.label')}
+          options={filterOptions}
+          value={filter}
+          onChange={setFilter}
+        />
+        {permissions.canInviteTrainers && (
+          <Button onClick={() => setIsInviteOpen(true)}>+ {t('team.invite')}</Button>
+        )}
       </div>
 
-      {/* Roster Cards Grid */}
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-          {[1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className="h-44 rounded-2xl bg-[var(--bg-surface-elevated)] animate-pulse border border-[var(--border-glass)]"
-            />
-          ))}
-        </div>
-      ) : trainers.length === 0 ? (
-        <Card variant="glass">
-          <CardBody className="p-12 text-center text-[var(--text-secondary)] space-y-3">
-            <Users className="w-10 h-10 mx-auto text-[var(--text-muted)]" />
-            <p className="text-sm font-semibold">No active trainers found in roster.</p>
-          </CardBody>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-          {trainers.map((t) => (
-            <Card key={t.id} variant="interactive" data-testid="trainer-card" data-email={t.email}>
-              <CardHeader className="flex flex-row items-start justify-between pb-3">
-                <div className="flex items-center gap-3.5">
-                  <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-700 text-white font-extrabold flex items-center justify-center text-base shadow-inner font-heading">
-                    {t.display_name ? t.display_name.charAt(0).toUpperCase() : 'T'}
-                  </div>
-                  <div>
-                    <CardTitle className="text-base font-bold text-[var(--text-primary)] font-heading">
-                      {t.display_name}
-                    </CardTitle>
-                    <p className="text-xs text-[var(--text-secondary)] flex items-center gap-1.5 mt-0.5 font-mono">
-                      <Mail className="w-3.5 h-3.5 text-[var(--text-secondary)] shrink-0" />
-                      <span className="truncate max-w-[200px]">{t.email}</span>
-                    </p>
-                  </div>
-                </div>
+      {loadError && <AuthError message={t('team.loadError')} />}
 
-                <div className="flex items-center gap-2">
-                  {permissions.canManageRoles && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-xs py-1 px-2.5"
-                      leftIcon={<ShieldCheck className="w-3.5 h-3.5" />}
-                      onClick={() => setSelectedTrainerForRole(t)}
-                    >
-                      Roles
-                    </Button>
-                  )}
-                  {permissions.canRemoveTrainers && t.id !== user?.id && (
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      className="text-xs py-1 px-2.5"
-                      leftIcon={<Trash2 className="w-3.5 h-3.5" />}
-                      onClick={() => {
-                        setRemoveError(null);
-                        setTrainerToRemove(t);
-                      }}
-                    >
-                      Remove
-                    </Button>
-                  )}
-                </div>
-              </CardHeader>
-
-              <CardBody className="space-y-3 pt-2">
-                {/* Roles list */}
-                <div className="flex flex-wrap items-center gap-1.5">
-                  <span className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mr-1">
-                    Roles:
-                  </span>
-                  {t.roles.map((r) => {
-                    if (r === 'super_admin')
-                      return (
-                        <Badge key={r} variant="warning">
-                          Super Admin
-                        </Badge>
-                      );
-                    if (r === 'head_trainer')
-                      return (
-                        <Badge key={r} variant="info">
-                          Head Trainer
-                        </Badge>
-                      );
-                    return (
-                      <Badge key={r} variant="neutral">
-                        Trainer
-                      </Badge>
-                    );
-                  })}
-                  {t.is_junior_coach && (
-                    <Badge variant="success">
-                      <Award className="w-3 h-3 text-emerald-500" />
-                      <span>1418 Coach</span>
-                    </Badge>
-                  )}
-                </div>
-
-                {/* Specialty */}
-                {t.specialty && (
-                  <div className="flex items-center gap-2 text-xs text-[var(--text-primary)] bg-[var(--bg-surface-elevated)] p-2.5 rounded-xl border border-[var(--border-glass)]">
-                    <Tag className="w-3.5 h-3.5 text-cyan-500 shrink-0" />
-                    <span className="truncate font-medium">{t.specialty}</span>
-                  </div>
-                )}
-              </CardBody>
-            </Card>
-          ))}
-        </div>
+      {showStats && (
+        <>
+          {statsError && <AuthError message={t('team.statsError')} />}
+          <SummaryStrip members={members} stats={stats} language={i18n.resolvedLanguage ?? 'de'} />
+          <p className="-mt-1.5 text-[12.5px] text-neutral-700">
+            {t('team.countedNote', { season: season?.name ?? '' })}
+          </p>
+        </>
       )}
 
-      {/* Invite Modal */}
+      <section
+        aria-label={t('team.listLabel')}
+        role={showStats ? 'table' : 'list'}
+        className="border-t-2 border-divider"
+      >
+        {showStats && (
+          <div
+            role="row"
+            className={`${STATS_COLUMNS} items-end border-b-2 border-text pb-1.5 pt-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-neutral-700`}
+          >
+            <span role="columnheader" className="self-end">
+              {t('team.filters.trainers')}
+            </span>
+            {(['trainer', 'assistant', 'junior'] as const).map((key) => (
+              <span key={key} role="columnheader" className={`${STAT_HEAD} hidden md:flex`}>
+                {t(`team.columns.${key}`)}
+              </span>
+            ))}
+            <span role="columnheader" className={`${STAT_HEAD} text-text`}>
+              {t('team.columns.completed')}
+            </span>
+            <span role="columnheader" className={`${STAT_HEAD} hidden md:flex`}>
+              {t('team.columns.upcoming')}
+            </span>
+          </div>
+        )}
+
+        {loading ? (
+          <p role="status" className="py-4 text-sm text-neutral-700">
+            {t('team.loading')}
+          </p>
+        ) : visible.length === 0 ? (
+          <p className="py-4 text-sm text-neutral-700">
+            {members.length === 0 ? t('team.empty') : t('team.noMatch')}
+          </p>
+        ) : (
+          <div role={showStats ? 'rowgroup' : undefined}>
+            {visible.map((member) => {
+              const tags = roleTagLabels(member.roles, member.is_junior_coach, t);
+              const elevated = member.roles.some((r) => r !== 'trainer');
+              const memberStats = stats[member.id] ?? EMPTY_STATS;
+              return (
+                <div
+                  key={member.id}
+                  role={showStats ? 'row' : 'listitem'}
+                  data-testid="team-member"
+                  data-email={member.email}
+                  className={`relative ${showStats ? STATS_COLUMNS : 'grid grid-cols-1'} min-h-14 items-stretch border-b border-divider hover:bg-neutral-100`}
+                >
+                  <div
+                    role={showStats ? 'cell' : undefined}
+                    className="flex min-w-0 flex-col justify-center gap-0.5 py-2.5 pr-3"
+                  >
+                    <span className="flex flex-wrap items-center gap-1.5">
+                      {/* The link's ::after covers the whole row, so the row opens the profile */}
+                      <Link
+                        to={`/trainers/${member.id}`}
+                        className="text-sm font-semibold text-text no-underline after:absolute after:inset-0 hover:no-underline focus-visible:after:outline focus-visible:after:outline-2 focus-visible:after:outline-offset-[-2px] focus-visible:after:outline-accent"
+                      >
+                        {member.display_name}
+                      </Link>
+                      {tags.map((tag) => (
+                        <Tag key={tag} className="!px-1.5 !py-px">
+                          {tag}
+                        </Tag>
+                      ))}
+                    </span>
+                    {elevated && member.specialty && (
+                      <Tag variant="accent" className="max-w-full self-start !px-1.5 !py-px">
+                        <span className="truncate">{member.specialty}</span>
+                      </Tag>
+                    )}
+                  </div>
+
+                  {showStats && (
+                    <>
+                      <StatCell
+                        value={memberStats.asTrainer}
+                        label={t('team.columns.trainer')}
+                        className="hidden md:flex"
+                      />
+                      <StatCell
+                        value={memberStats.asAssistant}
+                        label={t('team.columns.assistant')}
+                        className="hidden md:flex"
+                      />
+                      <StatCell
+                        value={memberStats.asJunior}
+                        label={t('team.columns.junior')}
+                        className="hidden md:flex"
+                      />
+                      <StatCell
+                        value={memberStats.completed}
+                        label={t('team.columns.completed')}
+                        strong
+                      />
+                      <StatCell
+                        value={memberStats.upcoming}
+                        label={t('team.columns.upcoming')}
+                        muted
+                        className="hidden md:flex"
+                      />
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
       <InviteModal
         isOpen={isInviteOpen}
         onClose={() => setIsInviteOpen(false)}
         onSuccess={fetchRoster}
       />
-
-      {/* Role Manager Modal */}
-      <RoleManagerModal
-        isOpen={!!selectedTrainerForRole}
-        onClose={() => setSelectedTrainerForRole(null)}
-        trainer={selectedTrainerForRole}
-        onSuccess={fetchRoster}
-      />
-
-      {/* Remove Trainer Confirmation Modal */}
-      <Modal
-        isOpen={!!trainerToRemove}
-        onClose={() => {
-          setTrainerToRemove(null);
-          setRemoveError(null);
-        }}
-        title="Remove Trainer from Roster"
-      >
-        <div className="space-y-4">
-          <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 shrink-0" />
-            <span>
-              Are you sure you want to remove{' '}
-              <strong>{trainerToRemove?.display_name || trainerToRemove?.email}</strong> from the
-              club roster? This action will revoke their access.
-            </span>
-          </div>
-
-          {removeError && (
-            <div className="p-3 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-400 text-xs">
-              {removeError}
-            </div>
-          )}
-
-          <div className="pt-3 flex justify-end gap-3 border-t border-[var(--border-glass)]">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => {
-                setTrainerToRemove(null);
-                setRemoveError(null);
-              }}
-              disabled={deleting}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              variant="danger"
-              onClick={handleRemoveTrainer}
-              disabled={deleting}
-              leftIcon={<Trash2 className="w-4 h-4" />}
-            >
-              {deleting ? 'Removing...' : 'Confirm Remove'}
-            </Button>
-          </div>
-        </div>
-      </Modal>
     </div>
   );
 };

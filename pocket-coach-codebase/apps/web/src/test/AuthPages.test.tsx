@@ -49,13 +49,15 @@ describe('LoginPage', () => {
 
     expect(screen.getByRole('radiogroup', { name: 'Language' })).toBeInTheDocument();
     expect(screen.getByText('Every session in one place')).toBeInTheDocument();
-    expect(screen.getByText(/hosted in frankfurt/i)).toBeInTheDocument();
+    expect(screen.getByText(/hosted in switzerland/i)).toBeInTheDocument();
+    expect(screen.queryByText(/frankfurt/i)).not.toBeInTheDocument();
     // Availability surveys are Phase 2.1: the page must not promise them.
     expect(screen.queryByText(/availability/i)).not.toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('radio', { name: 'DE' }));
     expect(await screen.findByRole('heading', { name: 'Anmelden' })).toBeInTheDocument();
     expect(screen.getByText('Alle Trainings an einem Ort')).toBeInTheDocument();
+    expect(screen.getByText(/gehostet in der schweiz/i)).toBeInTheDocument();
     expect(screen.getByRole('radiogroup', { name: 'Sprache' })).toBeInTheDocument();
   });
 });

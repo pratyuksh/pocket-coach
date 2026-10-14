@@ -103,7 +103,9 @@ Acceptance criteria for the delivered work are met, except the personal-stats di
 
 The visual and navigation target is the **Modernist ledger** prototype in `pocke-coach-design-prototype/` (`PocketCoach.dc.html`, tokens in `_ds/modernist-*/styles.css`). It is a clickable prototype with mock data covering trainer, head-trainer and super-admin, desktop and mobile, English and German. It is a reference, not code to import: the design-system bundle is an empty stub and the prototype styles itself inline.
 
-**Look**: Archivo throughout; flat and architectural; zero corner radius; 2 px dividers; ink (`#201e1d`) on a light ground (`#f3f2f2`) with a single red accent (`#ec3013`) used sparingly; labels flush left; Lucide icons; accent text on the light ground uses `--color-accent-700`.
+**Look**: selected segments (language switch, filters) are black, not red; Archivo throughout; flat and architectural; zero corner radius; 2 px dividers; ink (`#201e1d`) on a light ground (`#f3f2f2`) with a single red accent (`#ec3013`) used sparingly; labels flush left; Lucide icons; text links and error text on the light ground use `--color-accent-700` (6.4 : 1); ghost buttons use the plain accent as in the design (3.8 : 1, below WCAG AA for small text, accepted 2026-10-14 for consistency with the primary button).
+
+**Colour rule** (confirmed 2026-10-14): **black means "selected"**: the selected segment of the language switch and of filters, check marks, the current navigation text, toasts. **Red (the accent) means "do something"**: the one primary button of a view (Save, Invite) and ghost buttons (New season, Regenerate link, Edit roles). Never use red for a selected state and never black for the primary action, so a view can show a filter and an action side by side without confusing state with action. Existing red state cues come from the design itself (the stripe on the current navigation item).
 
 **Screens and what Phase 1 takes from them**
 
@@ -242,7 +244,11 @@ Shell and navigation by role, Dashboard, schedule view filters and "only mine", 
   - The old `.auth-btn-*`, `.styled-input`, `.input-group` and `.divider-*` rules are deleted from `global.css`.
 - **Home and Dashboard**: as in [Design Reference](#design-reference).
 - **Sessions**: week chips with month calendar, hall filter, "only mine", coverage per session (for example 2/3 · 1/2, from the staffing targets), changed marker; session detail with tracks, open slots, override modal, hall address and map link; assignment panel with candidates sorted by fewest sessions; publish control for Head-trainer+.
-- **Team and profile**: roster with role tags, filters and counts; invite modal; role modal including the 14/18 label; profile with stats.
+- **Team and profile**:
+  - **Team page built 2026-10-14**: filter control with counts in brackets (All (n), Trainers (n), Head trainers (n) where a Super-admin counts too, 14/18 coaches (n)), roster rows with name, role tags and (for elevated roles) the speciality; a whole row opens the person's profile; "+ Invite trainer" (Super-admin). Email addresses are not printed on the list; they are on the profile. The role dialog is a checklist (Trainer always on, Head trainer, Super-admin, 14/18 label) saved through the atomic `set_user_roles`. The invite dialog asks for the email and the extra roles only; the invitee sets their own name. Database error codes are now translated through the catalogs (`dbErrors.*`) everywhere `describeDbError` is used.
+  - **Session counts (built 2026-10-14, Head-trainers and above only, as in the design)**: columns Trainer, Assist., 14/18, Completed and Upcoming for the current season, a four-tile strip (completed, upcoming, as substitute, average per trainer) and the note on what is counted. The shared definition of "completed" now exists in the database as the `session_log` view and `team_session_stats(season_id)` (migration `20261014000000`, see [[codebase/architecture/database-schema]]); 1.5 builds the read-only log screen on the same view. On a phone only the Completed column is shown and the row actions move to their own line.
+  - **Profile page (built 2026-10-14, `/trainers/:id`)**: back link, initials, name (also the page title), role tags; for Head-trainers and above (anyone) and for a person themselves: the five counts for the season ("as of" today) and the read-only session log (newest first, numbered, role and substitute tags, 8 shown with "Show all"); for everyone: the next five sessions (published, not yet ended); details (speciality for elevated roles, email); for Super-admins "Edit roles" and "Deactivate account" (never for yourself, with a confirmation; a soft delete that revokes access, as before). Edit roles and Remove moved here from the roster rows. The database enforces who sees counts and log: `team_session_stats(season, profile)` and `session_log` only return a person's own rows to a trainer. This is the profile half of C7; the trainer home gets the same counts.
+  - **Still to do for Team**: CSV export and "Report a mistake" (pay-out decisions, [Phase 2 and Later](#phase-2-and-later)), deep links from the profile's session rows to the session detail (when Sessions is migrated), "Pending invites" with "Resend" (1.6a), and the design's reactivate toggle (removed people stay hidden). `PersonalStatsCard` and `usePersonalStats` still use an older definition of "completed" (by date only) and are replaced by the shared one when the trainer home is built.
 - **Settings** (built 2026-10-14, replaces `TrainerProfileEditor`): two columns on desktop.
   - Profile: display name, email shown as fixed text with a lock icon (not a field, no hint line), speciality (Head-trainer and above, as in the design), read-only 14/18 label (changed in Team, which uses the atomic `set_user_roles`; Settings no longer writes `is_junior_coach`). The avatar URL field is gone (the design shows initials only; the column stays).
   - Language: English | Deutsch, applies immediately and saves to `profiles.preferred_language` (no longer part of the profile form).
@@ -315,7 +321,7 @@ Assigned to sessions (sent on publish, one grouped notification per publish), ro
 - **Undo**: the design's four-second Undo after flagging or volunteering is backed by matching cancel functions (to confirm, see [Details to Confirm](#details-to-confirm)).
 
 #### Session log and counts (decision 4)
-- `session_log` database view: one row per completed assignment (trainer, date, time, hall, role, track, `is_substitute`). **Completed** means published, `status = 'active'`, and the session has ended (Europe/Zurich). `replaced` and `absent_pending_sub` rows never count. The view respects the read rules from 1.4c.
+- `session_log` database view (**created in 1.4d**, migration `20261014000000`; 1.5 adds the screen): one row per completed assignment (trainer, date, time, hall, role, track, `is_substitute`). **Completed** means published, `status = 'active'`, and the session has ended (Europe/Zurich). `replaced` and `absent_pending_sub` rows never count. The view respects the read rules from 1.4c.
 - Profile page, team roster, dashboard workload and personal stats all read this one definition. The profile shows the read-only log (latest 8, "Show all"). Stats: trainer, assistant, 14/18, completed, upcoming, as substitute.
 
 #### Web application
@@ -358,7 +364,7 @@ The plan has no production checklist yet. Before real users:
 
 - [x] Fresh-database run passes (Gate, step 0, 2026-10-11). Re-run after each new migration batch; the remote CI run on push is still to be observed.
 - [ ] 1.6a done: server-side invites, public signup disabled, no temporary password.
-- [ ] Fonts self-hosted; GDPR items in [[codebase/data-privacy-gdpr]] (EU hosting in Frankfurt, data-processing agreements, erasure) verified for the production project.
+- [ ] Fonts self-hosted; GDPR items in [[codebase/data-privacy-gdpr]] (hosting in Switzerland, as the login screen states; data-processing agreements, erasure) verified for the production project.
 - [ ] Production Supabase project, Google OAuth credentials, FCM project and Edge Function secrets configured.
 - [ ] Seed accounts and the `Password123!` default do not exist in production.
 

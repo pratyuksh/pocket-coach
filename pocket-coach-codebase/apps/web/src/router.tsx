@@ -6,6 +6,7 @@ import { SessionsPage } from './pages/Sessions';
 import { AvailabilityPage } from './pages/Availability';
 import { SubstitutionsPage } from './pages/Substitutions';
 import { TrainersPage } from './pages/Trainers';
+import { TrainerProfilePage } from './pages/TrainerProfile';
 import { SettingsPage } from './pages/Settings';
 import { LoginPage, InvitePage } from './pages/Auth';
 
@@ -24,6 +25,7 @@ export const router = createBrowserRouter([
       { path: 'availability', element: <AvailabilityPage /> },
       { path: 'substitutions', element: <SubstitutionsPage /> },
       { path: 'trainers', element: <TrainersPage /> },
+      { path: 'trainers/:profileId', element: <TrainerProfilePage /> },
       { path: 'settings', element: <SettingsPage /> },
     ],
   },

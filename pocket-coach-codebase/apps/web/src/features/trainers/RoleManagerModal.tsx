@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, Button, Badge } from '../../components/ui';
-import { supabase } from '../../lib/supabase';
-import { describeDbError } from '../../lib/dbErrors';
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Profile, UserRole } from '@pocket-coach/shared-types';
-import { Shield, ShieldAlert, Check, Sprout } from 'lucide-react';
+import { Button, CheckRow, Dialog } from '../../components/ui';
+import { describeDbError } from '../../lib/dbErrors';
+import { supabase } from '../../lib/supabase';
+import { AuthError } from '../auth/AuthLayout';
 
 interface RoleManagerModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({
   trainer,
   onSuccess,
 }) => {
+  const { t } = useTranslation();
   const [currentRoles, setCurrentRoles] = useState<UserRole[]>([]);
   const [isJuniorCoach, setIsJuniorCoach] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -25,38 +27,31 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (trainer && isOpen) {
-      setIsJuniorCoach(trainer.is_junior_coach);
-      setLoading(true);
-      setError(null);
-      const loadRoles = async () => {
-        try {
-          const { data, error } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('profile_id', trainer.id);
+    if (!trainer || !isOpen) return;
+    setIsJuniorCoach(trainer.is_junior_coach);
+    setLoading(true);
+    setError(null);
+    const loadRoles = async () => {
+      try {
+        const { data, error: loadErr } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('profile_id', trainer.id);
+        if (loadErr) throw loadErr;
+        setCurrentRoles((data ?? []).map((r: { role: string }) => r.role as UserRole));
+      } catch {
+        setError(t('rolesDialog.loadFailed'));
+      } finally {
+        setLoading(false);
+      }
+    };
+    void loadRoles();
+  }, [trainer, isOpen, t]);
 
-          if (!error && data) {
-            setCurrentRoles(data.map((r: any) => r.role as UserRole));
-          }
-        } catch (err: any) {
-          setError(err?.message || 'Failed to load user roles');
-        } finally {
-          setLoading(false);
-        }
-      };
-      loadRoles();
-    }
-  }, [trainer, isOpen]);
-
-  const toggleRole = (role: UserRole) => {
-    if (role === 'trainer') return; // Base Trainer role is permanent for all users
-    if (currentRoles.includes(role)) {
-      setCurrentRoles(currentRoles.filter((r) => r !== role));
-    } else {
-      setCurrentRoles([...currentRoles, role]);
-    }
-  };
+  const setRole = (role: UserRole, on: boolean) =>
+    setCurrentRoles((roles) =>
+      on ? [...new Set([...roles, role])] : roles.filter((r) => r !== role),
+    );
 
   const handleSave = async () => {
     if (!trainer) return;
@@ -73,13 +68,12 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({
         p_roles: currentRoles,
         p_is_junior_coach: isJuniorCoach,
       });
-
       if (rpcErr) throw rpcErr;
 
       onSuccess?.();
       onClose();
     } catch (err: unknown) {
-      setError(describeDbError(err, 'Failed to update roles'));
+      setError(describeDbError(err, t('rolesDialog.saveFailed')));
     } finally {
       setSaving(false);
     }
@@ -88,126 +82,56 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({
   if (!trainer) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`Manage Roles: ${trainer.display_name}`}>
-      <div className="space-y-4">
-        {error && (
-          <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs flex items-center gap-2">
-            <ShieldAlert className="w-4 h-4 shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
-
-        <p className="text-xs text-[var(--text-secondary)]">
-          Configure permissions and access levels for{' '}
-          <span className="text-[var(--text-primary)] font-semibold">{trainer.email}</span>.
-          Elevated roles take effect immediately.
-        </p>
-
-        <div className="space-y-2 pt-1">
-          <div className="p-3.5 rounded-xl border flex items-center justify-between bg-emerald-500/15 border-emerald-500/40 opacity-90 cursor-not-allowed select-none">
-            <div className="flex items-center gap-3">
-              <Shield className="w-5 h-5 text-emerald-500" />
-              <div>
-                <div className="flex items-center gap-2">
-                  <h4 className="text-sm font-semibold text-[var(--text-primary)]">Trainer</h4>
-                  <Badge variant="neutral">Permanent Base Role</Badge>
-                </div>
-                <p className="text-xs text-[var(--text-secondary)]">
-                  Mandatory foundational role for all active coaching staff.
-                </p>
-              </div>
-            </div>
-            <Check className="w-5 h-5 text-emerald-500" />
-          </div>
-
-          <div
-            onClick={() => toggleRole('head_trainer')}
-            className={`p-3.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
-              currentRoles.includes('head_trainer')
-                ? 'bg-cyan-500/15 border-cyan-500/40'
-                : 'bg-[var(--bg-surface-elevated)] border-[var(--border-subtle)] hover:border-[var(--border-glass)]'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <Shield className="w-5 h-5 text-cyan-500" />
-              <div>
-                <div className="flex items-center gap-2">
-                  <h4 className="text-sm font-semibold text-[var(--text-primary)]">Head Trainer</h4>
-                  <Badge variant="info">Management</Badge>
-                </div>
-                <p className="text-xs text-[var(--text-secondary)]">
-                  Can create seasons, launch availability surveys & assign trainers.
-                </p>
-              </div>
-            </div>
-            {currentRoles.includes('head_trainer') && <Check className="w-5 h-5 text-cyan-500" />}
-          </div>
-
-          <div
-            onClick={() => toggleRole('super_admin')}
-            className={`p-3.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
-              currentRoles.includes('super_admin')
-                ? 'bg-amber-500/15 border-amber-500/40'
-                : 'bg-[var(--bg-surface-elevated)] border-[var(--border-subtle)] hover:border-[var(--border-glass)]'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <Shield className="w-5 h-5 text-amber-500" />
-              <div>
-                <div className="flex items-center gap-2">
-                  <h4 className="text-sm font-semibold text-[var(--text-primary)]">Super Admin</h4>
-                  <Badge variant="warning">Full Access</Badge>
-                </div>
-                <p className="text-xs text-[var(--text-secondary)]">
-                  Full administrative access, user invitation & role management.
-                </p>
-              </div>
-            </div>
-            {currentRoles.includes('super_admin') && <Check className="w-5 h-5 text-amber-500" />}
-          </div>
+    <Dialog
+      isOpen={isOpen}
+      onClose={onClose}
+      title={t('rolesDialog.title', { name: trainer.display_name })}
+      closeLabel={t('actions.close')}
+    >
+      <div className="flex flex-col gap-3.5">
+        <div>
+          <p className="text-[13.5px] text-neutral-800">{t('rolesDialog.body')}</p>
+          <p className="mt-1 text-xs text-neutral-700">{trainer.email}</p>
         </div>
 
-        <div className="space-y-2 pt-1">
-          <h5 className="text-xs font-semibold text-[var(--text-secondary)]">Profile Label</h5>
-          <div
-            role="checkbox"
-            aria-checked={isJuniorCoach}
-            tabIndex={0}
-            onClick={() => setIsJuniorCoach(!isJuniorCoach)}
-            onKeyDown={(e) => {
-              if (e.key === ' ' || e.key === 'Enter') {
-                e.preventDefault();
-                setIsJuniorCoach(!isJuniorCoach);
-              }
-            }}
-            className={`p-3.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
-              isJuniorCoach
-                ? 'bg-emerald-500/15 border-emerald-500/40'
-                : 'bg-[var(--bg-surface-elevated)] border-[var(--border-subtle)] hover:border-[var(--border-glass)]'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <Sprout className="w-5 h-5 text-emerald-500" />
-              <div>
-                <h4 className="text-sm font-semibold text-[var(--text-primary)]">14/18 Coach</h4>
-                <p className="text-xs text-[var(--text-secondary)]">
-                  Junior player coaching on the separate 14/18 Coach track.
-                </p>
-              </div>
-            </div>
-            {isJuniorCoach && <Check className="w-5 h-5 text-emerald-500" />}
-          </div>
+        {error && <AuthError message={error} />}
+
+        <div className="border-t-2 border-divider">
+          <CheckRow
+            locked
+            checked
+            label={t('roles.trainer')}
+            description={t('rolesDialog.trainerD')}
+          />
+          <CheckRow
+            checked={currentRoles.includes('head_trainer')}
+            onChange={(on) => setRole('head_trainer', on)}
+            label={t('roles.headTrainer')}
+            description={t('rolesDialog.headD')}
+          />
+          <CheckRow
+            checked={currentRoles.includes('super_admin')}
+            onChange={(on) => setRole('super_admin', on)}
+            label={t('roles.superAdmin')}
+            description={t('rolesDialog.superD')}
+          />
+          <CheckRow
+            checked={isJuniorCoach}
+            onChange={setIsJuniorCoach}
+            label={t('roles.junior')}
+            description={t('rolesDialog.juniorD')}
+          />
         </div>
 
-        <div className="pt-3 flex justify-end gap-3 border-t border-[var(--border-glass)]">
-          <Button variant="ghost" onClick={onClose} disabled={saving || loading}>
-            Cancel
+        <div className="flex justify-end gap-2">
+          <Button variant="secondary" onClick={onClose} disabled={saving}>
+            {t('rolesDialog.cancel')}
           </Button>
-          <Button variant="primary" onClick={handleSave} disabled={saving || loading}>
-            {saving ? 'Saving...' : 'Save Changes'}
+          <Button onClick={handleSave} isLoading={saving} disabled={loading}>
+            {saving ? t('rolesDialog.saving') : t('rolesDialog.save')}
           </Button>
         </div>
       </div>
-    </Modal>
+    </Dialog>
   );
 };

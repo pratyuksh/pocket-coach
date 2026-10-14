@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useActiveSeason } from '../../features/seasons/hooks/useActiveSeason';
@@ -6,6 +6,7 @@ import { isoWeekNumber, zurichToday } from '../../lib/dates';
 import { BottomNav } from './BottomNav';
 import { NAV_ITEMS } from './navItems';
 import { PageHeader } from './PageHeader';
+import { PageTitleContext } from './pageTitle';
 import { Sidebar } from './Sidebar';
 import { useNavLabel } from './useNavLabels';
 
@@ -14,11 +15,12 @@ export const Shell: React.FC = () => {
   const { pathname } = useLocation();
   const { season } = useActiveSeason();
   const navLabel = useNavLabel();
+  const [titleOverride, setTitleOverride] = useState<string | null>(null);
 
   const current = NAV_ITEMS.find(
     (item) => pathname === item.path || pathname.startsWith(`${item.path}/`),
   );
-  const title = current ? navLabel(current.key) : t('app.name');
+  const title = titleOverride ?? (current ? navLabel(current.key) : t('app.name'));
 
   const week = t('shell.calendarWeek', { week: isoWeekNumber(zurichToday()) });
   const subtitle = (() => {
@@ -45,7 +47,9 @@ export const Shell: React.FC = () => {
       <div className="flex min-w-0 flex-col pb-[60px] md:pb-0">
         <PageHeader title={title} subtitle={subtitle} />
         <main className="flex-1 p-4 md:p-8">
-          <Outlet />
+          <PageTitleContext.Provider value={setTitleOverride}>
+            <Outlet />
+          </PageTitleContext.Provider>
         </main>
       </div>
 

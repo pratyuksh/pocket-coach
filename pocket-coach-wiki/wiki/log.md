@@ -187,4 +187,30 @@
 ## 2026-10-14 | settings-email-fixed-text | Updated 2 pages: codebase/implementation-plan.md, wiki/log.md
 * Settings: the email is now fixed text with a lock icon (accessible name "Can't be changed") instead of a read-only input that looked editable. No hint line, since there is no email-change flow to point to yet. Unit tests 164, end-to-end 22.
 
+## 2026-10-14 | sub-phase-1-4d-team-page | Updated 2 pages: codebase/implementation-plan.md, wiki/log.md
+* Team page in the new look: filters with counts, roster with role tags, Edit roles and Remove with confirmation, invite and role dialogs as checklists (new `CheckRow` primitive), all in English and German. The invite dialog no longer asks for name, base role or speciality (the design asks for the email and extra roles; the invitee sets their own name). Database error codes now come from the translation catalogs. `TrainerRoster`, `RoleManagerModal` and `InviteModal` tests and the invite, roles and new team end-to-end specs rewritten for the new UI.
+* Not built: stat columns, profile page, team strip and CSV export (need the 1.5 definition of "completed" and the pay-out decisions), pending invites (1.6a), reactivate toggle.
+* Follow-ups the same day: email addresses are no longer printed on the Team page, clicking a name copies the email; filters read "All (n)", "Trainers (n)" with the count in brackets; the selected segment of every segmented control (language switches, filters) is black as in the design, not red; the 86 leftover test accounts were deleted from the local database, and the end-to-end run now deletes its own `e2e…@club.de` accounts afterwards (local only, `e2e/global-teardown.ts`). Unit tests 178, end-to-end 30.
+
+## 2026-10-14 | ghost-button-colour | Updated 2 pages: codebase/implementation-plan.md, wiki/log.md
+* Ghost buttons ("New season", "Regenerate link", "Edit roles", ...) now use the plain accent `#ec3013` as in the design, not the darker `accent-700` (which stays for text links, error text and tag outlines). Trade-off recorded: 3.8 : 1 on the light ground, below WCAG AA for small text, like the primary button's own label. A check of the rendered colour was added to the end-to-end suite.
+
+## 2026-10-14 | colour-rule | Updated 2 pages: codebase/implementation-plan.md, wiki/log.md
+* Added the colour rule to the Design Reference: black = selected, red = do something (primary action and ghost buttons).
+
+## 2026-10-14 | team-session-counts | Updated 3 pages: codebase/implementation-plan.md, codebase/architecture/database-schema.md, wiki/log.md
+* Team page for Head-trainers and Super-admins now follows the design: columns Trainer, Assist., 14/18, Completed, Upcoming; summary strip; note on what is counted. Plain trainers see only the list. Fixed widths for the actions column keep the columns aligned.
+* New migration `20261014000000_session_log_and_team_stats`: the `session_log` view (completed = active assignment on a published session that has ended in Europe/Zurich) and `team_session_stats(season_id)` (Head-trainer+ only). The definition was planned for 1.5; it now exists earlier because the Team page needs it. New pgTAP file `team_stats` (19 checks; 241 in total), unit tests 185, end-to-end 32.
+* Not built: CSV export (still deferred), profile page.
+
+## 2026-10-14 | team-profile-page | Updated 4 pages: codebase/implementation-plan.md, codebase/known-issues.md, codebase/architecture/database-schema.md, wiki/log.md
+* Added the profile page the design opens from a Team row (`/trainers/:id`): counts, upcoming sessions, session log, details, and for Super-admins Edit roles and Remove. A whole row is the link. The copy-email-on-click shortcut and the per-row actions were removed (they only existed because the profile was missing). The page title is the person's name (new `usePageTitle`).
+* New migration `20261014000001`: `team_session_stats(season, profile)` and `session_log` now let a trainer see only their own counts and log, Head-trainers and above everyone's (the design's "can see" rule, enforced in the database). pgTAP 248 checks; unit tests 198; end-to-end 34.
+* Shared `Section` component moved from Settings to `components/ui`.
+* Not built: CSV export, "Report a mistake", links from the profile's session rows to the session detail, reactivate toggle.
+
+## 2026-10-14 | copy-deactivate-and-hosting | Updated 5 pages: codebase/implementation-plan.md, codebase/data-privacy-gdpr.md, codebase/architecture/system-architecture.md, wiki/log.md
+* Profile page: "Remove from the team" is now "Deactivate account" (button, confirmation dialog and messages; "Konto deaktivieren" in German). Behaviour is unchanged: the account is deactivated and its roles removed.
+* Login and invite screens now say "Hosted in Switzerland" (was Frankfurt). The wiki documents the production database region accordingly: Zurich (`eu-central-2` at Supabase) instead of Frankfurt, with a note to confirm availability and the data-protection basis when the production project is created. The earlier plan was EU-only.
+
 <!-- END OF LOG -->

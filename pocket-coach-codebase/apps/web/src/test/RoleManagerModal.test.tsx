@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { RoleManagerModal } from '../features/trainers/RoleManagerModal';
+import i18n from '../i18n';
 
 const mockSelect = vi.fn();
 const mockRpc = vi.fn();
@@ -42,14 +43,38 @@ describe('RoleManagerModal', () => {
     mockRpc.mockResolvedValue({ data: null, error: null });
   });
 
-  it('renders modal with trainer details and roles', async () => {
+  it('shows the person, the four rows and the current roles', async () => {
     render(<RoleManagerModal isOpen={true} onClose={vi.fn()} trainer={sampleTrainer} />);
 
-    await waitFor(() => {
-      expect(screen.getByText('Manage Roles: Jordan Miller')).toBeInTheDocument();
-      expect(screen.getByText('jordan@club.de')).toBeInTheDocument();
-      expect(screen.getByText('Permanent Base Role')).toBeInTheDocument();
-    });
+    expect(
+      await screen.findByRole('dialog', { name: 'Roles · Jordan Miller' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('jordan@club.de')).toBeInTheDocument();
+
+    // The base Trainer role is always on and cannot be switched off
+    const trainer = screen.getByRole('checkbox', { name: 'Trainer' });
+    expect(trainer).toHaveAttribute('aria-checked', 'true');
+    expect(trainer).toHaveAttribute('aria-disabled', 'true');
+
+    await waitFor(() =>
+      expect(screen.getByRole('checkbox', { name: 'Head trainer' })).toHaveAttribute(
+        'aria-checked',
+        'true',
+      ),
+    );
+    expect(screen.getByRole('checkbox', { name: 'Super-admin' })).toHaveAttribute(
+      'aria-checked',
+      'false',
+    );
+  });
+
+  it('does not toggle the base Trainer role', async () => {
+    const user = userEvent.setup({ delay: null });
+    render(<RoleManagerModal isOpen={true} onClose={vi.fn()} trainer={sampleTrainer} />);
+
+    const trainer = await screen.findByRole('checkbox', { name: 'Trainer' });
+    await user.click(trainer);
+    expect(trainer).toHaveAttribute('aria-checked', 'true');
   });
 
   it('toggles elevated roles and saves them in one set_user_roles call', async () => {
@@ -66,15 +91,10 @@ describe('RoleManagerModal', () => {
       />,
     );
 
-    await waitFor(() => {
-      expect(screen.getByText('Head Trainer')).toBeInTheDocument();
-    });
-
-    // Click Super Admin role card to enable it
-    const superAdminCard = screen.getByText('Super Admin').closest('div');
-    if (superAdminCard) await user.click(superAdminCard);
-
-    await user.click(screen.getByRole('button', { name: /save changes/i }));
+    const head = await screen.findByRole('checkbox', { name: 'Head trainer' });
+    await waitFor(() => expect(head).toHaveAttribute('aria-checked', 'true'));
+    await user.click(screen.getByRole('checkbox', { name: 'Super-admin' }));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
 
     await waitFor(() => {
       expect(mockRpc).toHaveBeenCalledTimes(1);
@@ -88,16 +108,16 @@ describe('RoleManagerModal', () => {
     });
   });
 
-  it('lets a Super-admin set the 14/18 Coach label and saves it with the roles', async () => {
+  it('lets a Super-admin set the 14/18 coach label and saves it with the roles', async () => {
     const user = userEvent.setup({ delay: null });
     render(<RoleManagerModal isOpen={true} onClose={vi.fn()} trainer={sampleTrainer} />);
 
-    const labelToggle = await screen.findByRole('checkbox', { name: /14\/18 coach/i });
+    const labelToggle = await screen.findByRole('checkbox', { name: '14/18 coach' });
     expect(labelToggle).toHaveAttribute('aria-checked', 'false');
     await user.click(labelToggle);
     expect(labelToggle).toHaveAttribute('aria-checked', 'true');
 
-    await user.click(screen.getByRole('button', { name: /save changes/i }));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
 
     await waitFor(() => {
       expect(mockRpc).toHaveBeenCalledWith(
@@ -117,13 +137,33 @@ describe('RoleManagerModal', () => {
 
     render(<RoleManagerModal isOpen={true} onClose={mockOnClose} trainer={sampleTrainer} />);
 
-    await user.click(await screen.findByRole('checkbox', { name: /14\/18 coach/i }));
-    await user.click(screen.getByRole('button', { name: /save changes/i }));
+    await user.click(await screen.findByRole('checkbox', { name: '14/18 coach' }));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      /cannot change while this person has upcoming/i,
+    );
+    expect(mockOnClose).not.toHaveBeenCalled();
+  });
+
+  it('shows the same refusals in German', async () => {
+    const user = userEvent.setup({ delay: null });
+    await i18n.changeLanguage('de');
+    mockRpc.mockResolvedValue({
+      data: null,
+      error: { message: 'cannot_remove_own_super_admin', code: '42501' },
+    });
+
+    render(<RoleManagerModal isOpen={true} onClose={vi.fn()} trainer={sampleTrainer} />);
 
     expect(
-      await screen.findByText(/cannot change while this person has upcoming/i),
+      await screen.findByRole('dialog', { name: 'Rollen · Jordan Miller' }),
     ).toBeInTheDocument();
-    expect(mockOnClose).not.toHaveBeenCalled();
+    await user.click(screen.getByRole('button', { name: 'Speichern' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Du kannst deine eigene Super-Admin-Rolle nicht entfernen.',
+    );
   });
 
   it('shows a readable message when removing your own Super-admin role is refused', async () => {
@@ -135,9 +175,18 @@ describe('RoleManagerModal', () => {
 
     render(<RoleManagerModal isOpen={true} onClose={vi.fn()} trainer={sampleTrainer} />);
 
-    await screen.findByText('Head Trainer');
-    await user.click(screen.getByRole('button', { name: /save changes/i }));
+    await screen.findByRole('checkbox', { name: 'Head trainer' });
+    await user.click(screen.getByRole('button', { name: 'Save' }));
 
-    expect(await screen.findByText(/cannot remove your own Super-admin role/i)).toBeInTheDocument();
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      /cannot remove your own Super-admin role/i,
+    );
+  });
+
+  it('tells the user when the current roles cannot be loaded', async () => {
+    mockSelect.mockResolvedValue({ data: null, error: { message: 'boom' } });
+    render(<RoleManagerModal isOpen={true} onClose={vi.fn()} trainer={sampleTrainer} />);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Could not load the current roles.');
   });
 });

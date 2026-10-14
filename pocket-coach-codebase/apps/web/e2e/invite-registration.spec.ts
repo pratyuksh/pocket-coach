@@ -23,12 +23,12 @@ test.describe('Invite Registration E2E Flow', () => {
 
     await page.goto('/trainers');
     await page.getByRole('button', { name: /invite trainer/i }).click();
-    await page.getByLabel(/email address/i).fill(inviteEmail);
-    await page.getByLabel(/display name/i).fill('Invited Coach');
-    await page.getByLabel(/base role/i).selectOption('head_trainer');
-    await page.getByLabel(/mark as 1418 coach/i).check();
-    await page.getByRole('button', { name: /send invitation/i }).click();
-    await expect(page.getByRole('heading', { name: /invitation sent/i })).toBeVisible({
+    const inviteDialog = page.getByRole('dialog', { name: 'Invite a trainer' });
+    await inviteDialog.getByLabel('Email').fill(inviteEmail);
+    await inviteDialog.getByRole('checkbox', { name: 'Head trainer' }).click();
+    await inviteDialog.getByRole('checkbox', { name: '14/18 coach' }).click();
+    await inviteDialog.getByRole('button', { name: 'Send invite' }).click();
+    await expect(page.getByRole('dialog', { name: 'Invitation sent' })).toBeVisible({
       timeout: 10000,
     });
 

@@ -59,3 +59,32 @@ export function formatDate(dateString: string, language: string): string {
     timeZone: 'UTC',
   }).format(new Date(Date.UTC(y, m - 1, d)));
 }
+
+/** The current date (`YYYY-MM-DD`) and time (`HH:MM`) in Europe/Zurich. */
+export function zurichNow(now: Date = new Date()): { date: string; time: string } {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: ZURICH,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(now);
+  const get = (type: string) => parts.find((p) => p.type === type)!.value;
+  return {
+    date: `${get('year')}-${get('month')}-${get('day')}`,
+    time: `${get('hour')}:${get('minute')}`,
+  };
+}
+
+/** `2026-10-09` as a short weekday and date, for example `Fri 9 Oct` (no year). */
+export function formatDayMonth(dateString: string, language: string): string {
+  const [y, m, d] = dateString.split('-').map(Number);
+  return new Intl.DateTimeFormat(localeFor(language), {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    timeZone: 'UTC',
+  }).format(new Date(Date.UTC(y, m - 1, d)));
+}

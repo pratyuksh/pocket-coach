@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Button, Toast } from '../components/ui';
+import { Button, Notice } from '../components/ui';
 import { useAuth } from '../hooks/useAuth';
 import { usePermissions } from '../hooks/usePermissions';
 import { useActiveSeason } from '../features/seasons/hooks/useActiveSeason';
@@ -43,16 +43,7 @@ export const SettingsPage: React.FC = () => {
         {canManageSeasons && <HallsSection onNotice={setNotice} />}
       </div>
 
-      {notice && (
-        <div className="fixed bottom-[76px] right-4 z-50 md:bottom-6 md:right-6">
-          <Toast
-            type="success"
-            message={notice}
-            onClose={closeNotice}
-            dismissLabel={t('actions.dismiss')}
-          />
-        </div>
-      )}
+      {notice && <Notice message={notice} onClose={closeNotice} />}
     </div>
   );
 };

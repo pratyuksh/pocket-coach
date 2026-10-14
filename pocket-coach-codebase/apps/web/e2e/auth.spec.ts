@@ -9,6 +9,9 @@ test.describe('Authentication & Navigation E2E', () => {
     await expect(page.getByLabel('Password', { exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: /google/i })).toHaveCount(0);
+    await expect(
+      page.getByText('Hosted in Switzerland. We store only your name and email.'),
+    ).toBeVisible();
   });
 
   test('shows a readable error for a wrong password and stays on the login page', async ({

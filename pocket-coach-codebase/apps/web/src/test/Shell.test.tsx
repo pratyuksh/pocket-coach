@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { Shell } from '../components/layout/Shell';
+import { usePageTitle } from '../components/layout/pageTitle';
 
 const mockUseAuth = vi.hoisted(() => vi.fn());
 const mockUpdate = vi.hoisted(() => vi.fn());
@@ -40,6 +41,11 @@ const signInAs = (roles: string[], profile = {}) =>
     signOut: mockSignOut,
   });
 
+const TitledPage = () => {
+  usePageTitle('Lena Brunner');
+  return <p>a person</p>;
+};
+
 const renderAt = (path: string) => {
   const router = createMemoryRouter(
     [
@@ -47,10 +53,13 @@ const renderAt = (path: string) => {
       {
         path: '/',
         element: <Shell />,
-        children: ['dashboard', 'sessions', 'substitutions', 'trainers', 'settings'].map((p) => ({
-          path: p,
-          element: <p>content of {p}</p>,
-        })),
+        children: [
+          { path: 'trainers/:profileId', element: <TitledPage /> },
+          ...['dashboard', 'sessions', 'substitutions', 'trainers', 'settings'].map((p) => ({
+            path: p,
+            element: <p>content of {p}</p>,
+          })),
+        ],
       },
     ],
     { initialEntries: [path] },
@@ -188,5 +197,18 @@ describe('Shell', () => {
     expect(await screen.findByRole('button', { name: 'Abmelden' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Inbox' }));
     expect(screen.getByRole('dialog', { name: 'Mitteilungen' })).toBeInTheDocument();
+  });
+
+  it('lets a page replace the title, keeps the section highlighted, and restores the title', async () => {
+    const router = renderAt('/trainers/p1');
+
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Lena Brunner');
+    expect(screen.getByText('Coaching staff')).toBeInTheDocument();
+    expect(sidebarLinks()[3]).toHaveAttribute('aria-current', 'page');
+
+    await router.navigate('/sessions');
+    await waitFor(() =>
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Sessions'),
+    );
   });
 });

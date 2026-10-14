@@ -4,7 +4,7 @@ import { Button } from '../../components/ui';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../lib/supabase';
 import { AuthError } from '../auth/AuthLayout';
-import { SettingsSection } from './SettingsSection';
+import { Section } from '../../components/ui';
 
 interface Props {
   onNotice: (message: string) => void;
@@ -57,7 +57,7 @@ export const CalendarSection: React.FC<Props> = ({ onNotice }) => {
   };
 
   return (
-    <SettingsSection title={t('settings.calendar.title')}>
+    <Section title={t('settings.calendar.title')}>
       <p className="text-sm text-neutral-800">{t('settings.calendar.body')}</p>
       {error && <AuthError message={error} />}
       <div
@@ -75,6 +75,6 @@ export const CalendarSection: React.FC<Props> = ({ onNotice }) => {
           {regenerating ? t('settings.calendar.regenerating') : t('settings.calendar.regenerate')}
         </Button>
       </div>
-    </SettingsSection>
+    </Section>
   );
 };

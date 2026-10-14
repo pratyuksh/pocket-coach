@@ -32,7 +32,7 @@ Each open issue has a scheduled sub-phase; see [[codebase/implementation-plan#wh
 | # | Issue | Notes |
 |---|---|---|
 | C5 | **Calendar feed link does not work.** Settings builds the URL from the web app's origin and the `calendar-feed` Edge Function does not exist yet. | Delivered in Sub-Phase 1.6; milestone 1.2 should note this. |
-| C7 | **Personal stats are not shown on any screen.** `PersonalStatsCard` and `usePersonalStats` exist but are never rendered (since Sub-Phase 1.4), although the 1.4 milestone was ticked. | Found in 1.4t. Scheduled in 1.4d (trainer home and profile, with an end-to-end assertion). |
+| C7 | **Personal stats are not shown on any screen.** `PersonalStatsCard` and `usePersonalStats` exist but are never rendered (since Sub-Phase 1.4), although the 1.4 milestone was ticked. | Found in 1.4t. Scheduled in 1.4d. **Profile page done 2026-10-14** (counts, upcoming sessions, session log, from the shared `session_log` definition); the trainer home and its end-to-end assertion remain. |
 
 ### Missing features introduced by recent behaviour changes
 

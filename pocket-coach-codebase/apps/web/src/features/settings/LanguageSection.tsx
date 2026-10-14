@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { SegmentedControl } from '../../components/ui';
 import type { Language } from '../../i18n';
 import { useLanguage } from '../../i18n/useLanguage';
-import { SettingsSection } from './SettingsSection';
+import { Section } from '../../components/ui';
 
 /** Switching applies immediately and is saved to the profile (see useLanguage). */
 export const LanguageSection: React.FC = () => {
@@ -16,7 +16,7 @@ export const LanguageSection: React.FC = () => {
   ];
 
   return (
-    <SettingsSection title={t('settings.language.title')}>
+    <Section title={t('settings.language.title')}>
       <SegmentedControl
         className="self-start"
         ariaLabel={t('settings.language.title')}
@@ -24,6 +24,6 @@ export const LanguageSection: React.FC = () => {
         value={language}
         onChange={setLanguage}
       />
-    </SettingsSection>
+    </Section>
   );
 };

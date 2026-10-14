@@ -52,7 +52,7 @@ export function SegmentedControl<T extends string>({
             }}
             className={`px-2.5 py-1 text-xs font-semibold cursor-pointer focus-visible:-outline-offset-2 ${
               index > 0 ? 'border-l border-divider' : ''
-            } ${selected ? 'bg-accent text-bg' : 'bg-bg text-text hover:bg-text/7'}`}
+            } ${selected ? 'bg-text text-bg' : 'bg-bg text-text hover:bg-text/7'}`}
           >
             {option.label}
           </button>

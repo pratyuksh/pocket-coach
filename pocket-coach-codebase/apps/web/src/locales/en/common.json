@@ -29,7 +29,7 @@
     "choosePassword": "Choose a password",
     "createAccount": "Create account",
     "creatingAccount": "Creating account…",
-    "privacy": "Hosted in Frankfurt. We store only your name and email.",
+    "privacy": "Hosted in Switzerland. We store only your name and email.",
     "benefits": {
       "sessions": {
         "title": "Every session in one place",
@@ -150,5 +150,116 @@
     "markRead": "Mark all read",
     "empty": "No notifications yet.",
     "unread": "{{count}} unread"
+  },
+  "dbErrors": {
+    "not_authorized": "You do not have permission to do this.",
+    "season_not_found": "The season could not be found.",
+    "season_in_use": "This season already has trainer assignments or time changes, so its sessions cannot be regenerated.",
+    "session_not_found": "The session could not be found.",
+    "assignment_duplicate": "This trainer is already assigned to this session.",
+    "assignment_limit_reached": "This session already has the maximum number of trainers on that track (3 regular, 2 14/18 coaches).",
+    "track_label_mismatch": "Only trainers with the 14/18 Coach label can be on the 14/18 track, and they cannot be on the regular track.",
+    "label_change_blocked": "The 14/18 Coach label cannot change while this person has upcoming assignments on the other track. Remove those assignments first.",
+    "cannot_remove_own_super_admin": "You cannot remove your own Super-admin role.",
+    "invalid_range": "The date range is not valid.",
+    "invalid_input": "Some of the values are not valid. Please check the form.",
+    "profile_not_found": "The person could not be found."
+  },
+  "team": {
+    "listLabel": "Team members",
+    "filters": {
+      "label": "Filter",
+      "everyone": "All",
+      "trainers": "Trainers",
+      "heads": "Head trainers",
+      "juniors": "14/18 coaches"
+    },
+    "invite": "Invite trainer",
+    "loading": "Loading the team…",
+    "empty": "No trainers found.",
+    "noMatch": "Nobody matches this filter.",
+    "loadError": "Could not load the team.",
+    "cancel": "Cancel",
+    "columns": {
+      "trainer": "Trainer",
+      "assistant": "Assist.",
+      "junior": "14/18",
+      "completed": "Completed",
+      "upcoming": "Upcoming"
+    },
+    "strip": {
+      "label": "Season totals",
+      "completed": "Completed",
+      "upcoming": "Upcoming",
+      "substitute": "As substitute",
+      "average": "Average per trainer"
+    },
+    "countedNote": "Counted automatically from assignments, including substitutions, for {{season}}. Use for session payments.",
+    "statsError": "Could not load the session counts.",
+    "noValue": "none",
+    "deactivateTitle": "Deactivate account",
+    "deactivateBody": "Deactivate the account of {{name}}? Their access is revoked.",
+    "deactivateConfirm": "Deactivate",
+    "deactivating": "Deactivating…",
+    "deactivateFailed": "Could not deactivate this account."
+  },
+  "rolesDialog": {
+    "title": "Roles · {{name}}",
+    "body": "Everyone is a Trainer. Extra roles add permissions; the 14/18 label changes the assignment track.",
+    "trainerD": "Always on: sessions and substitutions",
+    "headD": "Season setup, publishing, assignments",
+    "superD": "Invites, roles, halls, club settings",
+    "juniorD": "Label only: assigned on the 14/18 track",
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "loadFailed": "Could not load the current roles.",
+    "saveFailed": "Could not update the roles."
+  },
+  "invite": {
+    "title": "Invite a trainer",
+    "body": "They get an email link and join as a Trainer. Extra roles can be added now or later.",
+    "email": "Email",
+    "emailPlaceholder": "name@example.com",
+    "send": "Send invite",
+    "sending": "Sending…",
+    "cancel": "Cancel",
+    "sentTitle": "Invitation sent",
+    "sentBody": "An account was created for {{email}}. They can set it up with this link.",
+    "link": "Invitation link",
+    "copy": "Copy link",
+    "copied": "Link copied.",
+    "done": "Done",
+    "failed": "Could not send the invitation."
+  },
+  "profile": {
+    "back": "← Back",
+    "notFound": "This person could not be found.",
+    "loadError": "Could not load this profile.",
+    "completedHeading": "Completed sessions · {{season}}",
+    "asOf": "As of {{date}}",
+    "noSeason": "No season yet.",
+    "stats": {
+      "trainer": "Trainer",
+      "assistant": "Assistant coach",
+      "junior": "14/18 coach",
+      "completed": "Completed",
+      "upcoming": "Upcoming"
+    },
+    "upcomingHeading": "Upcoming",
+    "noUpcoming": "Nothing assigned yet.",
+    "log": {
+      "title": "Session log",
+      "count": "{{count}} completed",
+      "showAll": "Show all {{count}}",
+      "showLess": "Show fewer",
+      "empty": "No completed sessions yet.",
+      "substitute": "Substitute",
+      "number": "No. {{n}}"
+    },
+    "speciality": "Responsibility / speciality",
+    "email": "Email",
+    "editRoles": "Edit roles",
+    "deactivate": "Deactivate account"
   }
 }

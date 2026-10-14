@@ -4,7 +4,7 @@ import type { Location } from '@pocket-coach/shared-types';
 import { Button, Tag } from '../../components/ui';
 import { useLocations } from '../locations/hooks/useLocations';
 import { HallDialog, type HallFormValues } from './HallDialog';
-import { SettingsSection } from './SettingsSection';
+import { Section } from '../../components/ui';
 
 interface Props {
   onNotice: (message: string) => void;
@@ -43,7 +43,7 @@ export const HallsSection: React.FC<Props> = ({ onNotice }) => {
   };
 
   return (
-    <SettingsSection
+    <Section
       title={t('settings.halls.title')}
       action={
         <Button variant="ghost" className="!px-0" onClick={() => open(null)}>
@@ -107,6 +107,6 @@ export const HallsSection: React.FC<Props> = ({ onNotice }) => {
         onClose={() => setDialogOpen(false)}
         onSave={handleSave}
       />
-    </SettingsSection>
+    </Section>
   );
 };
