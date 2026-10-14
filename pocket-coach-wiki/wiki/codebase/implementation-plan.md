@@ -230,7 +230,13 @@ Shell and navigation by role, Dashboard, schedule view filters and "only mine", 
 - Phase 1 navigation: Home (My sessions for trainers, Dashboard for Head-trainers and Super-admins), Sessions, Gaps, Team, Settings. Availability is absent until Phase 2.1.
 
 #### Screens migrated
-- **Auth**: login with invite-only wording, Google button, language switch; invite acceptance; `/register` removed from the UI.
+- **Auth**: login with invite-only wording, Google button, language switch; invite acceptance; `/register` removed from the UI. Details:
+  - Layout follows the design: a shared `AuthLayout` (wordmark, EN | DE switch, content, GDPR footer) with a split screen on desktop (form left, three numbered benefit rows right) and a single column on mobile. Used by login and invite acceptance.
+  - Login: flat labelled fields, primary "Sign in →" and secondary "Continue with Google", left-aligned, 44 px high. Submit logic is unchanged. Errors appear in an inline `role="alert"` block.
+  - **Demo-account quick-fill buttons and the shared development password are shown in development builds only** (`import.meta.env.DEV`) and are absent from the production bundle (checked in CI by searching the built output for `Password123!`).
+  - **"Forgot password?" is left out** until a reset flow exists (known issue F3, 1.6a).
+  - Invite acceptance follows the design's three fields (email read-only, your name, choose a password); the confirm-password field is dropped. Benefit and invite copy do not mention availability (Phase 2.1). `/register` redirects to `/login`.
+  - The old `.auth-btn-*`, `.styled-input`, `.input-group` and `.divider-*` rules are deleted from `global.css`.
 - **Home and Dashboard**: as in [Design Reference](#design-reference).
 - **Sessions**: week chips with month calendar, hall filter, "only mine", coverage per session (for example 2/3 · 1/2, from the staffing targets), changed marker; session detail with tracks, open slots, override modal, hall address and map link; assignment panel with candidates sorted by fewest sessions; publish control for Head-trainer+.
 - **Team and profile**: roster with role tags, filters and counts; invite modal; role modal including the 14/18 label; profile with stats.
@@ -253,6 +259,7 @@ Shell and navigation by role, Dashboard, schedule view filters and "only mine", 
 - [ ] Switching English ↔ Deutsch translates all migrated screens, including error messages; the missing-key test passes.
 - [ ] Trainer and Head-trainer see the navigation and home screens described in the design.
 - [ ] No request leaves the app to Google Fonts.
+- [ ] Login and invite screens match the prototype at 390 px and 1280 px; the production build contains no demo accounts or shared password and no "Forgot password?" button.
 - [ ] The end-to-end suites from 1.4t still pass against the new UI (selectors updated, no behavior changes).
 - [ ] Personal stats (trainer, assistant, 14/18, completed, upcoming) are shown on the trainer home and the profile, and the assignment end-to-end test asserts them.
 
@@ -375,6 +382,7 @@ Season planning with blocks and themes, session notes (Tiptap), email fallback f
 | C5 calendar feed link | 1.6b |
 | T1 season-creation and multi-trainer E2E tests; T5 write policies untested; T6 no real assignment E2E; T7 roles E2E saves nothing; T8 central hooks without unit tests; T9 end-to-end setup (locale, parallel runs); C6 `createSeason` without rollback | 1.4t, done 2026-10-11 |
 | C7 personal stats not shown on any screen | 1.4d |
+| F3 no password reset | 1.6a (login button omitted in 1.4d) |
 | T2 fresh-database run | Gate (step 0), done 2026-10-11 |
 | T4 long policy names on `availability_responses` | Before 2.1 (small migration) |
 | F1, F2, T3 | Backlog |

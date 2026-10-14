@@ -40,6 +40,7 @@ Each open issue has a scheduled sub-phase; see [[codebase/implementation-plan#wh
 |---|---|---|
 | F1 | **A season in use cannot be re-planned.** `generate_season_sessions` now refuses once any session has an assignment or override, and there is no "add missing sessions" action for changed weekly slots. | Needed when a season's slots change after assignments exist. |
 | F2 | **Bulk assign cannot replace a trainer.** It is now additive; swapping a recurring trainer means removing them per session. | Possible "replace" mode. |
+| F3 | **No password reset.** The login screen in the design shows "Forgot password?", but there is no request-reset form or set-new-password page; `resetPasswordForEmail` is only used by the invite modal. | Found while planning the 1.4d login page. The button is left out of the login screen in 1.4d. Fix with the email templates and server-side invites in 1.6a (reset-request form, set-new-password page, EN/DE email text). |
 
 ### Testing & Quality
 
