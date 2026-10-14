@@ -1,37 +1,31 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, CalendarDays, ClipboardCheck, RefreshCw, Users } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { TAB_ITEMS } from './navItems';
+import { useNavLabel } from './useNavLabels';
 
 export const BottomNav: React.FC = () => {
-  const navItems = [
-    { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { label: 'Sessions', path: '/sessions', icon: CalendarDays },
-    { label: 'Availability', path: '/availability', icon: ClipboardCheck },
-    { label: 'Gaps', path: '/substitutions', icon: RefreshCw },
-    { label: 'Trainers', path: '/trainers', icon: Users },
-  ];
+  const { t } = useTranslation();
+  const navLabel = useNavLabel();
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--bg-glass)] backdrop-blur-xl border-t border-[var(--border-glass)] px-2 py-1.5 flex items-center justify-around shadow-[var(--shadow-main)] transition-colors duration-200">
-      {navItems.map((item) => {
-        const Icon = item.icon;
-        return (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            className={({ isActive }) =>
-              `flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-xs font-medium transition-all ${
-                isActive
-                  ? 'text-emerald-500 font-bold'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-              }`
-            }
-          >
-            <Icon className="w-5 h-5" />
-            <span>{item.label}</span>
-          </NavLink>
-        );
-      })}
+    <nav
+      aria-label={t('nav.label')}
+      className="md:hidden fixed inset-x-0 bottom-0 z-40 grid h-[60px] grid-cols-4 border-t-2 border-divider bg-bg"
+    >
+      {TAB_ITEMS.map((item) => (
+        <NavLink
+          key={item.key}
+          to={item.path}
+          className={({ isActive }) =>
+            `-mt-0.5 flex flex-col justify-center border-t-[3px] pl-[9px] text-[11.5px] text-text no-underline hover:no-underline ${
+              isActive ? 'border-accent font-semibold' : 'border-transparent'
+            }`
+          }
+        >
+          {navLabel(item.key)}
+        </NavLink>
+      ))}
     </nav>
   );
 };

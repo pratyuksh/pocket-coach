@@ -10,7 +10,8 @@
   "actions": {
     "close": "Schliessen",
     "dismiss": "Ausblenden",
-    "undo": "Rückgängig"
+    "undo": "Rückgängig",
+    "signOut": "Abmelden"
   },
   "status": {
     "loading": "Lädt"
@@ -51,5 +52,103 @@
       "setupFailed": "Die Einrichtung konnte nicht abgeschlossen werden. Bitte versuche es erneut."
     },
     "benefitsLabel": "Was PocketCoach kann"
+  },
+  "nav": {
+    "label": "Hauptnavigation",
+    "home": "Meine Trainings",
+    "homeHead": "Dashboard",
+    "sessions": "Trainings",
+    "gaps": "Lücken",
+    "team": "Team",
+    "settings": "Einstellungen"
+  },
+  "shell": {
+    "calendarWeek": "KW {{week}}",
+    "gapsSub": "Nächste 14 Tage",
+    "teamSub": "Trainerteam",
+    "settingsSub": "Dein Konto",
+    "account": "Dein Konto und Einstellungen"
+  },
+  "roles": {
+    "superAdmin": "Super-Admin",
+    "headTrainer": "Cheftrainer",
+    "trainer": "Trainer",
+    "junior": "14/18-Coach"
+  },
+  "settings": {
+    "loading": "Einstellungen werden geladen…",
+    "notices": {
+      "profileSaved": "Profil gespeichert.",
+      "linkCopied": "Link kopiert.",
+      "linkRegenerated": "Neuer Link erstellt. Der alte funktioniert nicht mehr.",
+      "hallSaved": "Halle gespeichert."
+    },
+    "errors": {
+      "profile": "Das Profil konnte nicht gespeichert werden.",
+      "calendar": "Der neue Link konnte nicht erstellt werden.",
+      "hall": "Die Halle konnte nicht gespeichert werden.",
+      "load": "Nicht alle Einstellungen konnten geladen werden. Lade die Seite neu."
+    },
+    "profile": {
+      "title": "Profil",
+      "name": "Anzeigename",
+      "email": "E-Mail",
+      "speciality": "Zuständigkeit / Spezialgebiet",
+      "specialityPlaceholder": "z. B. Trainereinteilung",
+      "label": "Coach-Label",
+      "labelHint": "Wird von einem Super-Admin im Team verwaltet.",
+      "save": "Speichern",
+      "saving": "Wird gespeichert…",
+      "emailLocked": "Kann nicht geändert werden"
+    },
+    "language": {
+      "title": "Sprache",
+      "english": "English",
+      "german": "Deutsch"
+    },
+    "calendar": {
+      "title": "Kalender",
+      "body": "Einmal abonnieren, und neue Einteilungen erscheinen in deinem Handykalender, mit der Hallenadresse für den Weg.",
+      "link": "Kalenderlink",
+      "noLink": "Kein aktiver Link",
+      "copy": "Link kopieren",
+      "regenerate": "Link neu erstellen",
+      "regenerating": "Wird erstellt…"
+    },
+    "season": {
+      "title": "Saison",
+      "new": "Neue Saison",
+      "none": "Noch keine Saison.",
+      "noSlots": "Diese Saison hat keine wöchentlichen Termine.",
+      "noHall": "Keine Halle"
+    },
+    "halls": {
+      "title": "Hallen",
+      "add": "Halle hinzufügen",
+      "edit": "Bearbeiten",
+      "editLabel": "{{name}} bearbeiten",
+      "none": "Noch keine Hallen.",
+      "inactive": "Inaktiv",
+      "noAddress": "Noch keine Adresse",
+      "addTitle": "Halle hinzufügen",
+      "editTitle": "Halle bearbeiten",
+      "name": "Name der Halle",
+      "area": "Quartier / Gebiet",
+      "address": "Adresse",
+      "note": "Hinweis für Trainer",
+      "notePlaceholder": "z. B. Eingang, Parkplatz, Schlüssel",
+      "noteHint": "Wird bei jedem Training in dieser Halle angezeigt und in Kalendereinträge übernommen.",
+      "save": "Halle speichern",
+      "saving": "Wird gespeichert…",
+      "cancel": "Abbrechen",
+      "mapLink": "{{name}} auf der Karte öffnen"
+    }
+  },
+  "inbox": {
+    "button": "Inbox",
+    "title": "Mitteilungen",
+    "markRead": "Alle gelesen",
+    "empty": "Noch keine Mitteilungen.",
+    "unread": "{{count}} ungelesen"
   }
 }

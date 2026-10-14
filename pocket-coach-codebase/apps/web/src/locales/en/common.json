@@ -10,7 +10,8 @@
   "actions": {
     "close": "Close",
     "dismiss": "Dismiss",
-    "undo": "Undo"
+    "undo": "Undo",
+    "signOut": "Sign out"
   },
   "status": {
     "loading": "Loading"
@@ -51,5 +52,103 @@
       "setupFailed": "Could not complete the setup. Please try again."
     },
     "benefitsLabel": "What PocketCoach does"
+  },
+  "nav": {
+    "label": "Main navigation",
+    "home": "My sessions",
+    "homeHead": "Dashboard",
+    "sessions": "Sessions",
+    "gaps": "Gaps",
+    "team": "Team",
+    "settings": "Settings"
+  },
+  "shell": {
+    "calendarWeek": "CW {{week}}",
+    "gapsSub": "Next 14 days",
+    "teamSub": "Coaching staff",
+    "settingsSub": "Your account",
+    "account": "Your account and settings"
+  },
+  "roles": {
+    "superAdmin": "Super-admin",
+    "headTrainer": "Head trainer",
+    "trainer": "Trainer",
+    "junior": "14/18 coach"
+  },
+  "settings": {
+    "loading": "Loading settings…",
+    "notices": {
+      "profileSaved": "Profile saved.",
+      "linkCopied": "Link copied.",
+      "linkRegenerated": "New link created. The old one has stopped working.",
+      "hallSaved": "Hall saved."
+    },
+    "errors": {
+      "profile": "Could not save the profile.",
+      "calendar": "Could not create a new link.",
+      "hall": "Could not save the hall.",
+      "load": "Could not load all settings. Try reloading the page."
+    },
+    "profile": {
+      "title": "Profile",
+      "name": "Display name",
+      "email": "Email",
+      "speciality": "Responsibility / speciality",
+      "specialityPlaceholder": "e.g. Trainer allocation",
+      "label": "Coach label",
+      "labelHint": "Managed by a Super-admin in Team.",
+      "save": "Save",
+      "saving": "Saving…",
+      "emailLocked": "Can't be changed"
+    },
+    "language": {
+      "title": "Language",
+      "english": "English",
+      "german": "Deutsch"
+    },
+    "calendar": {
+      "title": "Calendar",
+      "body": "Subscribe once and new assignments appear in your phone calendar, with the hall address for directions.",
+      "link": "Calendar link",
+      "noLink": "No active link",
+      "copy": "Copy link",
+      "regenerate": "Regenerate link",
+      "regenerating": "Regenerating…"
+    },
+    "season": {
+      "title": "Season",
+      "new": "New season",
+      "none": "No season yet.",
+      "noSlots": "This season has no weekly slots.",
+      "noHall": "No hall"
+    },
+    "halls": {
+      "title": "Halls",
+      "add": "Add hall",
+      "edit": "Edit",
+      "editLabel": "Edit {{name}}",
+      "none": "No halls yet.",
+      "inactive": "Inactive",
+      "noAddress": "No address yet",
+      "addTitle": "Add hall",
+      "editTitle": "Edit hall",
+      "name": "Hall name",
+      "area": "District / area",
+      "address": "Address",
+      "note": "Note for trainers",
+      "notePlaceholder": "e.g. Entrance, parking, key",
+      "noteHint": "Shown on every session in this hall and added to calendar events.",
+      "save": "Save hall",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "mapLink": "Open {{name}} on the map"
+    }
+  },
+  "inbox": {
+    "button": "Inbox",
+    "title": "Notifications",
+    "markRead": "Mark all read",
+    "empty": "No notifications yet.",
+    "unread": "{{count}} unread"
   }
 }

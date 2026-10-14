@@ -36,7 +36,7 @@ describe('ProtectedRoute', () => {
       </ProtectedRoute>,
     );
 
-    expect(screen.getByText(/authenticating session/i)).toBeInTheDocument();
+    expect(screen.getByRole('status', { name: 'Loading' })).toBeInTheDocument();
     expect(screen.queryByText('secret page')).not.toBeInTheDocument();
   });
 

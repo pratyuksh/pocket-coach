@@ -281,7 +281,8 @@ export async function createTrainer(
     display_name: displayName,
     email,
     is_active: true,
-    preferred_language: 'de',
+    // English, like the seed accounts, so the English-locale suite does not turn German on sign-in
+    preferred_language: 'en',
   });
   await rest(request, token, 'POST', 'user_roles', { profile_id: id, role: 'trainer' });
   return id;

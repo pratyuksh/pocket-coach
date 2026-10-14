@@ -60,3 +60,24 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   },
 );
 Input.displayName = 'Input';
+
+type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement>;
+
+/** Flat multi-line input; wired to a surrounding Field like Input. */
+export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+  ({ className = '', id, rows = 3, ...props }, ref) => {
+    const field = useContext(FieldContext);
+    return (
+      <textarea
+        ref={ref}
+        id={id ?? field?.id}
+        rows={rows}
+        aria-describedby={field?.describedBy}
+        aria-invalid={field?.invalid || undefined}
+        className={`w-full min-h-[90px] resize-y px-2.5 py-1.5 text-sm text-text bg-surface border border-divider caret-accent hover:border-text/45 focus-visible:border-accent focus-visible:outline-offset-0 ${field?.invalid ? 'border-accent' : ''} ${className}`}
+        {...props}
+      />
+    );
+  },
+);
+Textarea.displayName = 'Textarea';

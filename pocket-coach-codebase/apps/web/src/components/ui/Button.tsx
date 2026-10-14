@@ -36,36 +36,43 @@ const SIZE_STYLES = {
   lg: 'min-h-11 px-4 text-[15px] gap-2',
 } as const;
 
-export const Button: React.FC<ButtonProps> = ({
-  children,
-  variant = 'primary',
-  size = 'md',
-  isLoading = false,
-  leftIcon,
-  rightIcon,
-  className = '',
-  disabled,
-  type = 'button',
-  ...props
-}) => {
-  const resolved =
-    variant in LEGACY_ALIAS ? LEGACY_ALIAS[variant as keyof typeof LEGACY_ALIAS] : variant;
-  const styles = VARIANT_STYLES[resolved as keyof typeof VARIANT_STYLES];
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    {
+      children,
+      variant = 'primary',
+      size = 'md',
+      isLoading = false,
+      leftIcon,
+      rightIcon,
+      className = '',
+      disabled,
+      type = 'button',
+      ...props
+    },
+    ref,
+  ) => {
+    const resolved =
+      variant in LEGACY_ALIAS ? LEGACY_ALIAS[variant as keyof typeof LEGACY_ALIAS] : variant;
+    const styles = VARIANT_STYLES[resolved as keyof typeof VARIANT_STYLES];
 
-  return (
-    <button
-      type={type}
-      className={`inline-flex items-center justify-start font-heading font-extrabold leading-tight cursor-pointer select-none shrink-0 disabled:opacity-45 disabled:cursor-not-allowed ${SIZE_STYLES[size]} ${styles} ${className}`}
-      disabled={disabled || isLoading}
-      {...props}
-    >
-      {isLoading ? (
-        <Spinner size="sm" color="current" />
-      ) : leftIcon ? (
-        <span className="inline-flex shrink-0">{leftIcon}</span>
-      ) : null}
-      {children}
-      {!isLoading && rightIcon ? <span className="inline-flex shrink-0">{rightIcon}</span> : null}
-    </button>
-  );
-};
+    return (
+      <button
+        ref={ref}
+        type={type}
+        className={`inline-flex items-center justify-start font-heading font-extrabold leading-tight cursor-pointer select-none shrink-0 disabled:opacity-45 disabled:cursor-not-allowed ${SIZE_STYLES[size]} ${styles} ${className}`}
+        disabled={disabled || isLoading}
+        {...props}
+      >
+        {isLoading ? (
+          <Spinner size="sm" color="current" />
+        ) : leftIcon ? (
+          <span className="inline-flex shrink-0">{leftIcon}</span>
+        ) : null}
+        {children}
+        {!isLoading && rightIcon ? <span className="inline-flex shrink-0">{rightIcon}</span> : null}
+      </button>
+    );
+  },
+);
+Button.displayName = 'Button';

@@ -228,6 +228,7 @@ Shell and navigation by role, Dashboard, schedule view filters and "only mine", 
 #### App shell and navigation
 - Desktop: 224 px sidebar; mobile: status area and bottom tab bar. Page header with title, subtitle (for example "Season 2026/27 · CW 41"), notification bell and account menu.
 - Phase 1 navigation: Home (My sessions for trainers, Dashboard for Head-trainers and Super-admins), Sessions, Gaps, Team, Settings. Availability is absent until Phase 2.1.
+- **Status 2026-10-14: shell and Settings built.** Sidebar (224 px) with name, role summary and EN | DE switch; page header with subtitle (season and calendar week on Home, "CW" in English and "KW" in German, dates in Europe/Zurich); mobile tab bar with four tabs and an account button in the header that opens Settings. Routes keep their paths (`/dashboard`, `/sessions`, `/substitutions`, `/trainers`, `/settings`). The header has an **Inbox** button (as in the design) that opens the notification drawer, and a **Sign out** button next to it. Sign-out in the header is a deliberate deviation from the design, which has it only in Settings; Settings keeps its own Sign out button as well (decision 2026-10-14). Until 1.6a the drawer shows an empty state and the unread badge is not rendered.
 
 #### Screens migrated
 - **Auth**: login with invite-only wording, language switch (Google sign-in left out for now, see below); invite acceptance; `/register` removed from the UI. Details:
@@ -242,7 +243,13 @@ Shell and navigation by role, Dashboard, schedule view filters and "only mine", 
 - **Home and Dashboard**: as in [Design Reference](#design-reference).
 - **Sessions**: week chips with month calendar, hall filter, "only mine", coverage per session (for example 2/3 · 1/2, from the staffing targets), changed marker; session detail with tracks, open slots, override modal, hall address and map link; assignment panel with candidates sorted by fewest sessions; publish control for Head-trainer+.
 - **Team and profile**: roster with role tags, filters and counts; invite modal; role modal including the 14/18 label; profile with stats.
-- **Settings**: profile, language, season slots, halls with address and note. Calendar and notification sections appear in 1.6a and 1.6b.
+- **Settings** (built 2026-10-14, replaces `TrainerProfileEditor`): two columns on desktop.
+  - Profile: display name, email shown as fixed text with a lock icon (not a field, no hint line), speciality (Head-trainer and above, as in the design), read-only 14/18 label (changed in Team, which uses the atomic `set_user_roles`; Settings no longer writes `is_junior_coach`). The avatar URL field is gone (the design shows initials only; the column stays).
+  - Language: English | Deutsch, applies immediately and saves to `profiles.preferred_language` (no longer part of the profile form).
+  - Calendar: the link, "Copy link" and "Regenerate link" as before; the feed itself and the ".ics download" arrive in 1.6b (known issue C5).
+  - Season (Head-trainer and above): current season, dates, weekly slots (weekday, time, hall, player groups) and "New season", which opens the existing wizard.
+  - Halls (**Head-trainer and above**; the design shows it to Super-admins only, but Head-trainers could already manage halls): name, area, address with map link, note for trainers, add and edit in one dialog. Deactivating a hall is still only possible in the old hall manager on the Sessions screen, which goes when Sessions is migrated.
+  - Notifications and the install banner sections arrive in 1.6a.
 
 #### Localization
 - `react-i18next` with `locales/en` and `locales/de`, seeded from the prototype's copy (Swiss spelling, for example "schliesst"). Plurals and interpolation through i18next.

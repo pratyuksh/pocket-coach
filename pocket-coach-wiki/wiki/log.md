@@ -175,4 +175,16 @@
 ## 2026-10-14 | login-google-removed | Updated 2 pages: codebase/implementation-plan.md, wiki/log.md
 * Decision: the Google sign-in button is left out of the login screen as well (it was already left out of the invite screen); it can return after the server-side invites of 1.6a. `GoogleOAuthButton`, its test and its strings were removed; the earlier version is in commit `057b89f`. Unit tests 141, end-to-end 15, all passing.
 
+## 2026-10-14 | sub-phase-1-4d-shell-settings | Updated 2 pages: codebase/implementation-plan.md, wiki/log.md
+* Built the Modernist app shell (sidebar, page header with season and calendar-week subtitle, mobile tab bar with account button, Phase 1 navigation without Availability) and the Settings page inside it (profile, language, calendar, season slots with the wizard, halls with address and note, sign-out). `TrainerProfileEditor` and its test removed. Unit tests 161, end-to-end 21 (new: navigation by role, name save, language switch across devices, season section, hall add and edit in Settings, phone shell), all passing.
+* Behaviour changes from following the design: the 14/18 label and avatar URL can no longer be edited in Settings (label stays in Team); speciality only for Head-trainers and above; preferred language is the Language switch, not a form field.
+* Fixes found on the way: `html, body { height: 100% }` made the body its own scroll container (now `min-height`); the end-to-end helper `createTrainer` created German profiles, which would turn the English-locale suite German after sign-in (now English).
+* Not done: notification bell (1.6a), gap counts in the navigation (1.5), Dashboard, Sessions and Team screens in the new look (later in 1.4d). Not committed yet.
+
+## 2026-10-14 | header-inbox-signout | Updated 2 pages: codebase/implementation-plan.md, wiki/log.md
+* Page header now has the design's Inbox button (opens a notification drawer, empty until 1.6a; the unread badge is built but not shown) and, by decision, a Sign out button next to it. Settings keeps its Sign out button too. This deviates from the design, which has Sign out only in Settings. The earlier note that sign-out is Settings-only was corrected. Unit tests 164, end-to-end 22.
+
+## 2026-10-14 | settings-email-fixed-text | Updated 2 pages: codebase/implementation-plan.md, wiki/log.md
+* Settings: the email is now fixed text with a lock icon (accessible name "Can't be changed") instead of a read-only input that looked editable. No hint line, since there is no email-change flow to point to yet. Unit tests 164, end-to-end 22.
+
 <!-- END OF LOG -->

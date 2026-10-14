@@ -54,10 +54,10 @@ test.describe('Invite Registration E2E Flow', () => {
       invitee.getByRole('main').getByText('Head Trainer', { exact: true }),
     ).toBeVisible();
     await invitee.goto('/settings');
-    await expect(invitee.locator('#settings-name')).toHaveValue('Invited Coach Final');
-    const juniorLabel = invitee.getByLabel(/1418 coach/i);
-    await expect(juniorLabel).toBeChecked();
-    await expect(juniorLabel).toBeDisabled();
+    await expect(invitee.getByLabel('Display name')).toHaveValue('Invited Coach Final');
+    // The 14/18 label granted at invite time is shown, and cannot be changed here
+    await expect(invitee.getByText('14/18 coach', { exact: true })).toBeVisible();
+    await expect(invitee.getByRole('checkbox')).toHaveCount(0);
     await inviteeContext.close();
 
     // 5. The invitee can sign in with the password they chose

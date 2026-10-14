@@ -60,10 +60,8 @@ test.describe('Authentication & Navigation E2E', () => {
 
     await expect(page).toHaveURL(/\/(trainers|dashboard|$)/);
 
-    // 3. Click Sign Out button
-    const signOutBtn = page.getByTitle('Sign Out');
-    await expect(signOutBtn).toBeVisible();
-    await signOutBtn.click();
+    // 3. Sign out with the button in the page header
+    await page.getByRole('banner').getByRole('button', { name: 'Sign out' }).click();
 
     // 4. Verify user is immediately redirected back to /login
     await expect(page).toHaveURL(/\/login/);
