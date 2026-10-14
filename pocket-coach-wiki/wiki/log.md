@@ -172,4 +172,7 @@
 * Found while checking screenshots: unlayered `* { padding: 0 }` and heading rules in `global.css` overrode Tailwind utilities (no padding anywhere, wrong heading sizes). Reset removed (Tailwind's preflight does it) and base rules moved into `@layer base`; this also gives the not-yet-migrated screens their padding back.
 * Not done: no Google button on the invite screen (S3, waits for 1.6a); "Forgot password?" omitted (F3).
 
+## 2026-10-14 | login-google-removed | Updated 2 pages: codebase/implementation-plan.md, wiki/log.md
+* Decision: the Google sign-in button is left out of the login screen as well (it was already left out of the invite screen); it can return after the server-side invites of 1.6a. `GoogleOAuthButton`, its test and its strings were removed; the earlier version is in commit `057b89f`. Unit tests 141, end-to-end 15, all passing.
+
 <!-- END OF LOG -->

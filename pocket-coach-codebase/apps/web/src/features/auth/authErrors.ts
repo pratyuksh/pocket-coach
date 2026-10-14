@@ -12,7 +12,7 @@ interface ErrorLike {
 export const authErrorMessage = (
   err: unknown,
   t: TFunction,
-  fallback: 'auth.errors.signInFailed' | 'auth.errors.setupFailed' | 'auth.errors.googleFailed',
+  fallback: 'auth.errors.signInFailed' | 'auth.errors.setupFailed',
 ): string => {
   const { code, message } = (err ?? {}) as ErrorLike;
   switch (code) {

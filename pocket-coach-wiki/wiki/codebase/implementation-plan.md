@@ -230,13 +230,13 @@ Shell and navigation by role, Dashboard, schedule view filters and "only mine", 
 - Phase 1 navigation: Home (My sessions for trainers, Dashboard for Head-trainers and Super-admins), Sessions, Gaps, Team, Settings. Availability is absent until Phase 2.1.
 
 #### Screens migrated
-- **Auth**: login with invite-only wording, Google button, language switch; invite acceptance; `/register` removed from the UI. Details:
+- **Auth**: login with invite-only wording, language switch (Google sign-in left out for now, see below); invite acceptance; `/register` removed from the UI. Details:
   - Layout follows the design: a shared `AuthLayout` (wordmark, EN | DE switch, content, GDPR footer) with a split screen on desktop (form left, three numbered benefit rows right) and a single column on mobile. Used by login and invite acceptance.
-  - Login: flat labelled fields, primary "Sign in →" and secondary "Continue with Google", left-aligned, 44 px high. Submit logic is unchanged. Errors appear in an inline `role="alert"` block.
+  - Login: flat labelled fields, primary "Sign in →", left-aligned, 44 px high. Submit logic is unchanged. Errors appear in an inline `role="alert"` block.
   - **Demo-account quick-fill buttons and the Dashboard's "Test Credentials" card (seed emails and shared password) are shown in development builds only** (`import.meta.env.DEV`). CI builds the app and fails if the bundle contains them (`pnpm check:bundle`). The invite flow's temporary password (known issue S1) is still in the bundle until server-side invites ship in 1.6a; the check then also covers the password.
   - **"Forgot password?" is left out** until a reset flow exists (known issue F3, 1.6a).
   - Invite acceptance follows the design's three fields (email read-only, your name, choose a password); the confirm-password field is dropped. Benefit and invite copy do not mention availability (Phase 2.1). `/register` redirects to `/login`.
-  - The invite screen has no Google button (the design shows one): a Google sign-in creates an account without profile or role (known issue S3), so it waits for the server-side invites in 1.6a. The invitee's language choice is saved to their profile.
+  - **Google sign-in is left out of both screens for now** (decision 2026-10-14; the design shows a "Continue with Google" button). A Google sign-in creates an account without profile or role (known issue S3), so it returns after the server-side invites in 1.6a. The component was removed in this sub-phase; it is in git history (commit `057b89f`). The invitee's language choice is saved to their profile.
   - Supabase auth errors are mapped by error code to translated messages; unknown errors show the server's text.
   - The old `.auth-btn-*`, `.styled-input`, `.input-group` and `.divider-*` rules are deleted from `global.css`.
 - **Home and Dashboard**: as in [Design Reference](#design-reference).

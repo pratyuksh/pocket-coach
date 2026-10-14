@@ -19,8 +19,6 @@
     "signInTitle": "Sign in",
     "signIn": "Sign in",
     "signingIn": "Signing in…",
-    "google": "Continue with Google",
-    "googleConnecting": "Connecting…",
     "email": "Email",
     "password": "Password",
     "inviteOnly": "PocketCoach is for the coaching staff only. Ask a super-admin for an invite.",
@@ -50,7 +48,6 @@
       "alreadyRegistered": "An account with this email already exists. Sign in instead.",
       "passwordTooShort": "Password must be at least {{min}} characters.",
       "signInFailed": "Sign-in failed. Please try again.",
-      "googleFailed": "Could not sign in with Google.",
       "setupFailed": "Could not complete the setup. Please try again."
     },
     "benefitsLabel": "What PocketCoach does"

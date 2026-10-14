@@ -19,8 +19,6 @@
     "signInTitle": "Anmelden",
     "signIn": "Anmelden",
     "signingIn": "Anmeldung läuft…",
-    "google": "Weiter mit Google",
-    "googleConnecting": "Verbindung wird hergestellt…",
     "email": "E-Mail",
     "password": "Passwort",
     "inviteOnly": "PocketCoach ist nur für das Trainerteam. Eine Einladung erhältst du von einem Super-Admin.",
@@ -50,7 +48,6 @@
       "alreadyRegistered": "Für diese E-Mail gibt es bereits ein Konto. Melde dich stattdessen an.",
       "passwordTooShort": "Das Passwort muss mindestens {{min}} Zeichen lang sein.",
       "signInFailed": "Anmeldung fehlgeschlagen. Bitte versuche es erneut.",
-      "googleFailed": "Anmeldung mit Google nicht möglich.",
       "setupFailed": "Die Einrichtung konnte nicht abgeschlossen werden. Bitte versuche es erneut."
     },
     "benefitsLabel": "Was PocketCoach kann"

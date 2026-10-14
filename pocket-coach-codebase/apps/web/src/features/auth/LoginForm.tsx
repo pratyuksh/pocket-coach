@@ -6,7 +6,6 @@ import { Button, Field, Input } from '../../components/ui';
 import { AuthError, AuthHeading } from './AuthLayout';
 import { authErrorMessage } from './authErrors';
 import { DemoAccounts } from './DemoAccounts';
-import { GoogleOAuthButton } from './GoogleOAuthButton';
 
 export const LoginForm: React.FC = () => {
   const { t } = useTranslation();
@@ -64,18 +63,15 @@ export const LoginForm: React.FC = () => {
           </Field>
         </div>
 
-        <div className="flex flex-col gap-2">
-          <Button type="submit" size="lg" isLoading={loading} className="w-full">
-            {loading ? (
-              t('auth.signingIn')
-            ) : (
-              <>
-                {t('auth.signIn')} <span aria-hidden="true">→</span>
-              </>
-            )}
-          </Button>
-          <GoogleOAuthButton onError={setError} />
-        </div>
+        <Button type="submit" size="lg" isLoading={loading} className="w-full">
+          {loading ? (
+            t('auth.signingIn')
+          ) : (
+            <>
+              {t('auth.signIn')} <span aria-hidden="true">→</span>
+            </>
+          )}
+        </Button>
       </form>
 
       {import.meta.env.DEV && (

@@ -15,7 +15,6 @@ vi.mock('../lib/supabase', () => ({
   supabase: {
     auth: {
       signInWithPassword: vi.fn(),
-      signInWithOAuth: vi.fn(),
     },
   },
 }));
@@ -32,7 +31,8 @@ describe('LoginForm', () => {
     expect(screen.getByText(/ask a super-admin for an invite/i)).toBeInTheDocument();
     expect(screen.getByLabelText('Email')).toBeInTheDocument();
     expect(screen.getByLabelText('Password')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Continue with Google' })).toBeInTheDocument();
+    // Google sign-in is left out for now (it needs the server-side invites of 1.6a).
+    expect(screen.queryByRole('button', { name: /google/i })).not.toBeInTheDocument();
     // No reset flow exists yet (known issue F3), so the design's "Forgot password?" is left out.
     expect(screen.queryByText(/forgot password/i)).not.toBeInTheDocument();
   });

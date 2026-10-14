@@ -8,7 +8,7 @@ test.describe('Authentication & Navigation E2E', () => {
     await expect(page.getByLabel('Email', { exact: true })).toBeVisible();
     await expect(page.getByLabel('Password', { exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Continue with Google' })).toBeVisible();
+    await expect(page.getByRole('button', { name: /google/i })).toHaveCount(0);
   });
 
   test('shows a readable error for a wrong password and stays on the login page', async ({
