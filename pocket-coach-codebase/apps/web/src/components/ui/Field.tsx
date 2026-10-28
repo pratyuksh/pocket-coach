@@ -81,3 +81,25 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   },
 );
 Textarea.displayName = 'Textarea';
+
+type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement>;
+
+/** Flat select; wired to a surrounding Field like Input. */
+export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
+  ({ className = '', id, children, ...props }, ref) => {
+    const field = useContext(FieldContext);
+    return (
+      <select
+        ref={ref}
+        id={id ?? field?.id}
+        aria-describedby={field?.describedBy}
+        aria-invalid={field?.invalid || undefined}
+        className={`w-full min-h-9 px-2 py-1.5 text-sm text-text bg-surface border border-divider hover:border-text/45 focus-visible:border-accent focus-visible:outline-offset-0 ${field?.invalid ? 'border-accent' : ''} ${className}`}
+        {...props}
+      >
+        {children}
+      </select>
+    );
+  },
+);
+Select.displayName = 'Select';

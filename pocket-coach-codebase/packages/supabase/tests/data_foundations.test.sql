@@ -7,7 +7,7 @@ BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET search_path = public, extensions;
 
-SELECT plan(34);
+SELECT plan(37);
 
 -- ------------------------------------------------------------------
 -- Fixtures (created as postgres, bypassing RLS)
@@ -179,6 +179,33 @@ SELECT throws_ok(
     $$ SELECT public.bulk_assign_trainer('11111111-1111-1111-1111-111111111111',
         '00000000-0000-0000-0000-000000000003', NULL, NULL, 'junior_coach') $$,
     '23514', 'track_label_mismatch', 'bulk assign refuses a regular trainer on the 14/18 track');
+
+-- Bulk assign stops at the session's own staffing target, not at the global maximum: this session
+-- (the only one on day 5) requires two trainers and no 14/18 coach and already has one trainer
+RESET ROLE;
+INSERT INTO public.sessions (id, season_id, session_date, day_of_week, start_time, end_time, required_regular, required_junior)
+VALUES ('51000000-0000-0000-0000-000000000004', '11111111-1111-1111-1111-111111111111',
+        (now() AT TIME ZONE 'Europe/Zurich')::date + 12, 5, '17:30', '19:00', 2, 0);
+INSERT INTO public.session_assignments (session_id, profile_id, track, session_role)
+VALUES ('51000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-0000000000b1', 'regular', 'primary');
+SET LOCAL ROLE authenticated;
+SELECT pg_temp.act_as('00000000-0000-0000-0000-000000000002');
+SELECT is(
+    public.bulk_assign_trainer('11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-0000000000b4',
+        5, NULL, 'regular'), 1,
+    'bulk assign fills the one open position of a session that requires two trainers');
+SELECT is(
+    public.bulk_assign_trainer('11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-000000000002',
+        5, NULL, 'regular'), 0,
+    'bulk assign adds no third trainer to a session that requires two (the global maximum is three)');
+SELECT is(
+    public.bulk_assign_trainer('11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-0000000000c1',
+        5, NULL, 'junior_coach'), 0,
+    'bulk assign adds no 14/18 coach to a session that requires none');
+RESET ROLE;
+DELETE FROM public.sessions WHERE id = '51000000-0000-0000-0000-000000000004';
+SET LOCAL ROLE authenticated;
+SELECT pg_temp.act_as('00000000-0000-0000-0000-000000000002');
 
 -- ==================================================================
 -- Trainer and anonymous callers

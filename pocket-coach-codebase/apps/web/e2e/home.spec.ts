@@ -5,7 +5,6 @@ import {
   apiSignIn,
   createTestSeason,
   createTrainer,
-  dayMonth,
   deleteTestSeason,
   profileIdByEmail,
   publishTestSeason,
@@ -18,6 +17,12 @@ import {
 
 // These specs create a published throwaway season and so run after the parallel specs (see the
 // project split in playwright.config.ts): the Dashboard counts every upcoming published session.
+
+// Dates are matched by attribute, not by text: the browser formats "Thu 29 Oct" differently
+// from one machine to the next (for example "Thu, 29 Oct"), and the test runner's own
+// formatting would not agree with it.
+const sessionOn = (date: string) =>
+  `[data-testid="next-session"][data-session-date="${date}"], [data-testid="upcoming-session"][data-session-date="${date}"]`;
 
 test.describe('Home and Dashboard (real data, throwaway season)', () => {
   test('a trainer sees their next sessions with the people working them, and the season counts', async ({
@@ -44,9 +49,7 @@ test.describe('Home and Dashboard (real data, throwaway season)', () => {
       await expect(page.getByRole('heading', { level: 1, name: 'Dashboard' })).toBeVisible();
 
       // The session is listed (as the next one or in the list below it)
-      const mySession = page
-        .locator('[data-testid="next-session"], [data-testid="upcoming-session"]')
-        .filter({ hasText: dayMonth(date) });
+      const mySession = page.locator(sessionOn(date));
       await expect(mySession.first()).toBeVisible();
 
       // Season counts are shown (the values depend on the active season)
@@ -68,12 +71,7 @@ test.describe('Home and Dashboard (real data, throwaway season)', () => {
       await expect(juniorPage.getByText('As substitute')).toHaveCount(0);
       await expect(juniorPage.getByRole('heading', { level: 1, name: 'Dashboard' })).toBeVisible();
       await expect(juniorPage.getByTestId('stat-trainer')).toHaveCount(0);
-      await expect(
-        juniorPage
-          .locator('[data-testid="next-session"], [data-testid="upcoming-session"]')
-          .filter({ hasText: dayMonth(date) })
-          .first(),
-      ).toBeVisible();
+      await expect(juniorPage.locator(sessionOn(date)).first()).toBeVisible();
       await juniorContext.close();
     } finally {
       await deleteTestSeason(request, headToken, season.id);
@@ -117,7 +115,7 @@ test.describe('Home and Dashboard (real data, throwaway season)', () => {
       await expect(rows).toHaveCount(2);
       await expect(rows.filter({ hasText: /trainers? needed/ })).toHaveCount(1);
       await expect(rows.filter({ hasText: /14\/18 coach needed/ })).toHaveCount(1);
-      await expect(rows.first()).toContainText(dayMonth(date));
+      await expect(rows.first()).toHaveAttribute('data-session-date', date);
       await expect(page.getByRole('link', { name: 'Assign' }).first()).toHaveAttribute(
         'href',
         '/sessions',
@@ -167,7 +165,7 @@ test.describe('Home and Dashboard (real data, throwaway season)', () => {
       await expect(card.getByText('Open gaps you can cover')).toBeVisible();
       const row = card.locator(`[data-session-id="${sessionId}"]`);
       await expect(row).toContainText(/trainers? needed/);
-      await expect(row).toContainText(dayMonth(date));
+      await expect(row).toHaveAttribute('data-session-date', date);
       await expect(card.getByText(/14\/18 coach needed/)).toHaveCount(0);
       await expect(card.getByRole('button')).toHaveCount(0);
 

@@ -2,7 +2,6 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TemplateSelector } from '../features/seasons/components/TemplateSelector';
-import { SessionCard } from '../features/sessions/components/SessionCard';
 import { LocationManagerModal } from '../features/locations/components/LocationManagerModal';
 import { SeasonSetupModal } from '../features/seasons/components/SeasonSetupModal';
 import { SessionOverrideModal } from '../features/sessions/components/SessionOverrideModal';
@@ -147,60 +146,6 @@ describe('Sub-Phase 1.3: Seasons & Hall Locations Component Tests', () => {
     });
   });
 
-  describe('SessionCard', () => {
-    const sampleSession: EnrichedSession = {
-      id: 'sess-1',
-      season_id: 'season-1',
-      block_week_id: null,
-      session_date: '2026-10-06',
-      day_of_week: 2, // Tuesday
-      start_time: '17:30:00',
-      end_time: '19:00:00',
-      location_id: 'loc-1',
-      is_time_overridden: false,
-      required_regular: 3,
-      required_junior: 1,
-      published_at: '2026-09-27T00:00:00Z',
-      created_at: '2026-09-27T00:00:00Z',
-      location: {
-        id: 'loc-1',
-        name: 'Sporthalle Schulhaus Apfelbaum',
-        district_area: 'Oerlikon',
-        address: null,
-        trainer_note: null,
-        is_active: true,
-        created_at: '2026-09-27T00:00:00Z',
-      },
-      player_groups: [
-        {
-          id: 'pg-1',
-          season_id: 'season-1',
-          name: 'Kids / Basic',
-          description: null,
-          sort_order: 1,
-        },
-        { id: 'pg-2', season_id: 'season-1', name: 'Advanced-1', description: null, sort_order: 2 },
-      ],
-    };
-
-    it('renders session date, time range, hall location badge, and player groups', () => {
-      render(<SessionCard session={sampleSession} />);
-
-      expect(screen.getByText('Tuesday')).toBeInTheDocument();
-      expect(screen.getByText('2026-10-06')).toBeInTheDocument();
-      expect(screen.getByText('17:30 – 19:00')).toBeInTheDocument();
-      expect(screen.getByText('Sporthalle Schulhaus Apfelbaum (Oerlikon)')).toBeInTheDocument();
-      expect(screen.getByText('Kids / Basic')).toBeInTheDocument();
-      expect(screen.getByText('Advanced-1')).toBeInTheDocument();
-    });
-
-    it('displays Overridden badge when is_time_overridden is true', () => {
-      render(<SessionCard session={{ ...sampleSession, is_time_overridden: true }} />);
-
-      expect(screen.getByText('Overridden')).toBeInTheDocument();
-    });
-  });
-
   describe('LocationManagerModal', () => {
     it('renders existing active sports hall locations', () => {
       render(<LocationManagerModal isOpen={true} onClose={vi.fn()} />);
@@ -280,7 +225,7 @@ describe('Sub-Phase 1.3: Seasons & Hall Locations Component Tests', () => {
 
       expect(screen.getAllByText(/2026-10-06/i).length).toBeGreaterThan(0);
 
-      const saveButton = screen.getByRole('button', { name: /Save Override/i });
+      const saveButton = screen.getByRole('button', { name: /Save change/i });
       await act(async () => {
         fireEvent.click(saveButton);
       });

@@ -39,7 +39,9 @@ export const SettingsPage: React.FC = () => {
 
       <div className="flex min-w-0 flex-col gap-6">
         <CalendarSection onNotice={setNotice} />
-        {canManageSeasons && <SeasonSection season={season} slots={slots} refetch={refetch} />}
+        {canManageSeasons && (
+          <SeasonSection season={season} slots={slots} refetch={refetch} onNotice={setNotice} />
+        )}
         {canManageSeasons && <HallsSection onNotice={setNotice} />}
       </div>
 

@@ -12,6 +12,7 @@ const mockNavigate = vi.hoisted(() => vi.fn());
 const mockAddLocation = vi.hoisted(() => vi.fn());
 const mockUpdateLocation = vi.hoisted(() => vi.fn());
 const mockRefetchSeason = vi.hoisted(() => vi.fn());
+const mockDeleteSeason = vi.hoisted(() => vi.fn());
 
 vi.mock('react-router-dom', () => ({ useNavigate: () => mockNavigate }));
 vi.mock('../hooks/useAuth', () => ({ useAuth: () => mockUseAuth() }));
@@ -68,6 +69,9 @@ vi.mock('../features/locations/hooks/useLocations', () => ({
     updateLocation: mockUpdateLocation,
   }),
 }));
+vi.mock('../features/seasons/hooks/useSeasons', () => ({
+  useSeasons: () => ({ deleteSeason: mockDeleteSeason }),
+}));
 vi.mock('../features/seasons/components/SeasonSetupModal', () => ({
   SeasonSetupModal: ({ isOpen }: { isOpen: boolean }) =>
     isOpen ? <div role="dialog">Season wizard</div> : null,
@@ -97,6 +101,7 @@ describe('SettingsPage', () => {
     vi.clearAllMocks();
     mockAddLocation.mockResolvedValue({});
     mockUpdateLocation.mockResolvedValue({});
+    mockDeleteSeason.mockResolvedValue(undefined);
     signInAs(['trainer']);
   });
 
@@ -301,6 +306,50 @@ describe('SettingsPage', () => {
 
       expect(await within(dialog).findByRole('alert')).toHaveTextContent(
         'Could not save the hall.',
+      );
+    });
+  });
+
+  describe('hall and season housekeeping (head trainer)', () => {
+    beforeEach(() => signInAs(['trainer', 'head_trainer']));
+
+    it('deactivates a hall', async () => {
+      const user = userEvent.setup({ delay: null });
+      render(<SettingsPage />);
+
+      await user.click(screen.getByRole('button', { name: 'Deactivate Sporthalle Borrweg' }));
+
+      expect(mockUpdateLocation).toHaveBeenCalledWith('h1', { is_active: false });
+      expect(await screen.findByText('Hall deactivated.')).toBeInTheDocument();
+    });
+
+    it('asks before deleting the season, then deletes it', async () => {
+      const user = userEvent.setup({ delay: null });
+      render(<SettingsPage />);
+
+      await user.click(screen.getByRole('button', { name: 'Delete season' }));
+      const dialog = screen.getByRole('dialog', { name: 'Delete season' });
+      expect(dialog).toHaveTextContent('Delete Season 2026/27?');
+      expect(mockDeleteSeason).not.toHaveBeenCalled();
+
+      await user.click(within(dialog).getByRole('button', { name: 'Delete season' }));
+
+      await waitFor(() => expect(mockDeleteSeason).toHaveBeenCalledWith('s1'));
+      expect(await screen.findByText('Season deleted.')).toBeInTheDocument();
+      expect(mockRefetchSeason).toHaveBeenCalled();
+    });
+
+    it('keeps the dialog open with a message when deleting fails', async () => {
+      const user = userEvent.setup({ delay: null });
+      mockDeleteSeason.mockRejectedValue(new Error('boom'));
+      render(<SettingsPage />);
+
+      await user.click(screen.getByRole('button', { name: 'Delete season' }));
+      const dialog = screen.getByRole('dialog', { name: 'Delete season' });
+      await user.click(within(dialog).getByRole('button', { name: 'Delete season' }));
+
+      expect(await within(dialog).findByRole('alert')).toHaveTextContent(
+        'Could not delete the season.',
       );
     });
   });

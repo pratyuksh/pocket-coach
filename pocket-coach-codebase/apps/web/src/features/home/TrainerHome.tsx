@@ -25,7 +25,11 @@ const NextSession: React.FC<{
 }> = ({ session, hall, language }) => {
   const { t } = useTranslation();
   return (
-    <div className="flex flex-col gap-0.5" data-testid="next-session">
+    <div
+      className="flex flex-col gap-0.5"
+      data-testid="next-session"
+      data-session-date={session.date}
+    >
       <div className="flex items-baseline justify-between gap-2.5">
         <span className="font-heading text-2xl font-extrabold">
           {formatDayMonth(session.date, language)}
@@ -105,6 +109,7 @@ export const TrainerHome: React.FC = () => {
                 <li
                   key={`${gap.sessionId}-${gap.track}`}
                   data-testid="coverable-gap"
+                  data-session-date={gap.date}
                   data-session-id={gap.sessionId}
                   className="flex flex-col gap-0.5 border-b border-accent/20 py-2.5 last:border-b-0"
                 >
@@ -150,6 +155,7 @@ export const TrainerHome: React.FC = () => {
                 <li
                   key={s.assignmentId}
                   data-testid="upcoming-session"
+                  data-session-date={s.date}
                   className="grid grid-cols-[96px_minmax(0,1fr)_auto] items-baseline gap-2.5 border-b border-divider py-[11px] text-sm"
                 >
                   <span className="font-semibold">{formatDayMonth(s.date, language)}</span>

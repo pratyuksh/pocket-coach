@@ -134,3 +134,19 @@ export function addDaysToDate(dateString: string, days: number): string {
   const [y, m, d] = dateString.split('-').map(Number);
   return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10);
 }
+
+/** The Monday of the week containing a date, `YYYY-MM-DD`. */
+export function weekStart(dateString: string): string {
+  const [y, m, d] = dateString.split('-').map(Number);
+  const day = new Date(Date.UTC(y, m - 1, d)).getUTCDay() || 7;
+  return addDaysToDate(dateString, 1 - day);
+}
+
+/** A month and year as a heading, for example `October 2026` or `Oktober 2026` (month is 0-11). */
+export function monthTitle(year: number, month: number, language: string): string {
+  return new Intl.DateTimeFormat(localeFor(language), {
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(Date.UTC(year, month, 1)));
+}

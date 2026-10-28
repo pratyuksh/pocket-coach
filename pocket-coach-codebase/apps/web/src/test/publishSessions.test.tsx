@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { PublishSessionsModal } from '../features/sessions/components/PublishSessionsModal';
-import { SessionCard } from '../features/sessions/components/SessionCard';
 import { createMockSession } from './fixtures/sessionFixtures';
 import type { EnrichedSession } from '../features/sessions/hooks/useSessions';
 
@@ -104,17 +103,7 @@ describe('PublishSessionsModal', () => {
     await waitFor(() => {
       expect(screen.getByText(/end date is before the start date/i)).toBeInTheDocument();
     });
-    expect(screen.getByRole('button', { name: /publish.*draft/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /^publish$/i })).toBeDisabled();
     expect(screen.getByRole('button', { name: /^unpublish$/i })).toBeDisabled();
-  });
-});
-
-describe('SessionCard draft marker', () => {
-  it('shows a Draft badge for unpublished sessions only', () => {
-    const { rerender } = render(<SessionCard session={draft('d1', '2026-11-03')} />);
-    expect(screen.getByText('Draft')).toBeInTheDocument();
-
-    rerender(<SessionCard session={published('p1', '2026-11-03')} />);
-    expect(screen.queryByText('Draft')).not.toBeInTheDocument();
   });
 });

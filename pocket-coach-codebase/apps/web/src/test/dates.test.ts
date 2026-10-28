@@ -5,6 +5,8 @@ import {
   formatTimeRange,
   isoWeekNumber,
   timeAgo,
+  weekStart,
+  monthTitle,
   toLocalDateString,
   weekdayShort,
   weekRange,
@@ -89,5 +91,19 @@ describe('addDaysToDate', () => {
     expect(addDaysToDate('2026-12-31', 1)).toBe('2027-01-01');
     expect(addDaysToDate('2026-03-01', -1)).toBe('2026-02-28');
     expect(addDaysToDate('2026-10-28', 0)).toBe('2026-10-28');
+  });
+});
+
+describe('weekStart and monthTitle', () => {
+  it('finds the Monday of a week, including Sundays and month ends', () => {
+    expect(weekStart('2026-10-05')).toBe('2026-10-05');
+    expect(weekStart('2026-10-11')).toBe('2026-10-05'); // a Sunday belongs to the week before
+    expect(weekStart('2026-11-01')).toBe('2026-10-26');
+    expect(weekStart('2027-01-01')).toBe('2026-12-28');
+  });
+
+  it('writes a month and year in both languages', () => {
+    expect(monthTitle(2026, 9, 'en')).toBe('October 2026');
+    expect(monthTitle(2026, 9, 'de')).toBe('Oktober 2026');
   });
 });

@@ -1,10 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useSessionAssignments } from '../features/sessions/hooks/useSessionAssignments';
 import { useAssignTrainer } from '../features/sessions/hooks/useAssignTrainer';
 import { useBulkAssignTrainer } from '../features/sessions/hooks/useBulkAssignTrainer';
-import { useMySessions } from '../features/sessions/hooks/useMySessions';
-import { createMockAssignment, createMockTrainer } from './fixtures/sessionFixtures';
+import { createMockTrainer } from './fixtures/sessionFixtures';
 
 // Mock Supabase
 const mockSupabaseFrom = vi.fn();
@@ -28,70 +26,6 @@ vi.mock('../hooks/useAuth', () => ({
 describe('Sub-Phase 1.4 Custom React Data Hooks', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-  });
-
-  describe('useSessionAssignments', () => {
-    it('fetches assignments with joined profile for given session ID', async () => {
-      const mockAssignmentsData = [createMockAssignment({ session_id: 'sess-100' })];
-
-      mockSupabaseFrom.mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        order: vi.fn().mockResolvedValue({ data: mockAssignmentsData, error: null }),
-      });
-
-      const { result } = renderHook(() => useSessionAssignments('sess-100'));
-
-      await act(async () => {});
-
-      expect(mockSupabaseFrom).toHaveBeenCalledWith('session_assignments');
-      expect(result.current.assignments.length).toBe(1);
-      expect(result.current.assignments[0].profile?.display_name).toBe('Trainer One');
-    });
-
-    it('reports loading from the first render when the session changes', async () => {
-      mockSupabaseFrom.mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        order: vi.fn().mockResolvedValue({ data: [], error: null }),
-      });
-
-      const seen: boolean[] = [];
-      const { rerender } = renderHook(
-        ({ id }: { id?: string }) => {
-          const r = useSessionAssignments(id);
-          seen.push(r.loading);
-          return r;
-        },
-        { initialProps: { id: undefined as string | undefined } },
-      );
-      await act(async () => {});
-      expect(seen[seen.length - 1]).toBe(false); // nothing to load without a session
-
-      seen.length = 0;
-      rerender({ id: 'sess-2' });
-      // The render caused by the new id must already say "loading"
-      expect(seen[0]).toBe(true);
-      await act(async () => {});
-      expect(seen[seen.length - 1]).toBe(false);
-    });
-
-    it('sets error state when fetching assignments fails', async () => {
-      mockSupabaseFrom.mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        order: vi
-          .fn()
-          .mockResolvedValue({ data: null, error: { message: 'Database query failed' } }),
-      });
-
-      const { result } = renderHook(() => useSessionAssignments('sess-err'));
-
-      await act(async () => {});
-
-      expect(result.current.error).toBe('Database query failed');
-      expect(result.current.assignments.length).toBe(0);
-    });
   });
 
   describe('useAssignTrainer', () => {
@@ -204,56 +138,6 @@ describe('Sub-Phase 1.4 Custom React Data Hooks', () => {
 
       expect(caughtErr?.message).toBe('Procedure error');
       expect(result.current.error).toBe('Procedure error');
-    });
-  });
-
-  describe('useMySessions', () => {
-    it('queries assignments for logged-in user and sorts chronologically', async () => {
-      const mockUserAssignments = [
-        {
-          id: 'asg-1',
-          track: 'regular',
-          session_role: 'primary',
-          status: 'active',
-          is_substitute: false,
-          assigned_at: '2026-09-27T00:00:00Z',
-          session: {
-            id: 'sess-2',
-            session_date: '2026-10-10',
-            start_time: '18:00:00',
-            end_time: '19:30:00',
-            location: { name: 'Borrweg' },
-          },
-        },
-        {
-          id: 'asg-2',
-          track: 'regular',
-          session_role: 'primary',
-          status: 'active',
-          is_substitute: false,
-          assigned_at: '2026-09-27T00:00:00Z',
-          session: {
-            id: 'sess-1',
-            session_date: '2026-10-06',
-            start_time: '17:30:00',
-            end_time: '19:00:00',
-            location: { name: 'Apfelbaum' },
-          },
-        },
-      ];
-
-      mockSupabaseFrom.mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockResolvedValue({ data: mockUserAssignments, error: null }),
-      });
-
-      const { result } = renderHook(() => useMySessions());
-
-      await act(async () => {});
-
-      expect(result.current.mySessions.length).toBe(2);
-      expect(result.current.mySessions[0].session.session_date).toBe('2026-10-06');
-      expect(result.current.mySessions[1].session.session_date).toBe('2026-10-10');
     });
   });
 });

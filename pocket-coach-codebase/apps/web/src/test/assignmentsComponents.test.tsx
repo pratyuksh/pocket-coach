@@ -1,24 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import { SessionAssigneeModal } from '../features/sessions/components/SessionAssigneeModal';
 import { BulkAssignModal } from '../features/sessions/components/BulkAssignModal';
-import { MySessionsList } from '../features/sessions/components/MySessionsList';
 import type { EnrichedSession } from '../features/sessions/hooks/useSessions';
 
 // Mocks
 // Hook mocks must return referentially stable values (like the real hooks backed by
-// useState). Returning fresh object/array literals per call re-triggers effects such as
-// SessionAssigneeModal's `useEffect(..., [assignments])` on every render, causing an
-// infinite synchronous render loop that hangs the test run.
+// useState). Returning fresh object/array literals per call can re-trigger effects on every
+// render and hang the test run.
 const mocks = vi.hoisted(() => ({
   saveAssignments: vi.fn(),
   bulkAssign: vi.fn(),
-  sessionAssignments: {
-    assignments: [],
-    loading: false,
-    error: null,
-    refetch: () => {},
-  },
   trainers: {
     trainers: [
       { id: 'usr-1', display_name: 'Trainer One', email: 'one@club.de', is_junior_coach: false },
@@ -30,29 +21,6 @@ const mocks = vi.hoisted(() => ({
   locations: {
     locations: [{ id: 'loc-1', name: 'Sporthalle Borrweg' }],
     loading: false,
-  },
-  mySessions: {
-    mySessions: [
-      {
-        assignment_id: 'asg-1',
-        track: 'regular',
-        session_role: 'primary',
-        status: 'active',
-        is_substitute: false,
-        assigned_at: '2026-09-27T00:00:00Z',
-        session: {
-          id: 'sess-1',
-          session_date: '2026-10-06',
-          day_of_week: 2,
-          start_time: '17:30:00',
-          end_time: '19:00:00',
-          location: { name: 'Sporthalle Apfelbaum' },
-          player_groups: [{ id: 'pg-1', name: 'Kids / Basic' }],
-        },
-      },
-    ],
-    loading: false,
-    error: null,
   },
   auth: { user: { id: 'usr-admin' } },
 }));
@@ -71,10 +39,6 @@ vi.mock('../lib/supabase', () => ({
   },
 }));
 
-vi.mock('../features/sessions/hooks/useSessionAssignments', () => ({
-  useSessionAssignments: () => mocks.sessionAssignments,
-}));
-
 vi.mock('../features/sessions/hooks/useAssignTrainer', () => ({
   useAssignTrainer: () => assignTrainerResult,
 }));
@@ -91,8 +55,9 @@ vi.mock('../features/locations/hooks/useLocations', () => ({
   useLocations: () => mocks.locations,
 }));
 
-vi.mock('../features/sessions/hooks/useMySessions', () => ({
-  useMySessions: () => mocks.mySessions,
+vi.mock('../features/trainers/hooks/useTeamStats', () => ({
+  EMPTY_STATS: { completed: 0, upcoming: 0 },
+  useTeamStats: () => ({ stats: {}, error: false, refetch: () => {} }),
 }));
 
 vi.mock('../hooks/useAuth', () => ({
@@ -131,33 +96,6 @@ describe('Sub-Phase 1.4 UI Components', () => {
     },
   };
 
-  describe('SessionAssigneeModal', () => {
-    it('renders session details and dropdowns for trainer assignment', () => {
-      render(<SessionAssigneeModal session={sampleSession} isOpen={true} onClose={vi.fn()} />);
-
-      expect(screen.getByText('Assign Trainers to Session')).toBeInTheDocument();
-      expect(screen.getByText(/2026-10-06/i)).toBeInTheDocument();
-      expect(screen.getByText('Lead Coach (Primary)')).toBeInTheDocument();
-    });
-
-    it('submits trainer assignments on Save click', async () => {
-      const onClose = vi.fn();
-      render(<SessionAssigneeModal session={sampleSession} isOpen={true} onClose={onClose} />);
-
-      const trainerSelect = screen.getAllByRole('combobox')[1];
-      fireEvent.change(trainerSelect, { target: { value: 'usr-1' } });
-
-      await act(async () => {
-        fireEvent.click(screen.getByRole('button', { name: /Save Assignments/i }));
-      });
-
-      expect(mocks.saveAssignments).toHaveBeenCalledWith('sess-1', [
-        { profile_id: 'usr-1', track: 'regular', session_role: 'primary' },
-      ]);
-      expect(onClose).toHaveBeenCalled();
-    });
-  });
-
   describe('BulkAssignModal', () => {
     it('renders matching upcoming session count and triggers bulk assign procedure', async () => {
       const onClose = vi.fn();
@@ -173,7 +111,7 @@ describe('Sub-Phase 1.4 UI Components', () => {
         />,
       );
 
-      expect(screen.getByText('Bulk Assign Trainer to Season')).toBeInTheDocument();
+      expect(screen.getByText('Bulk assign trainer to season')).toBeInTheDocument();
       expect(screen.getByText(/1 Sessions/i)).toBeInTheDocument();
 
       const trainerSelect = screen.getAllByRole('combobox')[0];
@@ -194,16 +132,98 @@ describe('Sub-Phase 1.4 UI Components', () => {
       });
       expect(onClose).toHaveBeenCalled();
     });
-  });
 
-  describe('MySessionsList', () => {
-    it('renders personal schedule cards with date, hall, and role badges', () => {
-      render(<MySessionsList />);
+    const asg = (id: string, profile: string, track: 'regular' | 'junior_coach') =>
+      ({
+        id,
+        session_id: 'x',
+        profile_id: profile,
+        track,
+        session_role: 'primary',
+        status: 'active',
+        is_substitute: false,
+        assigned_at: '',
+        assigned_by: null,
+      }) as never;
 
-      expect(screen.getByText(/Your Assigned Sessions \(1\)/i)).toBeInTheDocument();
-      expect(screen.getByText(/Tuesday, 2026-10-06/i)).toBeInTheDocument();
-      expect(screen.getByText(/Sporthalle Apfelbaum/i)).toBeInTheDocument();
-      expect(screen.getByText(/Primary Lead Trainer/i)).toBeInTheDocument();
+    it('does not count sessions that already have the trainers they require', () => {
+      const future = '2099-01-06';
+      render(
+        <BulkAssignModal
+          isOpen={true}
+          onClose={vi.fn()}
+          seasonId="season-1"
+          sessions={[
+            { ...sampleSession, id: 'open', session_date: future },
+            // requires two, has two: full although the global maximum is three
+            {
+              ...sampleSession,
+              id: 'full',
+              session_date: future,
+              required_regular: 2,
+              assignments: [asg('1', 'a', 'regular'), asg('2', 'b', 'regular')],
+            },
+            // one position left
+            {
+              ...sampleSession,
+              id: 'one-left',
+              session_date: future,
+              required_regular: 2,
+              assignments: [asg('3', 'a', 'regular')],
+            },
+          ]}
+        />,
+      );
+
+      expect(screen.getByText(/2 Sessions/i)).toBeInTheDocument();
+    });
+
+    it('does not count sessions the chosen trainer is already on, and uses the 14/18 target for a 14/18 coach', () => {
+      const future = '2099-01-06';
+      render(
+        <BulkAssignModal
+          isOpen={true}
+          onClose={vi.fn()}
+          seasonId="season-1"
+          sessions={[
+            {
+              ...sampleSession,
+              id: 'a',
+              session_date: future,
+              assignments: [asg('1', 'usr-1', 'regular')],
+            },
+            { ...sampleSession, id: 'b', session_date: future },
+            { ...sampleSession, id: 'c', session_date: future, required_junior: 0 },
+          ]}
+        />,
+      );
+
+      fireEvent.change(screen.getAllByRole('combobox')[0], { target: { value: 'usr-1' } });
+      expect(screen.getByText(/2 Sessions/i)).toBeInTheDocument();
+
+      // Coach Alex works the 14/18 track; session c requires no 14/18 coach
+      fireEvent.change(screen.getAllByRole('combobox')[0], { target: { value: 'usr-2' } });
+      expect(screen.getByText(/2 Sessions/i)).toBeInTheDocument();
+    });
+
+    it('reports how many sessions the trainer was added to', async () => {
+      const onSuccess = vi.fn();
+      render(
+        <BulkAssignModal
+          isOpen={true}
+          onClose={vi.fn()}
+          seasonId="season-1"
+          sessions={[{ ...sampleSession, session_date: '2099-01-06' }]}
+          onSuccess={onSuccess}
+        />,
+      );
+
+      fireEvent.change(screen.getAllByRole('combobox')[0], { target: { value: 'usr-1' } });
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: /Execute Bulk Assign/i }));
+      });
+
+      expect(onSuccess).toHaveBeenCalledWith(24, 'Trainer One');
     });
   });
 });

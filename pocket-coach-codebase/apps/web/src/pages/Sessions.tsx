@@ -1,8 +1,8 @@
 import React from 'react';
-import { SessionScheduleView } from '../features/sessions/components/SessionScheduleView';
+import { SessionList } from '../features/sessions/SessionList';
 
 export const SessionsPage: React.FC = () => {
-  return <SessionScheduleView />;
+  return <SessionList />;
 };
 
 export default SessionsPage;

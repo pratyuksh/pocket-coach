@@ -29,7 +29,9 @@ export default defineConfig({
   // Fail the whole run instead of hanging the CI job indefinitely
   globalTimeout: process.env.CI ? 15 * 60 * 1000 : undefined,
   retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 2 : 1,
+  // One worker: several specs make their throwaway season the active one (the Sessions and
+  // Dashboard screens only show the active season) and must not overlap.
+  workers: 1,
   reporter: process.env.CI ? [['github'], ['list']] : 'list',
   use: {
     baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:5173',

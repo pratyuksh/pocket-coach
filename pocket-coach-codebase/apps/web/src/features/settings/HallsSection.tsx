@@ -25,6 +25,13 @@ export const HallsSection: React.FC<Props> = ({ onNotice }) => {
     setDialogOpen(true);
   };
 
+  const handleToggleActive = async (hall: Location) => {
+    await updateLocation(hall.id, { is_active: !hall.is_active });
+    onNotice(
+      t(hall.is_active ? 'settings.notices.hallDeactivated' : 'settings.notices.hallActivated'),
+    );
+  };
+
   const handleSave = async (values: HallFormValues) => {
     if (editing) {
       await updateLocation(editing.id, {
@@ -89,14 +96,29 @@ export const HallsSection: React.FC<Props> = ({ onNotice }) => {
                 <span className="text-xs text-neutral-700">{hall.trainer_note}</span>
               )}
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              aria-label={t('settings.halls.editLabel', { name: hall.name })}
-              onClick={() => open(hall)}
-            >
-              {t('settings.halls.edit')}
-            </Button>
+            <div className="flex items-start">
+              <Button
+                variant="ghost"
+                size="sm"
+                aria-label={t('settings.halls.editLabel', { name: hall.name })}
+                onClick={() => open(hall)}
+              >
+                {t('settings.halls.edit')}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                aria-label={t(
+                  hall.is_active
+                    ? 'settings.halls.deactivateLabel'
+                    : 'settings.halls.activateLabel',
+                  { name: hall.name },
+                )}
+                onClick={() => void handleToggleActive(hall)}
+              >
+                {t(hall.is_active ? 'settings.halls.deactivate' : 'settings.halls.activate')}
+              </Button>
+            </div>
           </li>
         ))}
       </ul>

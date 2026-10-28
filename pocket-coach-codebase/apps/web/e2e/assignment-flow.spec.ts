@@ -1,16 +1,19 @@
 import { test, expect } from '@playwright/test';
 import {
   ACCOUNTS,
-  apiSignIn,
   activeAssigneeIds,
+  activeSeasonIds,
+  apiSignIn,
   createTestSeason,
   createTrainer,
-  dayMonth,
   deleteTestSeason,
   profileIdByEmail,
+  sessionIdByDate,
   publishTestSeason,
+  restoreActiveSeasons,
   selectByText,
-  selectSeason,
+  setAssignments,
+  setSessionRequirements,
   sessionIdsByWeekday,
   signIn,
   uniqueName,
@@ -23,101 +26,102 @@ test.describe('Assignment flow (real data, throwaway season)', () => {
     request,
   }) => {
     const headToken = await apiSignIn(request, ACCOUNTS.head);
-    const season = await createTestSeason(request, headToken);
+    // The Sessions screen shows the active season only, so this season is made the active one
+    const before = await activeSeasonIds(request, headToken);
+    // Far in the future: people are only offered for an open slot when they have no other session
+    // at that time, and a developer's own season (with trainers assigned all year) must not
+    // get in the way
+    const season = await createTestSeason(request, headToken, { active: true, startOffset: 400 });
     await publishTestSeason(request, headToken, season);
     const extraEmail = `e2e.extra.${Date.now()}@club.de`;
-    await createTrainer(request, extraEmail, uniqueName('E2E Extra'));
+    const extraId = await createTrainer(request, extraEmail, uniqueName('E2E Extra'));
 
     try {
       const trainerId = await profileIdByEmail(request, headToken, ACCOUNTS.trainer);
       const juniorId = await profileIdByEmail(request, headToken, ACCOUNTS.junior);
       const headId = await profileIdByEmail(request, headToken, ACCOUNTS.head);
+      const adminId = await profileIdByEmail(request, headToken, ACCOUNTS.admin);
 
-      // 1. Head-trainer assigns a regular trainer and a 14/18 coach to the first session
-      await signIn(page, ACCOUNTS.head);
-      await page.goto('/sessions');
-      await selectSeason(page, season.name);
-
-      // Take the date from the season we created and wait for exactly that card: reading "the
-      // first card" can return a card of the previously shown season while the list reloads.
+      // 1. Head-trainer clicks the open slots of the first session to assign a regular trainer
+      // and a 14/18 coach
       const date = season.sessionDates[0];
-      const card = page
-        .locator(`[data-testid="session-card"][data-session-date="${date}"]`)
-        .first();
-      await expect(card).toBeVisible();
-      await card.getByRole('button', { name: /^assign$/i }).click();
+      const firstSessionId = await sessionIdByDate(request, headToken, season.id, date);
+      await signIn(page, ACCOUNTS.head);
+      await page.goto(`/sessions/${firstSessionId}`);
 
+      const regular = page.getByTestId('track-regular');
+      const junior = page.getByTestId('track-junior');
       const dialog = page.getByRole('dialog');
-      await expect(
-        dialog.getByRole('heading', { name: /assign trainers to session/i }),
-      ).toBeVisible();
-      await selectByText(dialog.getByLabel('Coach 1', { exact: true }), 'Max Trainer');
+      // there is no separate Assign button
+      await expect(page.getByRole('button', { name: /^assign trainers/i })).toHaveCount(0);
 
-      await dialog.getByRole('button', { name: /add coach/i }).click();
-      await dialog.getByLabel('Role of coach 2').selectOption('junior_coach');
-      await selectByText(dialog.getByLabel('Coach 2', { exact: true }), 'Lukas Junior');
-
-      await dialog.getByRole('button', { name: /save assignments/i }).click();
+      await regular
+        .getByRole('button', { name: /open slot/i })
+        .first()
+        .click();
+      await expect(dialog.getByRole('heading', { name: /assign a trainer/i })).toBeVisible();
+      // the list holds trainers, not 14/18 coaches
+      await expect(dialog.getByRole('button', { name: /Lukas Junior/ })).toHaveCount(0);
+      await dialog.getByRole('button', { name: /Max Trainer/ }).click();
       await expect(dialog).not.toBeVisible();
-      await expect(card).toContainText('Max Trainer');
-      await expect(card).toContainText('Lukas Junior');
+      await expect(regular).toContainText('Max Trainer');
 
-      // 2. The trainer now sees that session in My Sessions, with their stats
+      await junior
+        .getByRole('button', { name: /open slot/i })
+        .first()
+        .click();
+      await expect(dialog.getByRole('heading', { name: /assign a 14\/18 coach/i })).toBeVisible();
+      await expect(dialog.getByRole('button', { name: /Max Trainer/ })).toHaveCount(0);
+      await dialog.getByRole('button', { name: /Lukas Junior/ }).click();
+      await expect(dialog).not.toBeVisible();
+      await expect(junior).toContainText('Lukas Junior');
+
+      // 2. The trainer sees the session with a "You" tag, and the home shows the personal counts
       const trainerContext = await browser.newContext();
       const trainerPage = await trainerContext.newPage();
       await signIn(trainerPage, ACCOUNTS.trainer);
-      await trainerPage.goto('/sessions');
-      await expect(
-        trainerPage.getByRole('heading', { name: /your assigned sessions \(\d+\)/i }),
-      ).toBeVisible();
-      await expect(trainerPage.getByText(date).first()).toBeVisible();
-      // The home lists the session and shows the personal counts (trainer and assistant for a
-      // trainer; the values depend on the active season, which this inactive season is not)
+      await trainerPage.goto(`/sessions/${firstSessionId}`);
+      await expect(trainerPage.getByTestId('track-regular')).toContainText('You');
+      // no assigning or removing for a trainer, and open slots are not clickable
+      await expect(trainerPage.getByRole('button', { name: /open slot|remove/i })).toHaveCount(0);
+      // The values depend on the active season; the session itself is not asserted on the home
+      // (it lists only the next few)
       await trainerPage.goto('/dashboard');
-      await expect(
-        trainerPage
-          .locator('[data-testid="next-session"], [data-testid="upcoming-session"]')
-          .filter({ hasText: dayMonth(date) })
-          .first(),
-      ).toBeVisible();
       await expect(trainerPage.getByTestId('stat-completed')).toHaveText(/^\d+$/);
       await expect(trainerPage.getByTestId('stat-trainer')).toHaveText(/^\d+$/);
       await expect(trainerPage.getByTestId('stat-assistant')).toHaveText(/^\d+$/);
       await trainerContext.close();
 
-      // 3. A fourth regular trainer is refused with a readable message and nothing is saved
-      await card.getByRole('button', { name: /^assign$/i }).click();
-      await expect(
-        dialog.getByRole('heading', { name: /assign trainers to session/i }),
-      ).toBeVisible();
-      for (const [row, who] of [
-        [3, 'Head Trainer'],
-        [4, 'Super Admin'],
-        [5, 'E2E Extra'],
-      ] as const) {
-        await dialog.getByRole('button', { name: /add coach/i }).click();
-        await selectByText(dialog.getByLabel(`Coach ${row}`, { exact: true }), who);
-      }
-      await dialog.getByRole('button', { name: /save assignments/i }).click();
-      await expect(dialog).toContainText(/maximum number of trainers/i);
-      await expect(dialog).toBeVisible();
-      await dialog.getByRole('button', { name: /cancel/i }).click();
-
-      const firstSessionId = (
-        await sessionIdsByWeekday(
-          request,
-          headToken,
-          season.id,
-          new Date(`${date}T12:00:00`).getDay(),
-        )
-      )[0];
+      // 3. Filling the track leaves no open slot, so nobody can be added beyond what the session
+      // requires; a person can be removed again
+      await regular
+        .getByRole('button', { name: /open slot/i })
+        .first()
+        .click();
+      await dialog.getByRole('button', { name: /Head Trainer/ }).click();
+      await expect(regular).toContainText('Head Trainer');
+      await regular
+        .getByRole('button', { name: /open slot/i })
+        .first()
+        .click();
+      await dialog.getByRole('button', { name: /Super Admin/ }).click();
+      await expect(regular).toContainText('Super Admin');
+      await expect(regular.getByTestId('slot-open')).toHaveCount(0);
       expect((await activeAssigneeIds(request, headToken, firstSessionId)).sort()).toEqual(
-        [trainerId, juniorId].sort(),
+        [trainerId, headId, adminId, juniorId].sort(),
+      );
+
+      await page.getByRole('button', { name: 'Remove Super Admin' }).click();
+      await expect(regular.getByTestId('slot-open')).toHaveCount(1);
+      await expect(regular).not.toContainText('Super Admin');
+      expect((await activeAssigneeIds(request, headToken, firstSessionId)).sort()).toEqual(
+        [trainerId, headId, juniorId].sort(),
       );
 
       // 4. Bulk assign adds the Head-trainer to one weekday and keeps the existing assignees
       const firstWeekday = new Date(`${date}T12:00:00`).getDay();
       const bulkWeekday = firstWeekday === 2 ? 5 : 2; // a weekday other than the first session's
+      await page.goto('/sessions');
       await page.getByRole('button', { name: /bulk assign/i }).click();
       await selectByText(dialog.getByLabel('Target trainer'), 'Head Trainer');
       await selectByText(dialog.getByLabel('Weekday'), bulkWeekday === 2 ? 'Tuesdays' : 'Fridays');
@@ -127,12 +131,37 @@ test.describe('Assignment flow (real data, throwaway season)', () => {
 
       const [bulkSessionId] = await sessionIdsByWeekday(request, headToken, season.id, bulkWeekday);
       expect(await activeAssigneeIds(request, headToken, bulkSessionId)).toEqual([headId]);
-      // The first session keeps exactly the two trainers assigned in step 1
+      // The first session keeps the people assigned before
       expect((await activeAssigneeIds(request, headToken, firstSessionId)).sort()).toEqual(
-        [trainerId, juniorId].sort(),
+        [trainerId, headId, juniorId].sort(),
       );
+
+      // 5. Bulk assign never goes beyond what a session requires: this session needs two
+      // trainers and already has two, so nobody is added (the global maximum is three)
+      const wednesdayIds = await sessionIdsByWeekday(request, headToken, season.id, 3);
+      for (const id of wednesdayIds) {
+        await setSessionRequirements(request, headToken, id, { required_regular: 2 });
+        await setAssignments(request, headToken, id, [
+          { profile_id: trainerId, track: 'regular', session_role: 'primary' },
+          { profile_id: extraId, track: 'regular', session_role: 'assistant_coach' },
+        ]);
+      }
+      await page.goto('/sessions');
+      await page.getByRole('button', { name: /bulk assign/i }).click();
+      await selectByText(dialog.getByLabel('Target trainer'), 'Head Trainer');
+      await selectByText(dialog.getByLabel('Weekday'), 'Wednesdays');
+      await expect(dialog).toContainText('0 Sessions');
+      await dialog.getByRole('button', { name: /execute bulk assign/i }).click();
+      await expect(dialog).not.toBeVisible();
+      await expect(page.getByRole('alert')).toContainText(/nobody was added/i);
+      for (const id of wednesdayIds) {
+        expect((await activeAssigneeIds(request, headToken, id)).sort()).toEqual(
+          [trainerId, extraId].sort(),
+        );
+      }
     } finally {
       await deleteTestSeason(request, headToken, season.id);
+      await restoreActiveSeasons(request, headToken, before);
     }
   });
 });

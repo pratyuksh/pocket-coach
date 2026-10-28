@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, Button, Badge } from '../../../components/ui';
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Button, Dialog, Field, Input, Select, Tag } from '../../../components/ui';
+import { AuthError } from '../../auth/AuthLayout';
 import { useLocations } from '../../locations/hooks/useLocations';
 import type { EnrichedSession } from '../hooks/useSessions';
-import { Clock, MapPin, AlertCircle, Edit3 } from 'lucide-react';
 
 interface SessionOverrideModalProps {
   session: EnrichedSession | null;
@@ -14,12 +15,14 @@ interface SessionOverrideModalProps {
   ) => Promise<void>;
 }
 
+/** "Change time or hall": changes this one session; the weekly slot stays the same. */
 export const SessionOverrideModal: React.FC<SessionOverrideModalProps> = ({
   session,
   isOpen,
   onClose,
   onSave,
 }) => {
+  const { t } = useTranslation();
   const { locations } = useLocations();
   const [startTime, setStartTime] = useState('17:30:00');
   const [endTime, setEndTime] = useState('19:00:00');
@@ -48,103 +51,78 @@ export const SessionOverrideModal: React.FC<SessionOverrideModalProps> = ({
         location_id: locationId,
       });
       onClose();
-    } catch (err: any) {
-      setError(err.message || 'Failed to update session');
+    } catch {
+      setError(t('sessions.override.failed'));
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Override Session Details" maxWidth="lg">
-      <form onSubmit={handleSave} className="space-y-5">
-        <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-          <div className="text-xs font-semibold text-slate-500">Target Session Date</div>
-          <div className="text-base font-bold text-slate-900 flex items-center gap-2">
-            <span>📅 {session.session_date}</span>
-            {session.is_time_overridden && <Badge variant="warning">Previously Overridden</Badge>}
-          </div>
-        </div>
+    <Dialog
+      isOpen={isOpen}
+      onClose={onClose}
+      title={t('sessions.override.title')}
+      closeLabel={t('actions.close')}
+    >
+      <form onSubmit={handleSave} className="flex flex-col gap-3">
+        <p className="flex flex-wrap items-center gap-2 text-sm">
+          <span className="font-semibold">{session.session_date}</span>
+          {session.is_time_overridden && (
+            <Tag variant="outline">{t('sessions.override.previously')}</Tag>
+          )}
+        </p>
+        <p className="text-[12.5px] text-neutral-700">{t('sessions.detail.overrideNote')}</p>
+        {error && <AuthError message={error} />}
 
-        {error && (
-          <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 text-sm flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
-
-        {/* Time Inputs */}
         <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5 text-emerald-500" /> Start Time
-            </label>
-            <input
+          <Field label={t('sessions.override.start')}>
+            <Input
               type="time"
+              required
               value={startTime.slice(0, 5)}
               onChange={(e) => setStartTime(e.target.value)}
-              required
-              className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 font-mono focus:ring-2 focus:ring-emerald-500 outline-none"
             />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5 text-emerald-500" /> End Time
-            </label>
-            <input
+          </Field>
+          <Field label={t('sessions.override.end')}>
+            <Input
               type="time"
+              required
               value={endTime.slice(0, 5)}
               onChange={(e) => setEndTime(e.target.value)}
-              required
-              className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 font-mono focus:ring-2 focus:ring-emerald-500 outline-none"
             />
-          </div>
+          </Field>
         </div>
 
-        {/* Hall Location Select */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
-            <MapPin className="w-3.5 h-3.5 text-emerald-500" /> Sports Hall Location
-          </label>
-          <select
-            value={locationId || ''}
-            onChange={(e) => setLocationId(e.target.value || null)}
-            className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none"
-          >
-            <option value="">-- No Location Assigned --</option>
-            {locations.map((loc) => (
-              <option key={loc.id} value={loc.id}>
-                {loc.name} {loc.district_area ? `(${loc.district_area})` : ''}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Attending Groups Info */}
-        {session.player_groups && session.player_groups.length > 0 && (
-          <div className="pt-2">
-            <label className="block text-xs font-semibold text-slate-500 mb-1">
-              Attending Player Groups
-            </label>
-            <div className="flex flex-wrap gap-1.5">
-              {session.player_groups.map((pg) => (
-                <Badge key={pg.id} variant="neutral">
-                  {pg.name}
-                </Badge>
+        <Field label={t('sessions.override.hall')}>
+          <Select value={locationId || ''} onChange={(e) => setLocationId(e.target.value || null)}>
+            <option value="">{t('sessions.override.noHall')}</option>
+            {locations
+              .filter((loc) => loc.is_active || loc.id === session.location_id)
+              .map((loc) => (
+                <option key={loc.id} value={loc.id}>
+                  {loc.name}
+                  {loc.district_area ? ` (${loc.district_area})` : ''}
+                </option>
               ))}
-            </div>
-          </div>
+          </Select>
+        </Field>
+
+        {session.player_groups && session.player_groups.length > 0 && (
+          <p className="text-[12.5px] text-neutral-700">
+            {t('sessions.override.groups')}: {session.player_groups.map((g) => g.name).join(' · ')}
+          </p>
         )}
 
-        <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
-          <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
+        <div className="mt-1 flex justify-end gap-2">
+          <Button variant="secondary" onClick={onClose}>
+            {t('sessions.override.cancel')}
           </Button>
-          <Button type="submit" variant="primary" isLoading={submitting}>
-            <Edit3 className="w-4 h-4 mr-1" /> Save Override
+          <Button type="submit" isLoading={submitting}>
+            {t('sessions.override.save')}
           </Button>
         </div>
       </form>
-    </Modal>
+    </Dialog>
   );
 };

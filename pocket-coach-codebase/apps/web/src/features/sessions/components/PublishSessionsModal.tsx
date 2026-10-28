@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Modal, Button } from '../../../components/ui';
+import { useTranslation } from 'react-i18next';
+import { Button, Dialog, Field, Input } from '../../../components/ui';
+import { addDaysToDate, toLocalDateString } from '../../../lib/dates';
+import { AuthError } from '../../auth/AuthLayout';
 import type { EnrichedSession } from '../hooks/useSessions';
-import { toLocalDateString } from '../../../lib/dates';
-import { Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 interface PublishSessionsModalProps {
   isOpen: boolean;
@@ -12,13 +13,7 @@ interface PublishSessionsModalProps {
   onUnpublish: (from: string, to: string) => Promise<{ unpublished: number; skipped: number }>;
 }
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-function addDays(date: string, days: number): string {
-  const d = new Date(`${date}T12:00:00`);
-  return toLocalDateString(new Date(d.getTime() + days * DAY_MS));
-}
-
+/** Publish (or return to draft) the sessions in a date range. */
 export const PublishSessionsModal: React.FC<PublishSessionsModalProps> = ({
   isOpen,
   onClose,
@@ -26,6 +21,7 @@ export const PublishSessionsModal: React.FC<PublishSessionsModalProps> = ({
   onPublish,
   onUnpublish,
 }) => {
+  const { t } = useTranslation();
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [busy, setBusy] = useState(false);
@@ -41,7 +37,7 @@ export const PublishSessionsModal: React.FC<PublishSessionsModalProps> = ({
       .sort()[0];
     const start = firstDraft ?? toLocalDateString();
     setFrom(start);
-    setTo(addDays(start, 27));
+    setTo(addDaysToDate(start, 27));
     setMessage(null);
     setError(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -66,121 +62,77 @@ export const PublishSessionsModal: React.FC<PublishSessionsModalProps> = ({
       setMessage(await action());
     } catch (err: unknown) {
       setMessage(null);
-      setError(err instanceof Error ? err.message : 'Something went wrong');
+      setError(err instanceof Error && err.message ? err.message : t('sessions.publish.failed'));
     } finally {
       setBusy(false);
     }
   };
 
   const handlePublish = () =>
-    run(async () => {
-      const n = await onPublish(from, to);
-      return `${n} ${n === 1 ? 'session is' : 'sessions are'} now visible to trainers.`;
-    });
+    run(async () => t('sessions.publish.published', { count: await onPublish(from, to) }));
 
   const handleUnpublish = () =>
     run(async () => {
       const { unpublished, skipped } = await onUnpublish(from, to);
       const skippedText =
-        skipped > 0
-          ? ` ${skipped} ${skipped === 1 ? 'session was' : 'sessions were'} skipped because ${
-              skipped === 1 ? 'it has' : 'they have'
-            } started or ${skipped === 1 ? 'has' : 'have'} substitution requests.`
-          : '';
-      return `${unpublished} ${unpublished === 1 ? 'session is' : 'sessions are'} back to draft.${skippedText}`;
+        skipped > 0 ? ` ${t('sessions.publish.skipped', { count: skipped })}` : '';
+      return `${t('sessions.publish.unpublished', { count: unpublished })}${skippedText}`;
     });
 
-  const inputClass =
-    'w-full px-3 py-2 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none';
-
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Publish Sessions">
-      <div className="space-y-5">
-        <p className="text-sm text-slate-600">
-          Drafts are visible to Head-trainers only. Publishing a date range shows its sessions and
-          assignments to all trainers. Unpublishing returns sessions to draft as long as they have
-          not started and have no substitution requests.
-        </p>
-
-        {error && (
-          <div
-            role="alert"
-            className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 text-sm flex items-center gap-2"
-          >
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
+    <Dialog
+      isOpen={isOpen}
+      onClose={onClose}
+      title={t('sessions.publish.title')}
+      closeLabel={t('actions.close')}
+    >
+      <div className="flex flex-col gap-3">
+        <p className="text-sm text-neutral-800">{t('sessions.publish.intro')}</p>
+        {error && <AuthError message={error} />}
         {message && (
-          <div
-            role="status"
-            className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 text-sm flex items-center gap-2"
-          >
-            <CheckCircle2 className="w-4 h-4 shrink-0" />
-            <span>{message}</span>
-          </div>
+          <p role="status" className="border-l-2 border-text bg-neutral-100 px-3 py-2 text-sm">
+            {message}
+          </p>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label
-              htmlFor="publish-from"
-              className="block text-xs font-semibold text-slate-700 mb-1"
-            >
-              From
-            </label>
-            <input
-              id="publish-from"
-              type="date"
-              value={from}
-              onChange={(e) => setFrom(e.target.value)}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label htmlFor="publish-to" className="block text-xs font-semibold text-slate-700 mb-1">
-              To
-            </label>
-            <input
-              id="publish-to"
-              type="date"
-              value={to}
-              onChange={(e) => setTo(e.target.value)}
-              className={inputClass}
-            />
-          </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Field label={t('sessions.publish.from')}>
+            <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
+          </Field>
+          <Field label={t('sessions.publish.to')}>
+            <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
+          </Field>
         </div>
 
         {!rangeValid && from && to && (
-          <p className="text-xs text-rose-600">The end date is before the start date.</p>
+          <p className="text-xs text-accent-700">{t('sessions.publish.badRange')}</p>
         )}
 
-        <div className="text-xs text-slate-500" data-testid="publish-preview">
-          In this range: {draftCount} {draftCount === 1 ? 'draft' : 'drafts'}, {publishedCount}{' '}
-          published.
-        </div>
+        <p className="text-xs text-neutral-700" data-testid="publish-preview">
+          {t('sessions.publish.preview', {
+            drafts: t('sessions.publish.draftsCount', { count: draftCount }),
+            published: t('sessions.publish.publishedCount', { count: publishedCount }),
+          })}
+        </p>
 
-        <div className="flex flex-wrap justify-end gap-2 pt-3 border-t border-slate-100">
-          <Button variant="ghost" onClick={onClose} disabled={busy}>
-            Close
+        <div className="mt-1 flex flex-wrap justify-end gap-2">
+          <Button variant="secondary" onClick={onClose} disabled={busy}>
+            {t('sessions.publish.close')}
           </Button>
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={handleUnpublish}
             disabled={busy || !rangeValid || publishedCount === 0}
           >
-            <EyeOff className="w-4 h-4 mr-1" /> Unpublish
+            {t('sessions.publish.unpublish')}
           </Button>
-          <Button
-            variant="primary"
-            onClick={handlePublish}
-            disabled={busy || !rangeValid || draftCount === 0}
-          >
-            <Eye className="w-4 h-4 mr-1" /> Publish {draftCount > 0 ? `${draftCount} ` : ''}
-            {draftCount === 1 ? 'draft' : 'drafts'}
+          <Button onClick={handlePublish} disabled={busy || !rangeValid || draftCount === 0}>
+            {draftCount > 0
+              ? t('sessions.publishDrafts', { count: draftCount })
+              : t('sessions.publishButton')}
           </Button>
         </div>
       </div>
-    </Modal>
+    </Dialog>
   );
 };

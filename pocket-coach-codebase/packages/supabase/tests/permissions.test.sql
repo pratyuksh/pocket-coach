@@ -239,7 +239,9 @@ SELECT throws_ok(
     $$ INSERT INTO public.session_assignments (session_id, profile_id, track, session_role)
        SELECT a.session_id, a.profile_id, 'regular', 'assistant_coach'
          FROM public.session_assignments a
-        WHERE a.profile_id = '00000000-0000-0000-0000-000000000003' AND a.status = 'active' $$,
+         JOIN public.sessions s ON s.id = a.session_id
+        WHERE a.profile_id = '00000000-0000-0000-0000-000000000003' AND a.status = 'active'
+          AND s.season_id = '11111111-1111-1111-1111-111111111111' $$,
     '23505', NULL, 'a trainer cannot be actively assigned twice to the same session');
 SELECT lives_ok(
     $$ INSERT INTO public.training_day_player_groups (training_day_id, player_group_id)

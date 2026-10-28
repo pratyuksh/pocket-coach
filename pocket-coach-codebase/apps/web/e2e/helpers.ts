@@ -30,17 +30,6 @@ export function isoDate(daysFromToday: number): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-/** A date as the app writes it in English, for example `Fri 9 Oct`. */
-export function dayMonth(date: string): string {
-  const [y, m, d] = date.split('-').map(Number);
-  return new Intl.DateTimeFormat('en-GB', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-    timeZone: 'UTC',
-  }).format(new Date(Date.UTC(y, m - 1, d)));
-}
-
 /** A name that cannot collide with another run or another worker. */
 export function uniqueName(prefix: string): string {
   return `${prefix} ${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -61,14 +50,6 @@ export async function signIn(page: Page, email: string) {
   await page.goto('/login');
   await submitSignIn(page, email, PASSWORD);
   await expect(page).toHaveURL(/\/(trainers|dashboard|sessions|$)/);
-}
-
-/** Selects a season by (partial) name in the schedule's season dropdown. */
-export async function selectSeason(page: Page, name: string) {
-  const select = page.locator('select').filter({ has: page.locator('option', { hasText: name }) });
-  await expect(select).toBeVisible();
-  const value = await select.locator('option', { hasText: name }).getAttribute('value');
-  await select.selectOption(value as string);
 }
 
 /** Picks the option whose text contains `text` (option labels also carry emails and specialties). */
@@ -338,6 +319,31 @@ export async function setAssignments(
   }[],
 ) {
   await rpc(request, token, 'set_session_assignments', { p_session_id: sessionId, p_rows: rows });
+}
+
+/** Changes how many trainers and 14/18 coaches a session requires (its staffing target). */
+export async function setSessionRequirements(
+  request: APIRequestContext,
+  token: string,
+  sessionId: string,
+  required: { required_regular?: number; required_junior?: number },
+) {
+  await rest(request, token, 'PATCH', `sessions?id=eq.${sessionId}`, required);
+}
+
+/** How many trainers and 14/18 coaches a session requires now. */
+export async function sessionRequirements(
+  request: APIRequestContext,
+  token: string,
+  sessionId: string,
+): Promise<{ required_regular: number; required_junior: number }> {
+  const [row] = await rest<{ required_regular: number; required_junior: number }[]>(
+    request,
+    token,
+    'GET',
+    `sessions?id=eq.${sessionId}&select=required_regular,required_junior`,
+  );
+  return row;
 }
 
 /** Profile ids with an active assignment on the session. */

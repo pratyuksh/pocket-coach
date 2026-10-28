@@ -3,6 +3,7 @@ import { Shell } from './components/layout/Shell';
 import { ProtectedRoute, PublicOnlyRoute } from './components/layout/ProtectedRoute';
 import { DashboardPage } from './pages/Dashboard';
 import { SessionsPage } from './pages/Sessions';
+import { SessionDetailPage } from './pages/SessionDetail';
 import { AvailabilityPage } from './pages/Availability';
 import { SubstitutionsPage } from './pages/Substitutions';
 import { TrainersPage } from './pages/Trainers';
@@ -22,6 +23,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Navigate to="/dashboard" replace /> },
       { path: 'dashboard', element: <DashboardPage /> },
       { path: 'sessions', element: <SessionsPage /> },
+      { path: 'sessions/:sessionId', element: <SessionDetailPage /> },
       { path: 'availability', element: <AvailabilityPage /> },
       { path: 'substitutions', element: <SubstitutionsPage /> },
       { path: 'trainers', element: <TrainersPage /> },

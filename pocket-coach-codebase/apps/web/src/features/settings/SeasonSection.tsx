@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '../../components/ui';
+import { Button, Dialog } from '../../components/ui';
 import { formatDate, formatTimeRange, weekdayShort } from '../../lib/dates';
+import { AuthError } from '../auth/AuthLayout';
+import { useSeasons } from '../seasons/hooks/useSeasons';
 import { SeasonSetupModal } from '../seasons/components/SeasonSetupModal';
 import type { useActiveSeason } from '../seasons/hooks/useActiveSeason';
 import { Section } from '../../components/ui';
@@ -9,14 +11,32 @@ import { Section } from '../../components/ui';
 type ActiveSeason = ReturnType<typeof useActiveSeason>;
 
 /** Head-trainer and above: the current season and its weekly slots, and the season wizard. */
-export const SeasonSection: React.FC<Pick<ActiveSeason, 'season' | 'slots' | 'refetch'>> = ({
-  season,
-  slots,
-  refetch,
-}) => {
+export const SeasonSection: React.FC<
+  Pick<ActiveSeason, 'season' | 'slots' | 'refetch'> & { onNotice: (message: string) => void }
+> = ({ season, slots, refetch, onNotice }) => {
   const { t, i18n } = useTranslation();
   const language = i18n.resolvedLanguage ?? 'de';
   const [wizardOpen, setWizardOpen] = useState(false);
+  const { deleteSeason } = useSeasons();
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const handleDelete = async () => {
+    if (!season) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await deleteSeason(season.id);
+      setDeleteOpen(false);
+      onNotice(t('settings.notices.seasonDeleted'));
+      void refetch();
+    } catch {
+      setDeleteError(t('settings.season.deleteFailed'));
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   return (
     <Section
@@ -58,6 +78,33 @@ export const SeasonSection: React.FC<Pick<ActiveSeason, 'season' | 'slots' | 're
       ) : (
         <p className="text-sm text-neutral-700">{t('settings.season.none')}</p>
       )}
+      {season && (
+        <Button variant="ghost" className="!px-0 self-start" onClick={() => setDeleteOpen(true)}>
+          {t('settings.season.delete')}
+        </Button>
+      )}
+
+      <Dialog
+        isOpen={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        title={t('settings.season.deleteTitle')}
+        closeLabel={t('actions.close')}
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setDeleteOpen(false)} disabled={deleting}>
+              {t('settings.season.deleteCancel')}
+            </Button>
+            <Button isLoading={deleting} onClick={handleDelete}>
+              {deleting ? t('settings.season.deleting') : t('settings.season.deleteConfirm')}
+            </Button>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-3">
+          {deleteError && <AuthError message={deleteError} />}
+          <p className="text-sm">{t('settings.season.deleteBody', { name: season?.name })}</p>
+        </div>
+      </Dialog>
 
       <SeasonSetupModal
         isOpen={wizardOpen}
