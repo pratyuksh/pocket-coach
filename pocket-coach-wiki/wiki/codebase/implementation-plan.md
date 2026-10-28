@@ -1,10 +1,10 @@
 # Implementation Plan (Phase 1)
 
-**Summary**: Streamlined, testable implementation plan for PocketCoach Phase 1 (Sessions & Trainer Management). Sub-Phases 1.1–1.4c and 1.4t are delivered and summarized; the remaining work is reordered around the Modernist UI design and five product decisions taken on 2026-10-11 (no survey yet, coverage-based gaps, published assignments, session log for later payouts, light mode only). Availability Surveys & Matrix Dashboard stay in Phase 2.
+**Summary**: Streamlined, testable implementation plan for PocketCoach Phase 1 (Sessions & Trainer Management). Sub-Phases 1.1–1.4c and 1.4t are delivered and summarized; the remaining work is reordered around the Modernist UI design and five product decisions taken on 2026-10-11 (no survey yet, coverage-based gaps, published assignments, session log for later payouts, light mode only). Availability Surveys & Matrix Dashboard were pulled into Phase 1 on 2026-10-28 as Sub-Phase 1.4e, before notifications and substitutions.
 
 **Sources**: `pocke-coach-design-prototype/PocketCoach.dc.html` (design prototype, read 2026-10-11)
 
-**Last updated**: 2026-10-11
+**Last updated**: 2026-10-28
 
 ---
 
@@ -16,6 +16,7 @@
 - [Sub-Phase 1.4c: Data Foundations](#sub-phase-14c-data-foundations)
 - [Sub-Phase 1.4t: Test Hardening](#sub-phase-14t-test-hardening)
 - [Sub-Phase 1.4d: Modernist UI, App Shell & Localization](#sub-phase-14d-modernist-ui-app-shell--localization)
+- [Sub-Phase 1.4e: Availability Surveys & Matrix](#sub-phase-14e-availability-surveys--matrix)
 - [Sub-Phase 1.6a: Notifications, PWA Shell & Server-side Invites](#sub-phase-16a-notifications-pwa-shell--server-side-invites)
 - [Sub-Phase 1.5: Substitutions, Coverage Gaps & Session Log](#sub-phase-15-substitutions-coverage-gaps--session-log)
 - [Sub-Phase 1.6b: Calendar Feed, Offline & Sign-off](#sub-phase-16b-calendar-feed-offline--sign-off)
@@ -37,11 +38,11 @@ Each sub-phase ends in a compiled, tested application. Sub-Phase numbers 1.5 and
 | 1 | **1.4c** Data foundations ✅ done 2026-10-11 | Staffing targets, publishing, hall details, per-track limits, atomic save functions | M |
 | 2 | **1.4t** Test hardening ✅ done 2026-10-11 | Write-policy and generated-session tests, real end-to-end assignment and role flows, unit tests for central hooks, atomic `create_season`, resilient end-to-end setup | M |
 | 3 | **1.4d** Modernist UI, shell & localization ✅ done 2026-10-28 | New look, navigation, all existing screens restyled, EN/DE, light mode only | L |
-| 4 | **1.6a** Notifications, PWA shell, invites | Notification bell and push, install banner, server-side invites, invite-only access | M–L |
-| 5 | **1.5** Substitutions & coverage gaps | Gaps, flag, volunteer, 48 h escalation, session log | L |
-| 6 | **1.6b** Calendar feed, offline, sign-off | Working calendar link, offline reads, final localization checks | M |
+| 4 | **1.4e** Availability surveys & matrix | Survey creation, trainers' answers, Head-trainer matrix with click-to-assign and live updates, availability in the open-slot list | L |
+| 5 | **1.6a** Notifications, PWA shell, invites | Notification bell and push, install banner, server-side invites, invite-only access | M–L |
+| 6 | **1.5** Substitutions & coverage gaps | Gaps, flag, volunteer, 48 h escalation, session log | L |
+| 7 | **1.6b** Calendar feed, offline, sign-off | Working calendar link, offline reads, final localization checks | M |
 | — | **Pilot readiness gate** | Checklist before real users | — |
-| 7 | **Phase 2.1** Availability surveys | After the pilot | L |
 
 ```mermaid
 flowchart TD
@@ -49,17 +50,18 @@ flowchart TD
     G --> S14C["1.4c Data foundations (done)"]
     S14C --> S14T["1.4t Test hardening (done)"]
     S14T --> S14D["1.4d Modernist UI, shell & localization"]
-    S14D --> S16A["1.6a Notifications, PWA shell, invites"]
+    S14D --> S14E["1.4e Availability surveys & matrix"]
+    S14E --> S16A["1.6a Notifications, PWA shell, invites"]
     S16A --> S15["1.5 Substitutions & coverage gaps"]
     S15 --> S16B["1.6b Calendar feed, offline, sign-off"]
     S16B --> PILOT["Pilot readiness gate"]
-    PILOT --> P2["Phase 2.1 Availability surveys"]
 ```
 
 **Why this order**
-- Restyling and localization come before new screens so 1.5, 1.6 and 2.1 are built once, in the new look and in two languages.
+- Restyling and localization come before new screens so 1.4e, 1.5 and 1.6 are built once, in the new look and in two languages.
 - Staffing targets and publishing are data the redesigned Sessions screens display, so they precede the UI.
 - Test hardening precedes the UI rebuild: 1.4d changes almost every component, and the review found no end-to-end test that performs an assignment and no database test for write permissions on the core tables. Behavior-level tests written first show whether the restyle broke anything.
+- Availability comes before notifications and substitutions (decision 9, 2026-10-28): the Head-trainer plans assignments from the survey answers, the volunteer rule in 1.5 ("you marked this date unavailable") needs the answers to exist, and the open-slot list sorts by them. It needs nothing from 1.6a or 1.5; only the "survey sent" notification waits for the 1.6a dispatcher.
 - Notifications precede substitutions: the substitution flow is a notification flow ([[requirements/sessions-and-assignment]]), and the 48 h escalation needs the dispatcher.
 - Server-side invites share the Edge Function setup with notifications, so they ride along in 1.6a.
 
@@ -69,11 +71,12 @@ flowchart TD
 
 | # | Decision | Effect on the plan |
 |---|---|---|
-| 1 | **No availability survey yet.** The December survey is not a target. | Phase 2.1 stays in Phase 2, after the pilot. The design's Availability screens, survey KPI tile and "survey due" card are left out of Phase 1. |
+| 1 | **No availability survey yet.** The December survey is not a target. **Superseded by decision 9 (2026-10-28).** | Phase 2.1 stayed in Phase 2 until then. The design's Availability screens, survey KPI tile and "survey due" card are left out of Phase 1. |
 | 2 | **Gaps follow the design:** a gap is a published upcoming session with fewer assigned trainers than required on a track. | Needs staffing targets (1.4c). A substitution request adds "who can't make it" but is no longer the definition of a gap. |
 | 3 | **Assignments are published.** Trainers see only published sessions. | `sessions.published_at`, a publish action, and trainer-side read rules (1.4c). Notifications go out on publish. |
 | 4 | **Session log and counts matter for later pay-outs.** "Report a mistake" is not needed now. | One shared definition of "completed" (`session_log` view, 1.5); read-only log in the profile. CSV export, audit trail and mistake reporting are deferred ([Phase 2 and Later](#phase-2-and-later)). |
 | 5 | **Light mode only for now.** | Remove the theme toggle and dark styles in 1.4d. |
+| 9 | **Availability surveys are part of Phase 1** (2026-10-28), built **before** 1.6a and 1.5 as Sub-Phase 1.4e, in the **full** version: survey creation, trainers' answers, and the Head-trainer matrix with click-to-assign and live updates. | Replaces the old Phase 2.1. The Availability navigation item, the Dashboard survey tile and the trainer "survey due" card return in Phase 1. The "survey sent" notification is added in 1.6a. |
 | 6 | **Staffing targets:** 1 14/18 coach on every slot; 2 regular trainers on Wednesday (both slots), 3 on Tuesday, Thursday and Friday. | Seeded into the template and existing slots in 1.4c. |
 | 7 | **A 14/18 label change is blocked** while the person has upcoming active assignments on the other track. | Enforced in `set_user_roles` (1.4c). |
 | 8 | **Unpublish is included.** | `unpublish_sessions` in 1.4c, limited to sessions that have not started and have no substitution activity. |
@@ -112,14 +115,14 @@ The visual and navigation target is the **Modernist ledger** prototype in `pocke
 | Design screen | Phase 1 treatment |
 |---|---|
 | Login, invite acceptance | Yes. Invite-only copy; the public `/register` page is removed. |
-| Trainer home | Yes: next session with co-trainers, upcoming list, season stats, open gaps the trainer can cover. "Survey due" card omitted. |
-| Dashboard (head-trainer, super-admin) | Yes, with three tiles (current calendar week, coverage %, open gaps) instead of four; coverage-gap list, recently filled, workload bars. |
-| Sessions: calendar, week chips, hall filter, "only mine", session detail with tracks and slots, override | Yes. The assignment panel lists candidates for the track sorted by fewest sessions; availability is not shown until Phase 2.1. |
+| Trainer home | Yes: next session with co-trainers, upcoming list, season stats, open gaps the trainer can cover. "Survey due" card returns with 1.4e. |
+| Dashboard (head-trainer, super-admin) | Yes: tiles for current calendar week, coverage % and open gaps today; the survey response tile returns with 1.4e; coverage-gap list, recently filled, workload bars. |
+| Sessions: calendar, week chips, hall filter, "only mine", session detail with tracks and slots, override | Yes. The assignment panel lists candidates for the track sorted by fewest sessions; the open-slot list shows availability from 1.4e on. |
 | Gaps | Yes (1.5). |
 | Team, profile, roles, invites | Yes. Profile gains the read-only session log (1.5). |
 | Settings: profile, language, calendar, notification preferences, season slots, halls | Yes. Halls gain address and trainer note. |
 | Notification drawer, install banner | Yes (1.6a). |
-| **Availability** (survey, matrix, my availability) | **Phase 2.1.** Navigation item and survey tile return then. |
+| **Availability** (survey, matrix, my availability) | **Yes, Sub-Phase 1.4e** (before 1.6a). Navigation item, survey tile and "survey due" card return then. |
 | "Report a mistake", CSV export | Deferred (decision 4). |
 
 ---
@@ -129,7 +132,7 @@ The visual and navigation target is the **Modernist ledger** prototype in `pocke
 **Goal**: Add the data the redesigned screens and the substitution flow depend on, and close four known issues, before any UI is rebuilt. **Status: delivered 2026-10-11** in migrations `20261012000000`–`02`; see [[codebase/architecture/database-schema]] for the rules as built.
 
 #### Database (`packages/supabase/migrations/`)
-- **Staffing targets**: `required_regular` and `required_junior` on `training_days`, copied to `sessions` at generation (overridable per session). Template data carries them. **Confirmed values (decision 6)**: Tuesday, Thursday and Friday 3 regular + 1 14/18; both Wednesday slots 2 regular + 1 14/18. Existing training days and sessions are updated to these values by weekday.
+- **Staffing targets**: `required_regular` and `required_junior` on `training_days`, copied to `sessions` at generation (overridable per session). Template data carries them. **Confirmed values (decision 9)**: Tuesday, Thursday and Friday 3 regular + 1 14/18; both Wednesday slots 2 regular + 1 14/18. Existing training days and sessions are updated to these values by weekday.
 - **Per-track limits** (known issue C1): a trigger rejects more than 3 active regular trainers or 2 active 14/18 coaches on a session (the maxima from the requirements; the targets above are what counts as fully staffed). Only active assignments count, so a substitute can be added for a flagged trainer. `bulk_assign_trainer` skips sessions that are already full.
 - **Track versus label** (C2): the `junior_coach` track accepts only profiles with the 14/18 label, and those profiles can only be on that track. Enforced in `bulk_assign_trainer` and by trigger. Changing a person's label is refused while they have upcoming active assignments on the other track (decision 7).
 - **Publishing**: `sessions.published_at` (null means draft). `publish_sessions(season_id, from_date, to_date)` is Head-trainer+ only. Existing sessions are backfilled as published. Generated sessions start as drafts.
@@ -229,7 +232,7 @@ Shell and navigation by role, Dashboard, schedule view filters and "only mine", 
 
 #### App shell and navigation
 - Desktop: 224 px sidebar; mobile: status area and bottom tab bar. Page header with title, subtitle (for example "Season 2026/27 · CW 41"), notification bell and account menu.
-- Phase 1 navigation: Home, called "Dashboard" for every role (decision 2026-10-28; the trainer's view was "My sessions" before), Sessions, Gaps, Team, Settings. Availability is absent until Phase 2.1.
+- Phase 1 navigation: Home, called "Dashboard" for every role (decision 2026-10-28; the trainer's view was "My sessions" before), Sessions, Gaps, Team, Settings. Availability is absent until Sub-Phase 1.4e.
 - **Status 2026-10-14: shell and Settings built.** Sidebar (224 px) with name, role summary and EN | DE switch; page header with subtitle (season and calendar week on Home, "CW" in English and "KW" in German, dates in Europe/Zurich); mobile tab bar with four tabs and an account button in the header that opens Settings. Routes keep their paths (`/dashboard`, `/sessions`, `/substitutions`, `/trainers`, `/settings`). The header has an **Inbox** button (as in the design) that opens the notification drawer, and a **Sign out** button next to it. Sign-out in the header is a deliberate deviation from the design, which has it only in Settings; Settings keeps its own Sign out button as well (decision 2026-10-14). Until 1.6a the drawer shows an empty state and the unread badge is not rendered.
 
 #### Screens migrated
@@ -238,7 +241,7 @@ Shell and navigation by role, Dashboard, schedule view filters and "only mine", 
   - Login: flat labelled fields, primary "Sign in →", left-aligned, 44 px high. Submit logic is unchanged. Errors appear in an inline `role="alert"` block.
   - **Demo-account quick-fill buttons and the Dashboard's "Test Credentials" card (seed emails and shared password) are shown in development builds only** (`import.meta.env.DEV`). CI builds the app and fails if the bundle contains them (`pnpm check:bundle`). The invite flow's temporary password (known issue S1) is still in the bundle until server-side invites ship in 1.6a; the check then also covers the password.
   - **"Forgot password?" is left out** until a reset flow exists (known issue F3, 1.6a).
-  - Invite acceptance follows the design's three fields (email read-only, your name, choose a password); the confirm-password field is dropped. Benefit and invite copy do not mention availability (Phase 2.1). `/register` redirects to `/login`.
+  - Invite acceptance follows the design's three fields (email read-only, your name, choose a password); the confirm-password field is dropped. Benefit and invite copy do not mention availability (Sub-Phase 1.4e). `/register` redirects to `/login`.
   - **Google sign-in is left out of both screens for now** (decision 2026-10-14; the design shows a "Continue with Google" button). A Google sign-in creates an account without profile or role (known issue S3), so it returns after the server-side invites in 1.6a. The component was removed in this sub-phase; it is in git history (commit `057b89f`). The invitee's language choice is saved to their profile.
   - Supabase auth errors are mapped by error code to translated messages; unknown errors show the server's text.
   - The old `.auth-btn-*`, `.styled-input`, `.input-group` and `.divider-*` rules are deleted from `global.css`.
@@ -246,9 +249,9 @@ Shell and navigation by role, Dashboard, schedule view filters and "only mine", 
   - **Trainer home**: first, when there is one, the card "Open gaps you can cover" (**read-only until 1.5**, no Volunteer button): up to three gaps of the active season on the person's own track (the 14/18 label means the junior track), on sessions they are not already working and not overlapping another of their sessions that day (any hall), with date, time, hall and how many are needed, and "+ n more". Rules in `features/home/coverable.ts`; 1.5 adds Volunteer, the "reason when disabled" and the database's final check. Then the next session (date, time, hall, groups, role tag, "Substitute" tag, "With …" the others working it), the next five after it, "Completed sessions · season" with the big count and two smaller ones (Trainer and Assistant coach; for a 14/18 coach only 14/18, no substitute count), the upcoming count and a link to the person's session log, and the calendar card linking to Settings. Counts come from `team_session_stats` (the shared definition), the sessions from the person's own published, active, not yet ended assignments.
   - **Dashboard**: three tiles (calendar week with its date range, coverage % of **all upcoming sessions** of the active season ("n/m upcoming slots filled"), open gaps in red and counted **for the next 14 days only** (today and the 13 days after it, subtitle "Next 14 days", decision 2026-10-28); the second and third open Sessions and Gaps), the next five coverage gaps of those 14 days (one row per short track with how many are missing, a "See all gaps →" link to the Gaps page when there are more; "Assign" opens Sessions until 1.5), "Recently filled" (who covered for whom and how long ago, from filled `substitution_requests`; empty until 1.5 creates them), the viewer's own next session ("Nothing assigned to you yet." when there is none, the block is always shown), and the workload list (completed + upcoming per active person, black and grey bar, a row opens the profile).
   - **Coverage and gaps** (`useCoverage`) follow the rule of 1.5: published, upcoming sessions of **the active season only** (decision 2026-10-28: gaps of old seasons are stale; when no season is active the most recent one is used, as everywhere else) whose active assignments on a track are fewer than required; sessions that have ended and drafts are left out, so a gap goes stale the moment its session is over and never counts in the tile or the list (confirmed 2026-10-28; no grace day); a trainer who is out (`absent_pending_sub`) does not count. Coverage % is filled positions over required positions. The workload and the personal counts are for the current season.
-  - **Left out until later**: Volunteer on the open-gap card (the card itself is read-only), "Can't make it", the Assign action itself (1.5); "Add to calendar" (1.6b); the survey card and tile (2.1); row links to the session detail from the profile (needs the session id in the profile's rows). The development-only "Test Credentials" card and the placeholder hero are gone (the login screen keeps the demo quick-fill buttons).
+  - **Left out until later**: Volunteer on the open-gap card (the card itself is read-only), "Can't make it", the Assign action itself (1.5); "Add to calendar" (1.6b); the survey card and tile (1.4e); row links to the session detail from the profile (needs the session id in the profile's rows). The development-only "Test Credentials" card and the placeholder hero are gone (the login screen keeps the demo quick-fill buttons).
   - Removed: `PersonalStatsCard` and `usePersonalStats` (unused, older definition of "completed") and the shared `PersonalStats` type. Unit tests 225, end-to-end 44 (new: gaps a trainer can cover, trainer home with counts, 14/18 coach counts, next five gaps of the next 14 days with a session leaving the list once staffed, gaps beyond 14 days not counted, gaps of an inactive season hidden, workload, Super-admin vs trainer, phone width; the assignment-flow test now asserts the home counts).
-  - **1.4d status (2026-10-28): done.** Home, Dashboard, Sessions (list and detail), Gaps, the season wizard, Team, profile, Settings and the auth screens are in the Modernist look in English and German; the milestone below is ticked. The Availability placeholder was removed (Phase 2.1). The old styling helpers (`Card`, `Badge`, `Modal`, the legacy `Button` variants, the legacy CSS variable aliases) are deleted. Not part of 1.4d, by decision: Volunteer, "Can't make it" and the reasons text (1.5), notification bell, install banner and invites (1.6a), calendar feed and "Add to calendar" (1.6b), CSV export and "Report a mistake" (decision pending), links from profile session rows to the session detail (needs the session id in the profile's rows).
+  - **1.4d status (2026-10-28): done.** Home, Dashboard, Sessions (list and detail), Gaps, the season wizard, Team, profile, Settings and the auth screens are in the Modernist look in English and German; the milestone below is ticked. The Availability placeholder was removed (Sub-Phase 1.4e). The old styling helpers (`Card`, `Badge`, `Modal`, the legacy `Button` variants, the legacy CSS variable aliases) are deleted. Not part of 1.4d, by decision: Volunteer, "Can't make it" and the reasons text (1.5), notification bell, install banner and invites (1.6a), calendar feed and "Add to calendar" (1.6b), CSV export and "Report a mistake" (decision pending), links from profile session rows to the session detail (needs the session id in the profile's rows).
   - **Season wizard (rebuilt 2026-10-28, opened by "New season" in Settings)**: Modernist look and EN/DE. Three steps with a step indicator (dates and template, weekly slots, review). Step 1: name, dates, "Set as active season" (check row, explains that the current active season is deactivated) and the template choice as two cards (the default template with its real counts of slots, halls and groups, or a blank schedule). Step 2: one row per weekly slot (weekday, time, hall, trainers needed, groups) with Add slot and Remove slot; only active halls are offered; halls are managed in Settings, so the wizard's own hall manager is gone (`LocationManagerModal` deleted). Step 3: figures (weekly slots, halls, estimated sessions), a summary per slot and "Confirm & generate n sessions". Fixed on the way: choosing the blank schedule was undone at once by an effect that re-selected the default template; the blank schedule now starts without slots and choosing the template again refills them. Weekday names follow the language.
 - **Gaps (built 2026-10-28, `/substitutions`, `features/gaps/GapList.tsx`)**: replaces the legacy placeholder with sample data. Read-only: an intro line, the gaps of the **next 14 days** of the active season (the same window and numbers as the Dashboard's "Open gaps"), one row per short track (date and start time, hall, "n trainers needed" or "n 14/18 coaches needed"), each row opening its session, an empty state ("Every session is fully staffed.") and the shared "Recently filled" block. Trainers see the same list. **Left for 1.5**: Volunteer, the reason a gap cannot be taken ("You have another session at this time", "For the other track"), the substitution-request text and the escalation line, and a "can cover" filter for trainers (`coverableGaps` already exists). New shared pieces: `gapsWithin` and `GAP_WINDOW_DAYS` in `useCoverage`, and `RecentlyFilledSection` (also used by the Dashboard). The 1.5 plan item "Gaps page" now means adding these actions, and the calendar of gaps moved there from the Dashboard.
 - **Sessions (built 2026-10-28, `/sessions` and `/sessions/:id`)**: replaces the old schedule view (All Schedule / My Sessions tabs, session cards, `MySessionsList`, `useMySessions`).
@@ -285,11 +288,48 @@ Shell and navigation by role, Dashboard, schedule view filters and "only mine", 
 - [x] Every existing screen renders in the Modernist style on desktop and mobile; no dark-mode controls remain. (done 2026-10-28; `e2e/screens.spec.ts` visits every screen at 390 and 1280 px as trainer and Head-trainer and checks the light ground, no rounded corners from inline or arbitrary styles, and that nothing sticks out sideways; the old styling helpers, the dark-mode code and the legacy token aliases are deleted)
 - [x] The language toggle works on the login screen and in Settings, applies immediately, and persists across sign-out and devices after sign-in. (end-to-end specs `auth` and `settings`)
 - [x] Switching English ↔ Deutsch translates all migrated screens, including error messages; the missing-key test passes. (done 2026-10-28: catalogs have identical keys and placeholders; database error codes are translated and the generic fallback is translated too; a screens spec checks the German titles; every screen has a German unit test)
-- [x] Trainer and Head-trainer see the navigation and home screens described in the design. (Dashboard, Sessions, Gaps, Team, Settings; Availability is Phase 2.1)
+- [x] Trainer and Head-trainer see the navigation and home screens described in the design. (Dashboard, Sessions, Gaps, Team, Settings; Availability is Sub-Phase 1.4e)
 - [x] No request leaves the app to Google Fonts. (Archivo is self-hosted; the screens spec records requests while visiting every screen)
 - [x] Login and invite screens match the prototype at 390 px and 1280 px; the production build contains no demo accounts or seed credentials (the invite flow's temporary password stays until 1.6a, S1) and no "Forgot password?" button (done 2026-10-14).
 - [x] The end-to-end suites from 1.4t still pass against the new UI (selectors updated, no behavior changes). (53 specs pass, also with no active season)
 - [x] Personal stats (trainer, assistant, 14/18, completed, upcoming) are shown on the trainer home and the profile, and the assignment end-to-end test asserts them (2026-10-28; the test asserts that the counts are shown, not their values, because its season is inactive).
+
+---
+
+## Sub-Phase 1.4e: Availability Surveys & Matrix
+
+**Goal**: Replace the WhatsApp round of "who can when" with a survey the Head-trainer sends, trainers answer per date, and a matrix from which the Head-trainer assigns trainers. Built before 1.6a and 1.5 (decision 9, 2026-10-28). The prototype is the design reference. Requirements: [[requirements/sessions-and-assignment]] (availability survey), [[requirements/views-and-notifications]] (matrix).
+
+#### Existing and new data
+Tables and policies exist (`availability_surveys`, `availability_responses`, `is_survey_open()`; no response row means "no response"). New in this sub-phase (migration): the survey's **answer-by date**; the small clean-up of the long policy names on `availability_responses` (known issue T4); and a **single-person assign / unassign function** for the matrix, which locks the session row like the other assignment functions, so two Head-trainers clicking at once cannot overwrite each other (the whole-session save would).
+
+#### Head-trainer
+- **Surveys**: create by choosing a start and end calendar week of the active season, a name and an answer-by date; list; close and reopen (a closed survey locks answers). The sessions in the range are the dates to answer. Only published, upcoming sessions count.
+- **Matrix (desktop)**: dates × trainers grid with sticky headers, colour-coded states (Available, Tentative, Unavailable, No response, and Assigned), coverage per row (2/3 · 1/2), week chips and month calendar like Sessions, filter to 14/18 coaches only. Clicking a cell assigns or unassigns that trainer for that date; the rules of the session (track versus label, maximum, no overlapping session) still apply and their messages are shown. Everyone's answers are visible to Head-trainers and above only.
+- **Matrix (phone)**: a per-day view (one date at a time, trainers listed with their state and an Assign / Unassign action).
+- **Live updates**: the matrix follows answers and assignments as they happen (Supabase Realtime on `availability_responses` and `session_assignments`, risk 5). If the connection drops it shows that it is out of date and refreshes on return.
+- **Open-slot list** (Sessions): the people who could fill a slot are sorted by availability (Available, then Tentative, then No response; Unavailable people are shown last, marked) and then by fewest sessions.
+
+#### Trainer
+- **My availability**: week chips, per date Available / Tentative / Unavailable, an answered count and a progress bar, "Save answers"; locked with a note when the survey is closed.
+- **Navigation**: "Availability" returns for everyone. **Trainer home**: the "survey due" card with a count of dates still to answer. **Dashboard**: the survey response tile (% answered).
+
+#### Not in this sub-phase
+- The "survey sent" push and in-app notification: 1.6a adds the event. Until then the Head-trainer tells trainers a survey is open, and the "survey due" card and navigation badge are the reminder.
+- The rule that blocks volunteering on a date a trainer marked unavailable: built in 1.5 from these answers.
+
+#### Tests
+- pgTAP: answer policies (own answers only, only while open; Head-trainers read all), the assign / unassign function (authorization, track, limits, overlap, concurrency).
+- Unit: survey creation form, my-availability screen (saving, locked state, German), matrix states and filters, cell click handling and error messages, open-slot ordering by availability.
+- Playwright: Head-trainer creates a survey, a trainer answers, the matrix shows the answers, a click assigns and a second browser sees it live, closing locks the trainer's answers; matrix and My availability at 390 and 1280 px.
+
+#### Testable Milestone 1.4e
+- [ ] A Head-trainer creates a survey for a range of weeks and can close and reopen it; a closed survey rejects answers.
+- [ ] Every trainer answers per date; changes are saved and shown after a reload; a trainer sees only their own answers.
+- [ ] The matrix shows all answers with coverage per row; the 14/18 filter works; clicking a cell assigns and unassigns, refusing what the session rules forbid with a readable message.
+- [ ] Two browsers: an answer or an assignment in one appears in the other without a reload.
+- [ ] The open-slot list is ordered by availability, then fewest sessions.
+- [ ] Navigation item, Dashboard tile and "survey due" card appear; all text translates; no horizontal scrolling at 390 px.
 
 ---
 
@@ -305,7 +345,7 @@ Shell and navigation by role, Dashboard, schedule view filters and "only mine", 
 - **Invites** (known issues S1–S3): `invitations` table (email, invited by, roles, 14/18 label, **language**, sent, expires, accepted) and an `invite-user` Edge Function using `auth.admin.inviteUserByEmail()`. A trigger on `auth.users` creates the profile and base role from the invitation, so registration no longer depends on receiving a session. Public signup is disabled in `config.toml`; the temporary password and the `base64(email)` link are removed. The invite form asks for the invitee's language (default: the inviter's); the trigger copies it to the new profile, and the invitation email is sent from an English or German template accordingly.
 
 #### Events live in this sub-phase
-Assigned to sessions (sent on publish, one grouped notification per publish), role changed, and "invite not yet accepted" for Super-admins. The substitution events arrive in 1.5.
+Assigned to sessions (sent on publish, one grouped notification per publish), role changed, "invite not yet accepted" for Super-admins, and "survey sent" to all active trainers for the surveys of 1.4e (a survey can then be announced from the app; until this sub-phase the Head-trainer announces it). The substitution events arrive in 1.5.
 
 #### Web application
 - Bell and drawer (unread dot, mark all read, tap opens the target screen); `usePushRegistration`.
@@ -329,7 +369,7 @@ Assigned to sessions (sent on publish, one grouped notification per publish), ro
 #### Rules
 - **Gap**: a published, upcoming session whose active assignments on a track are fewer than the required number. Sessions that were never fully staffed count; a substitution request adds "who is out".
 - **Flag** (`flag_unavailable`): the assignment becomes `absent_pending_sub`, a request is created, Head-trainers and the session's trainers are notified, all trainers are told about the open gap. The trainer shows as "Out · sub requested".
-- **Volunteer** (`volunteer_for_session`): locks the **session row** (`SELECT FOR UPDATE`) so coverage is checked and filled atomically, for both request-backed gaps and never-staffed ones. The first volunteer is confirmed immediately. Allowed only if: published and upcoming; the trainer's track matches the gap (14/18 label means the junior track); the trainer is not already on the session; no overlapping session the same day (time overlap, any hall). The flagged assignment becomes `replaced`; the volunteer's assignment has `is_substitute = true`. The function checks the caller with `auth.uid()` and has `EXECUTE` revoked from `anon`.
+- **Volunteer** (`volunteer_for_session`): locks the **session row** (`SELECT FOR UPDATE`) so coverage is checked and filled atomically, for both request-backed gaps and never-staffed ones. The first volunteer is confirmed immediately. Allowed only if: published and upcoming; the trainer's track matches the gap (14/18 label means the junior track); the trainer is not already on the session; no overlapping session the same day (time overlap, any hall); the trainer has **not marked that date unavailable** in the survey of 1.4e (a date with no answer is allowed). The flagged assignment becomes `replaced`; the volunteer's assignment has `is_substitute = true`. The function checks the caller with `auth.uid()` and has `EXECUTE` revoked from `anon`.
 - **Escalation**: an hourly `pg_cron` SQL function finds gaps that start within 48 h and have not been escalated, and notifies Head-trainers and Super-admins through the 1.6a dispatcher. Escalations are de-duplicated per session and track.
 - **Undo**: the design's four-second Undo after flagging or volunteering is backed by matching cancel functions (to confirm, see [Details to Confirm](#details-to-confirm)).
 
@@ -376,6 +416,7 @@ Assigned to sessions (sent on publish, one grouped notification per publish), ro
 The plan has no production checklist yet. Before real users:
 
 - [x] Fresh-database run passes (Gate, step 0, 2026-10-11). Re-run after each new migration batch; the remote CI run on push is still to be observed.
+- [ ] 1.4e done: surveys can be sent, answered and used from the matrix.
 - [ ] 1.6a done: server-side invites, public signup disabled, no temporary password.
 - [ ] Fonts self-hosted; GDPR items in [[codebase/data-privacy-gdpr]] (hosting in Switzerland, as the login screen states; data-processing agreements, erasure) verified for the production project.
 - [ ] Production Supabase project, Google OAuth credentials, FCM project and Edge Function secrets configured.
@@ -385,13 +426,8 @@ The plan has no production checklist yet. Before real users:
 
 ## Phase 2 and Later
 
-#### Sub-Phase 2.1: Availability Surveys & Matrix Dashboard (after the pilot)
-Database tables and policies already exist (`availability_surveys`, `availability_responses`, `is_survey_open()`); the work is UI, realtime and notification. The prototype is the design reference:
-- Head-trainer survey creation by choosing a start and end calendar week, with an answer-by date; close and reopen.
-- Trainer "My availability": week chips, per-date Available / Tentative / Unavailable.
-- Head-trainer matrix: desktop grid (dates × trainers, sticky headers, coverage per row, week chips and month calendar), mobile per-day view; clicking a cell assigns or unassigns; candidate list by availability then fewest sessions.
-- Navigation item, dashboard "survey response" tile, trainer "survey due" card, "survey sent" notification, and the volunteer rule that blocks dates the trainer marked unavailable.
-- Matrix live updates need a Supabase Realtime subscription ([[codebase/risk-analysis]], risk 5).
+#### Availability surveys (moved)
+Moved into Phase 1 as Sub-Phase 1.4e on 2026-10-28 (decision 9); see that section.
 
 #### Payout readiness (later)
 The session log is designed so counts can later support pay-outs. Before using it that way: CSV export from `session_log`, an audit trail of changes to past assignments, locking of completed history, and a way to report mistakes. The completed-session definition from 1.5 must not change silently once pay-outs depend on it.
@@ -412,7 +448,7 @@ Season planning with blocks and themes, session notes (Tiptap), email fallback f
 | C7 personal stats not shown on any screen | 1.4d, done 2026-10-28 |
 | F3 no password reset | 1.6a (login button omitted in 1.4d) |
 | T2 fresh-database run | Gate (step 0), done 2026-10-11 |
-| T4 long policy names on `availability_responses` | Before 2.1 (small migration) |
+| T4 long policy names on `availability_responses` | 1.4e (small migration) |
 | F1, F2, T3 | Backlog |
 
 ---
@@ -442,11 +478,11 @@ Items beyond the decisions above, proposed so work can start; each should be con
 | **Gate** | Clean migrations (done 2026-10-11: 13 migrations applied, 77 pgTAP checks, 76 unit and 10 E2E tests passed) | `pnpm supabase:reset && pnpm test:db` |
 | **1.4c Data** (done) | Targets, limits, publishing, atomic saves | pgTAP (`data_foundations`, `publishing`) + Playwright `publishing` flow |
 | **1.4t Test hardening** (done) | Write-policy and output tests, real E2E flows, hook tests, atomic `create_season` | `pnpm test:db` (mutation check on write policies), Playwright with 2 workers, coverage summary in CI |
+| **1.4e Availability** | Survey lifecycle, answers, matrix with click-to-assign and live updates | pgTAP (policies, assign / unassign) + Playwright with two browsers + 390 and 1280 px |
 | **1.4d UI** | Modernist look, EN/DE, light only | Playwright at 390 and 1280 px, missing-key test, no Google Fonts requests |
 | **1.6a Notifications** | Bell, push, PWA, invite-only | Publish → notification; invite → set password; signup rejected |
 | **1.5 Substitutions** | Gaps, flag, volunteer, escalation, log | pgTAP + two-connection concurrency test + Playwright |
 | **1.6b Calendar & offline** | Feed, offline reads | Calendar client subscription, airplane-mode check |
-| **2.1 Availability** | Survey lifecycle, matrix | After the pilot |
 
 ## Related pages
 

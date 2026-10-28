@@ -47,7 +47,7 @@ Each open issue has a scheduled sub-phase; see [[codebase/implementation-plan#wh
 | # | Issue | Notes |
 |---|---|---|
 | T3 | ESLint reports 73 `no-explicit-any` warnings (0 errors), mostly in older code and tests. | Technical debt; not blocking. |
-| T4 | Three policy names on `availability_responses` exceed Postgres' 63-character limit and are silently shortened (for example "…insert availability response"). | Harmless today; shorten them in a migration before Sub-Phase 2.1 so names match the code. |
+| T4 | Three policy names on `availability_responses` exceed Postgres' 63-character limit and are silently shortened (for example "…insert availability response"). | Harmless today; shorten them in a migration in Sub-Phase 1.4e so names match the code. |
 
 ---
 
