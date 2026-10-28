@@ -124,7 +124,7 @@ export function useSeasons() {
       await fetchSeasons();
       return { season: seasonData as Season, generatedCount: generated };
     } catch (err: unknown) {
-      const message = describeDbError(err, 'Failed to create season');
+      const message = describeDbError(err);
       setError(message);
       throw new Error(message);
     }

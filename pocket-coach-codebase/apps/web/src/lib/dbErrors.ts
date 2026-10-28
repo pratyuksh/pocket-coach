@@ -29,10 +29,13 @@ export function dbErrorCode(error: unknown): string | null {
   return null;
 }
 
-/** A user-facing message for a database error, falling back to the raw message or `fallback`. */
-export function describeDbError(error: unknown, fallback: string): string {
+/**
+ * A user-facing message for a database error: the translated message for its code, otherwise the
+ * raw message, otherwise `fallback` (a generic translated message when none is given).
+ */
+export function describeDbError(error: unknown, fallback?: string): string {
   const code = dbErrorCode(error);
   if (code && i18n.exists(`dbErrors.${code}`)) return i18n.t(`dbErrors.${code}` as never);
   const message = (error as ErrorLike | null | undefined)?.message;
-  return message || fallback;
+  return message || fallback || i18n.t('dbErrors.generic');
 }

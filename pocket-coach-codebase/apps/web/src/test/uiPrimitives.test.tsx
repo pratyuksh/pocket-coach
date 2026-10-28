@@ -52,9 +52,21 @@ describe('Button', () => {
     expect(screen.getByRole('button')).toHaveAttribute('type', 'button');
   });
 
-  it('keeps legacy variants working', () => {
-    render(<Button variant="gradient">Go</Button>);
-    expect(screen.getByRole('button', { name: 'Go' })).toBeInTheDocument();
+  it('styles each variant: primary is the red action, secondary is outlined, ghost is a text action', () => {
+    render(
+      <>
+        <Button variant="primary">One</Button>
+        <Button variant="secondary">Two</Button>
+        <Button variant="ghost">Three</Button>
+        <Button variant="icon" aria-label="Four">
+          x
+        </Button>
+      </>,
+    );
+    expect(screen.getByRole('button', { name: 'One' })).toHaveClass('bg-accent');
+    expect(screen.getByRole('button', { name: 'Two' })).toHaveClass('border-divider');
+    expect(screen.getByRole('button', { name: 'Three' })).toHaveClass('text-accent');
+    expect(screen.getByRole('button', { name: 'Four' })).toHaveClass('size-9');
   });
 });
 

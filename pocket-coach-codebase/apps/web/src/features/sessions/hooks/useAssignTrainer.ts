@@ -36,7 +36,7 @@ export function useAssignTrainer() {
       if (rpcErr) throw rpcErr;
       return (data as number) ?? rows.length;
     } catch (err: unknown) {
-      const message = describeDbError(err, 'Failed to save trainer assignments');
+      const message = describeDbError(err);
       setError(message);
       throw new Error(message);
     } finally {

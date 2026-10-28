@@ -34,4 +34,8 @@ describe('dbErrors', () => {
     expect(describeDbError({ message: 'Network down' }, 'fallback')).toBe('Network down');
     expect(describeDbError({}, 'fallback')).toBe('fallback');
   });
+
+  it('falls back to a generic translated message when there is neither a message nor a fallback', () => {
+    expect(describeDbError({})).toMatch(/something went wrong/i);
+  });
 });

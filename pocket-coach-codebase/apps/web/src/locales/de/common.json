@@ -176,7 +176,8 @@
     "cannot_remove_own_super_admin": "Du kannst deine eigene Super-Admin-Rolle nicht entfernen.",
     "invalid_range": "Der Datumsbereich ist ungültig.",
     "invalid_input": "Einige Angaben sind ungültig. Bitte prüfe das Formular.",
-    "profile_not_found": "Die Person wurde nicht gefunden."
+    "profile_not_found": "Die Person wurde nicht gefunden.",
+    "generic": "Etwas ist schiefgelaufen. Bitte versuche es erneut."
   },
   "team": {
     "listLabel": "Teammitglieder",

@@ -91,6 +91,3 @@ export const Dialog: React.FC<DialogProps> = ({
     </div>
   );
 };
-
-/** Legacy name. */
-export const Modal = Dialog;

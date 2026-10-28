@@ -25,7 +25,7 @@ export function useBulkAssignTrainer() {
       if (rpcErr) throw rpcErr;
       return (data as number) || 0;
     } catch (err: any) {
-      const message = describeDbError(err, 'Failed to bulk assign trainer');
+      const message = describeDbError(err);
       setError(message);
       throw new Error(message);
     } finally {

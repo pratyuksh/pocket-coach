@@ -163,7 +163,7 @@ export function useSessions(initialFilters?: SessionFilterOptions) {
       await fetchSessions();
       return (data as { published: number }).published;
     } catch (err: unknown) {
-      const message = describeDbError(err, 'Failed to publish sessions');
+      const message = describeDbError(err);
       setError(message);
       throw new Error(message);
     }
@@ -189,7 +189,7 @@ export function useSessions(initialFilters?: SessionFilterOptions) {
       await fetchSessions();
       return data as { unpublished: number; skipped: number };
     } catch (err: unknown) {
-      const message = describeDbError(err, 'Failed to unpublish sessions');
+      const message = describeDbError(err);
       setError(message);
       throw new Error(message);
     }

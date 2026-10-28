@@ -276,4 +276,8 @@
 ## 2026-10-28 | gaps-page-modernist | Updated 2 pages: codebase/implementation-plan.md, wiki/log.md
 * Rebuilt the Gaps page in the Modernist look with English and German: the gaps of the next 14 days as rows that open their session, an empty state and "Recently filled". It replaces the legacy placeholder with hard-coded sample gaps. Read-only until 1.5 (no Volunteer). `RecentlyFilledSection` is shared with the Dashboard; `gapsWithin` / `GAP_WINDOW_DAYS` are shared too. New `gaps.spec` end-to-end test (own throwaway season; runs in the seasons project). Unit tests 282, end-to-end 48. Not committed yet.
 
+## 2026-10-28 | sub-phase-1-4d-done | Updated 2 pages: codebase/implementation-plan.md, wiki/log.md
+* Closed Sub-Phase 1.4d. Deleted the legacy styling helpers (`Card`, `Badge`, the `Modal` alias, the old `Button` variants) and the legacy CSS variable aliases (the scrollbar now uses the Modernist tokens). Database errors without a code now fall back to a translated generic message instead of English text.
+* New `e2e/screens.spec.ts` covers the milestone across screens: every screen as trainer and Head-trainer at phone and desktop width (light ground, no rounded corners, nothing sticking out sideways), no request to Google Fonts, German titles. While writing it I found that the old "fits the phone" check could never fail, because the page hides horizontal overflow, so it now looks for elements that stick out of the viewport (checked with a deliberately wide element). Milestone items ticked in the plan. Unit tests 283, end-to-end 53. Not committed yet.
+
 <!-- END OF LOG -->

@@ -176,7 +176,8 @@
     "cannot_remove_own_super_admin": "You cannot remove your own Super-admin role.",
     "invalid_range": "The date range is not valid.",
     "invalid_input": "Some of the values are not valid. Please check the form.",
-    "profile_not_found": "The person could not be found."
+    "profile_not_found": "The person could not be found.",
+    "generic": "Something went wrong. Please try again."
   },
   "team": {
     "listLabel": "Team members",

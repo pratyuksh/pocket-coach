@@ -1,14 +1,14 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Modal } from '../components/ui/Dialog';
+import { Dialog } from '../components/ui/Dialog';
 
-describe('Modal', () => {
+describe('Dialog', () => {
   it('renders nothing when isOpen is false', () => {
     const { container } = render(
-      <Modal isOpen={false} onClose={vi.fn()}>
+      <Dialog isOpen={false} onClose={vi.fn()}>
         <p>Hidden content</p>
-      </Modal>,
+      </Dialog>,
     );
 
     expect(container.innerHTML).toBe('');
@@ -16,9 +16,9 @@ describe('Modal', () => {
 
   it('renders children when isOpen is true', () => {
     render(
-      <Modal isOpen={true} onClose={vi.fn()} title="Test Modal">
+      <Dialog isOpen={true} onClose={vi.fn()} title="Test Modal">
         <p>Modal content</p>
-      </Modal>,
+      </Dialog>,
     );
 
     expect(screen.getByText('Modal content')).toBeInTheDocument();
@@ -30,9 +30,9 @@ describe('Modal', () => {
     const onClose = vi.fn();
 
     render(
-      <Modal isOpen={true} onClose={onClose} title="Test Modal">
+      <Dialog isOpen={true} onClose={onClose} title="Test Modal">
         <p>Modal content</p>
-      </Modal>,
+      </Dialog>,
     );
 
     const backdrop = screen.getByTestId('modal-backdrop');
@@ -45,9 +45,9 @@ describe('Modal', () => {
     const onClose = vi.fn();
 
     render(
-      <Modal isOpen={true} onClose={onClose} title="Test Modal">
+      <Dialog isOpen={true} onClose={onClose} title="Test Modal">
         <p>Modal content</p>
-      </Modal>,
+      </Dialog>,
     );
 
     await user.keyboard('{Escape}');
@@ -58,9 +58,9 @@ describe('Modal', () => {
     const onClose = vi.fn();
 
     render(
-      <Modal isOpen={true} onClose={onClose} title="Test Modal">
+      <Dialog isOpen={true} onClose={onClose} title="Test Modal">
         <p>Content</p>
-      </Modal>,
+      </Dialog>,
     );
 
     const closeButton = screen.getByLabelText('Close modal');
