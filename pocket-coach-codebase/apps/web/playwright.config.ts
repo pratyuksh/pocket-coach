@@ -19,7 +19,7 @@ try {
 }
 
 const SEASON_SPECS =
-  /(assignments|assignment-flow|roles-flow|publishing|hall-details|home)\.spec\.ts/;
+  /(assignments|assignment-flow|roles-flow|publishing|hall-details|home|gaps)\.spec\.ts/;
 
 export default defineConfig({
   testDir: './e2e',

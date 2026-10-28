@@ -542,5 +542,10 @@
     "confirm_one": "Confirm & generate {{count}} session",
     "confirm_other": "Confirm & generate {{count}} sessions",
     "failed": "Could not create the season."
+  },
+  "gaps": {
+    "intro": "Sessions that are short of trainers or 14/18 coaches in the next 14 days. Open a session to see who is on it.",
+    "loadError": "Could not load the gaps.",
+    "heading": "Coverage gaps"
   }
 }

@@ -542,5 +542,10 @@
     "confirm_one": "Bestätigen & {{count}} Training erstellen",
     "confirm_other": "Bestätigen & {{count}} Trainings erstellen",
     "failed": "Die Saison konnte nicht erstellt werden."
+  },
+  "gaps": {
+    "intro": "Trainings in den nächsten 14 Tagen, in denen Trainer oder 14/18-Coaches fehlen. Öffne ein Training, um zu sehen, wer eingeteilt ist.",
+    "loadError": "Die Lücken konnten nicht geladen werden.",
+    "heading": "Lücken in der Besetzung"
   }
 }

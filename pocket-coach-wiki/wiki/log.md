@@ -273,4 +273,7 @@
 ## 2026-10-28 | availability-page-removed | Updated 2 pages: codebase/implementation-plan.md, wiki/log.md
 * Removed the Availability placeholder page and its `/availability` route: it was legacy-styled, English-only, showed sample content and was reachable by URL although it is not in the navigation. It returns with Phase 2.1 (the shared availability types stay). Unit tests 275. Not committed yet.
 
+## 2026-10-28 | gaps-page-modernist | Updated 2 pages: codebase/implementation-plan.md, wiki/log.md
+* Rebuilt the Gaps page in the Modernist look with English and German: the gaps of the next 14 days as rows that open their session, an empty state and "Recently filled". It replaces the legacy placeholder with hard-coded sample gaps. Read-only until 1.5 (no Volunteer). `RecentlyFilledSection` is shared with the Dashboard; `gapsWithin` / `GAP_WINDOW_DAYS` are shared too. New `gaps.spec` end-to-end test (own throwaway season; runs in the seasons project). Unit tests 282, end-to-end 48. Not committed yet.
+
 <!-- END OF LOG -->

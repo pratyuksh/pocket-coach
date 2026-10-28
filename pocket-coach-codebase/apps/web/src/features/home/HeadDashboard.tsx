@@ -3,27 +3,18 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Section } from '../../components/ui';
 import { useAuth } from '../../hooks/useAuth';
-import {
-  addDaysToDate,
-  formatDayMonth,
-  isoWeekNumber,
-  timeAgo,
-  weekRange,
-  zurichToday,
-} from '../../lib/dates';
+import { formatDayMonth, isoWeekNumber, weekRange, zurichToday } from '../../lib/dates';
 import { AuthError } from '../auth/AuthLayout';
 import { useLocations } from '../locations/hooks/useLocations';
 import { useActiveSeason } from '../seasons/hooks/useActiveSeason';
 import { useTeamStats, EMPTY_STATS } from '../trainers/hooks/useTeamStats';
 import { useTrainers } from '../trainers/hooks/useTrainers';
-import { useCoverage } from './hooks/useCoverage';
+import { gapsWithin, useCoverage } from './hooks/useCoverage';
 import { useMyUpcoming } from './hooks/useMyUpcoming';
-import { useRecentlyFilled } from './hooks/useRecentlyFilled';
+import { RecentlyFilledSection } from './RecentlyFilledSection';
 import { hallNameFrom } from './shared';
 
 const GAP_PREVIEW = 5;
-/** The Dashboard counts and lists the gaps of today and the 13 days after it. */
-const GAP_WINDOW_DAYS = 14;
 
 interface Tile {
   key: string;
@@ -84,13 +75,11 @@ export const HeadDashboard: React.FC = () => {
   const { stats, error: statsError } = useTeamStats(season?.id, true);
   const { coverage, loading, error } = useCoverage(season?.id, true);
   const { sessions: mine } = useMyUpcoming(user?.id, 1);
-  const { filled } = useRecentlyFilled(true);
 
   const hallName = useMemo(() => hallNameFrom(locations), [locations]);
   const today = zurichToday();
   const next = mine[0];
-  const lastDay = addDaysToDate(today, GAP_WINDOW_DAYS - 1);
-  const soonGaps = coverage.gaps.filter((gap) => gap.date <= lastDay);
+  const soonGaps = gapsWithin(coverage.gaps, today);
 
   if (seasonLoading || loading) {
     return (
@@ -211,32 +200,7 @@ export const HeadDashboard: React.FC = () => {
             )}
           </Section>
 
-          <Section title={t('dashboard.recentlyFilled')}>
-            {filled.length === 0 ? (
-              <p className="text-sm text-neutral-700">{t('dashboard.recentlyFilledEmpty')}</p>
-            ) : (
-              <ul className="-mt-1 flex flex-col">
-                {filled.map((item) => (
-                  <li
-                    key={item.id}
-                    data-testid="filled-row"
-                    className="flex justify-between gap-3 border-b border-divider py-2.5 text-[13.5px]"
-                  >
-                    <span>
-                      {t('dashboard.covered', {
-                        who: item.volunteer,
-                        for: item.original,
-                        date: formatDayMonth(item.sessionDate, language),
-                      })}
-                    </span>
-                    <span className="whitespace-nowrap text-xs text-neutral-700">
-                      {timeAgo(item.filledAt, language)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Section>
+          <RecentlyFilledSection />
         </div>
 
         <div className="flex min-w-0 flex-col gap-[22px]">

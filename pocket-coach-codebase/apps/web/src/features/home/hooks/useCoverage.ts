@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
-import { zurichNow } from '../../../lib/dates';
+import { addDaysToDate, zurichNow } from '../../../lib/dates';
+
+/** The Dashboard and the Gaps page cover today and the 13 days after it. */
+export const GAP_WINDOW_DAYS = 14;
 
 export type GapTrack = 'regular' | 'junior_coach';
 
@@ -133,4 +136,14 @@ export function useCoverage(seasonId: string | null | undefined, enabled: boolea
   }, [fetchCoverage]);
 
   return { coverage, loading, error, refetch: fetchCoverage };
+}
+
+/** The gaps of the next `days` days: today and the days after it. */
+export function gapsWithin(
+  gaps: CoverageGap[],
+  today: string,
+  days: number = GAP_WINDOW_DAYS,
+): CoverageGap[] {
+  const lastDay = addDaysToDate(today, days - 1);
+  return gaps.filter((gap) => gap.date <= lastDay);
 }
