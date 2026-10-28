@@ -4,7 +4,6 @@ import { useSessionAssignments } from '../features/sessions/hooks/useSessionAssi
 import { useAssignTrainer } from '../features/sessions/hooks/useAssignTrainer';
 import { useBulkAssignTrainer } from '../features/sessions/hooks/useBulkAssignTrainer';
 import { useMySessions } from '../features/sessions/hooks/useMySessions';
-import { usePersonalStats } from '../features/sessions/hooks/usePersonalStats';
 import { createMockAssignment, createMockTrainer } from './fixtures/sessionFixtures';
 
 // Mock Supabase
@@ -255,92 +254,6 @@ describe('Sub-Phase 1.4 Custom React Data Hooks', () => {
       expect(result.current.mySessions.length).toBe(2);
       expect(result.current.mySessions[0].session.session_date).toBe('2026-10-06');
       expect(result.current.mySessions[1].session.session_date).toBe('2026-10-10');
-    });
-  });
-
-  describe('usePersonalStats', () => {
-    it('calculates completed vs total assigned sessions correctly', async () => {
-      const mockAssignmentsData = [
-        {
-          id: 'asg-1',
-          session_role: 'primary',
-          status: 'active',
-          session: { session_date: '2020-01-01' }, // Past date
-        },
-        {
-          id: 'asg-2',
-          session_role: 'assistant_coach',
-          status: 'active',
-          session: { session_date: '2099-12-31' }, // Future date
-        },
-      ];
-
-      mockSupabaseFrom.mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockResolvedValue({ data: mockAssignmentsData, error: null }),
-      });
-
-      const { result } = renderHook(() => usePersonalStats('usr-1'));
-
-      await act(async () => {});
-
-      expect(result.current.stats.total_assigned_sessions).toBe(2);
-      expect(result.current.stats.completed_sessions).toBe(1);
-      expect(result.current.stats.primary_role_count).toBe(1);
-      expect(result.current.stats.assistant_role_count).toBe(1);
-    });
-
-    it('excludes replaced assignments and does not complete sessions awaiting a substitute', async () => {
-      const mockAssignmentsData = [
-        {
-          id: 'asg-1',
-          session_role: 'primary',
-          status: 'active',
-          session: { session_date: '2020-01-01' },
-        },
-        {
-          id: 'asg-2',
-          session_role: 'primary',
-          status: 'replaced',
-          session: { session_date: '2020-01-08' },
-        },
-        {
-          id: 'asg-3',
-          session_role: 'assistant_coach',
-          status: 'absent_pending_sub',
-          session: { session_date: '2020-01-15' },
-        },
-      ];
-
-      mockSupabaseFrom.mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockResolvedValue({ data: mockAssignmentsData, error: null }),
-      });
-
-      const { result } = renderHook(() => usePersonalStats('usr-1'));
-
-      await act(async () => {});
-
-      expect(result.current.stats.total_assigned_sessions).toBe(2);
-      expect(result.current.stats.completed_sessions).toBe(1);
-      expect(result.current.stats.primary_role_count).toBe(1);
-      expect(result.current.stats.assistant_role_count).toBe(1);
-    });
-
-    it('handles zero assignments gracefully without crashing', async () => {
-      mockSupabaseFrom.mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockResolvedValue({ data: [], error: null }),
-      });
-
-      const { result } = renderHook(() => usePersonalStats('usr-zero'));
-
-      await act(async () => {});
-
-      expect(result.current.stats.total_assigned_sessions).toBe(0);
-      expect(result.current.stats.completed_sessions).toBe(0);
-      expect(result.current.stats.primary_role_count).toBe(0);
-      expect(result.current.stats.assistant_role_count).toBe(0);
     });
   });
 });

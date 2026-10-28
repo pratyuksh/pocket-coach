@@ -192,13 +192,6 @@ export interface BulkAssignParams {
   assigned_by?: string | null;
 }
 
-export interface PersonalStats {
-  completed_sessions: number;
-  total_assigned_sessions: number;
-  primary_role_count: number;
-  assistant_role_count: number;
-}
-
 export interface Notification {
   id: string;
   recipient_id: string;

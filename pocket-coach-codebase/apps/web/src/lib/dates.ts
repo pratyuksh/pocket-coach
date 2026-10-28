@@ -88,3 +88,49 @@ export function formatDayMonth(dateString: string, language: string): string {
     timeZone: 'UTC',
   }).format(new Date(Date.UTC(y, m - 1, d)));
 }
+
+/**
+ * The Monday-to-Sunday week containing a date, as a short range: `5–11 Oct` or, across a month
+ * boundary, `28 Sep – 4 Oct`.
+ */
+export function weekRange(dateString: string, language: string): string {
+  const [y, m, d] = dateString.split('-').map(Number);
+  const monday = new Date(
+    Date.UTC(y, m - 1, d - ((new Date(Date.UTC(y, m - 1, d)).getUTCDay() || 7) - 1)),
+  );
+  const sunday = new Date(monday);
+  sunday.setUTCDate(monday.getUTCDate() + 6);
+  const month = (date: Date) =>
+    new Intl.DateTimeFormat(localeFor(language), { month: 'short', timeZone: 'UTC' }).format(date);
+  const de = language.startsWith('de');
+  const dayOf = (date: Date) => `${date.getUTCDate()}${de ? '.' : ''}`;
+  if (monday.getUTCMonth() === sunday.getUTCMonth()) {
+    return `${dayOf(monday)}–${dayOf(sunday)} ${month(sunday)}`;
+  }
+  return `${dayOf(monday)} ${month(monday)} – ${dayOf(sunday)} ${month(sunday)}`;
+}
+
+/**
+ * How long ago a moment was, for example `just now`, `5 hours ago`, `yesterday`, `3 days ago`;
+ * a week or more ago it becomes the date.
+ */
+export function timeAgo(then: string | Date, language: string, now: Date = new Date()): string {
+  const minutes = Math.floor((now.getTime() - new Date(then).getTime()) / 60_000);
+  const rtf = new Intl.RelativeTimeFormat(localeFor(language), { numeric: 'auto' });
+  if (minutes < 1) return rtf.format(0, 'second');
+  if (minutes < 60) return rtf.format(-minutes, 'minute');
+  if (minutes < 60 * 24) return rtf.format(-Math.floor(minutes / 60), 'hour');
+  const days = Math.floor(minutes / (60 * 24));
+  if (days < 7) return rtf.format(-days, 'day');
+  return new Intl.DateTimeFormat(localeFor(language), {
+    day: 'numeric',
+    month: 'short',
+    timeZone: ZURICH,
+  }).format(new Date(then));
+}
+
+/** `YYYY-MM-DD` plus a number of days (negative for earlier), calendar arithmetic only. */
+export function addDaysToDate(dateString: string, days: number): string {
+  const [y, m, d] = dateString.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10);
+}

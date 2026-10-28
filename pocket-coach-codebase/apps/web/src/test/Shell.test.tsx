@@ -83,7 +83,7 @@ describe('Shell', () => {
     renderAt('/dashboard');
 
     expect(sidebarLinks().map((l) => l.textContent)).toEqual([
-      'My sessions',
+      'Dashboard',
       'Sessions',
       'Gaps',
       'Team',
@@ -92,10 +92,8 @@ describe('Shell', () => {
     expect(screen.queryByText('Availability')).not.toBeInTheDocument();
   });
 
-  it('names Home "Dashboard" for head trainers and super-admins', () => {
-    signInAs(['trainer', 'head_trainer']);
+  it('names Home "Dashboard" for every role', () => {
     renderAt('/dashboard');
-
     expect(sidebarLinks()[0]).toHaveTextContent('Dashboard');
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Dashboard');
   });
@@ -137,7 +135,7 @@ describe('Shell', () => {
       within(tabBar)
         .getAllByRole('link')
         .map((l) => l.textContent),
-    ).toEqual(['My sessions', 'Sessions', 'Gaps', 'Team']);
+    ).toEqual(['Dashboard', 'Sessions', 'Gaps', 'Team']);
 
     await userEvent.click(screen.getByRole('link', { name: 'Your account and settings' }));
     expect(router.state.location.pathname).toBe('/settings');
@@ -149,9 +147,9 @@ describe('Shell', () => {
     const sidebar = screen.getByRole('complementary');
     await userEvent.click(within(sidebar).getByRole('radio', { name: 'DE' }));
 
-    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('Meine Trainings');
+    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('Dashboard');
     expect(sidebarLinks('Hauptnavigation').map((l) => l.textContent)).toEqual([
-      'Meine Trainings',
+      'Dashboard',
       'Trainings',
       'Lücken',
       'Team',

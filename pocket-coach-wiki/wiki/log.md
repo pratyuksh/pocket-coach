@@ -213,4 +213,28 @@
 * Profile page: "Remove from the team" is now "Deactivate account" (button, confirmation dialog and messages; "Konto deaktivieren" in German). Behaviour is unchanged: the account is deactivated and its roles removed.
 * Login and invite screens now say "Hosted in Switzerland" (was Frankfurt). The wiki documents the production database region accordingly: Zurich (`eu-central-2` at Supabase) instead of Frankfurt, with a note to confirm availability and the data-protection basis when the production project is created. The earlier plan was EU-only.
 
+## 2026-10-28 | sub-phase-1-4d-home-dashboard | Updated 3 pages: codebase/implementation-plan.md, codebase/known-issues.md, wiki/log.md
+* Built Home and Dashboard in the Modernist look (`features/home/`). Trainers get their home (next session with co-trainers, upcoming list, season counts, calendar card); Head-trainers and Super-admins get the Dashboard (tiles for calendar week, coverage and open gaps, gap list, own next session, workload). Details under "Home and Dashboard" in the implementation plan.
+* Decision while building: coverage and gaps are computed over all published, upcoming sessions, not just the active season, matching the gap rule of 1.5. The Dashboard's workload and the personal counts stay per current season.
+* Removed the old placeholder dashboard (hero, "Test Credentials" card), `PersonalStatsCard`, `usePersonalStats` and the `PersonalStats` type. Known issue C7 closed. The trainer's home title is now "Hi {name}", so the language end-to-end test expects a "Hallo …" heading.
+* Not built (waits for later sub-phases): open-gap card, "Can't make it", "Recently filled", working Assign (1.5); "Add to calendar" (1.6b); survey card (2.1). Unit tests 212, end-to-end 40, bundle check passes. Not committed yet.
+
+## 2026-10-28 | home-dashboard-revisions | Updated 2 pages: codebase/implementation-plan.md, wiki/log.md
+* Home is called "Dashboard" for every role (navigation, page title, tab bar); the trainer's greeting title and the "My sessions" label are gone. A 14/18 coach no longer sees the "As substitute" count on the home.
+* Reversed the decision of the same day to count gaps over all seasons: the Dashboard now reads the active season only (stale gaps of old seasons are not relevant). It lists the next five gaps and adds a month calendar that marks days with a gap (red) and fully staffed days (black). The "Show all" toggle is replaced by "+ n more, see the calendar".
+* Unit tests 215, end-to-end 41 (the gap test makes its throwaway season active and restores the previous active season afterwards). Not committed yet.
+
+## 2026-10-28 | trainer-home-coverable-gaps | Updated 2 pages: codebase/implementation-plan.md, wiki/log.md
+* The trainer home (also for 14/18 coaches) now shows "Open gaps you can cover": gaps of the active season on the person's own track, on sessions they are not on and that do not overlap another of their sessions that day. Read-only for now; Volunteer and the "reason when disabled" text arrive with 1.5, so the card was pulled forward from 1.5 without its action. `useCoverage` now also returns the people on each session.
+* Unit tests 221, end-to-end 42. Not committed yet.
+
+## 2026-10-28 | dashboard-calendar-removed | Updated 2 pages: codebase/implementation-plan.md, wiki/log.md
+* Removed the gap calendar from the Dashboard (decision: it belongs on the Gaps page, where it can show more detail in 1.5). The list keeps the next five gaps and ends with "+ n more in Gaps →", a link to the Gaps page. `GapCalendar`, the `monthTitle` date helper and the per-day data in `useCoverage` are deleted; the calendar can be rebuilt from the plan's description when the Gaps page is built. Gaps that have ended stay hidden (no grace day). Unit tests 219, end-to-end 42. Not committed yet.
+
+## 2026-10-28 | dashboard-recently-filled-my-next | Updated 2 pages: codebase/implementation-plan.md, wiki/log.md
+* Dashboard: the link under the gap list now reads "See all gaps →" (no count). Added the design's "Recently filled" block, read from filled `substitution_requests` (who covered for whom, date, how long ago; it shows "Nothing has been filled yet." until 1.5 creates substitutions). "My next session" is now always shown, with "Nothing assigned to you yet." when the viewer has no session (it was hidden before, which looked like it was missing). New `timeAgo` date helper. Unit tests 223, end-to-end 43. Not committed yet.
+
+## 2026-10-28 | dashboard-14-day-gaps | Updated 2 pages: codebase/implementation-plan.md, wiki/log.md
+* Dashboard "Open gaps" counts, and the gap list shows, only the gaps of the next 14 days (today plus 13 days; subtitle "Next 14 days", same as the Gaps page). Coverage % still covers all upcoming (not yet ended) sessions of the active season, and its subtitle now says "upcoming slots filled". The trainer's "gaps you can cover" card is unchanged (all upcoming gaps). New `addDaysToDate` helper. Unit tests 225, end-to-end 44. Not committed yet.
+
 <!-- END OF LOG -->

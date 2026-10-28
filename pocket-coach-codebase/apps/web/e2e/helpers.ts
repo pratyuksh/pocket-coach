@@ -30,6 +30,17 @@ export function isoDate(daysFromToday: number): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
+/** A date as the app writes it in English, for example `Fri 9 Oct`. */
+export function dayMonth(date: string): string {
+  const [y, m, d] = date.split('-').map(Number);
+  return new Intl.DateTimeFormat('en-GB', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    timeZone: 'UTC',
+  }).format(new Date(Date.UTC(y, m - 1, d)));
+}
+
 /** A name that cannot collide with another run or another worker. */
 export function uniqueName(prefix: string): string {
   return `${prefix} ${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -106,7 +117,7 @@ export async function rpc<T = unknown>(
 async function rest<T = unknown>(
   request: APIRequestContext,
   token: string,
-  method: 'GET' | 'POST' | 'DELETE',
+  method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
   path: string,
   data?: unknown,
 ): Promise<T> {
@@ -141,13 +152,13 @@ export interface TestSeason {
 }
 
 /**
- * Creates an inactive, one-week season from the default template (so it has one session per
+ * Creates a one-week season (inactive unless `active` is set) from the default template (so it has one session per
  * weekly slot) via the atomic `create_season` function. Sessions start as drafts.
  */
 export async function createTestSeason(
   request: APIRequestContext,
   token: string,
-  options: { startOffset?: number } = {},
+  options: { startOffset?: number; active?: boolean } = {},
 ): Promise<TestSeason> {
   const startOffset = options.startOffset ?? 21;
   const name = uniqueName('E2E Season');
@@ -171,7 +182,7 @@ export async function createTestSeason(
     p_name: name,
     p_start_date: isoDate(startOffset),
     p_end_date: isoDate(startOffset + 6),
-    p_is_active: false,
+    p_is_active: options.active ?? false,
     p_groups: template.template_data.player_groups,
     p_slots: template.template_data.training_days.map((td) => ({
       day_of_week: td.day_of_week,
@@ -191,6 +202,34 @@ export async function createTestSeason(
     `sessions?season_id=eq.${created.season_id}&select=session_date&order=session_date.asc,start_time.asc`,
   );
   return { id: created.season_id, name, sessionDates: sessions.map((s) => s.session_date) };
+}
+
+/** Ids of the seasons that are active now, to hand back to `restoreActiveSeasons`. */
+export async function activeSeasonIds(
+  request: APIRequestContext,
+  token: string,
+): Promise<string[]> {
+  const rows = await rest<{ id: string }[]>(
+    request,
+    token,
+    'GET',
+    'seasons?is_active=eq.true&select=id',
+  );
+  return rows.map((r) => r.id);
+}
+
+/**
+ * Makes a season active for a test (creating an active season deactivates the others); call
+ * `restoreActiveSeasons` in a `finally` block so a developer's data is left as it was.
+ */
+export async function restoreActiveSeasons(
+  request: APIRequestContext,
+  token: string,
+  ids: string[],
+) {
+  for (const id of ids) {
+    await rest(request, token, 'PATCH', `seasons?id=eq.${id}`, { is_active: true });
+  }
 }
 
 export async function publishTestSeason(

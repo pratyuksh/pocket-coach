@@ -11,7 +11,7 @@ test.describe('Settings (in the app shell)', () => {
 
     const nav = page.getByRole('navigation', { name: 'Main navigation' }).first();
     await expect(nav.getByRole('link')).toHaveText([
-      'My sessions',
+      'Dashboard',
       'Sessions',
       'Gaps',
       'Team',
@@ -103,7 +103,8 @@ test.describe('Settings (in the app shell)', () => {
     await other.goto('/login');
     await expect(other.getByRole('heading', { name: 'Sign in', exact: true })).toBeVisible();
     await submitSignIn(other, email, PASSWORD);
-    await expect(other.getByRole('heading', { level: 1 })).toHaveText('Meine Trainings');
+    await expect(other.getByRole('heading', { level: 1 })).toHaveText('Dashboard');
+    await expect(other.getByText('Nächstes Training')).toBeVisible();
     await otherDevice.close();
   });
 
@@ -150,7 +151,7 @@ test.describe('Shell on a phone', () => {
     await signIn(page, 'trainer1@club.de');
 
     const tabBar = page.getByRole('navigation', { name: 'Main navigation' }).last();
-    await expect(tabBar.getByRole('link')).toHaveText(['My sessions', 'Sessions', 'Gaps', 'Team']);
+    await expect(tabBar.getByRole('link')).toHaveText(['Dashboard', 'Sessions', 'Gaps', 'Team']);
     await expect(page.getByRole('complementary')).toBeHidden();
 
     await page.getByRole('link', { name: 'Your account and settings' }).click();

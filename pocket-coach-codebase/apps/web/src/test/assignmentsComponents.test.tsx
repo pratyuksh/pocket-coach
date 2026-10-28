@@ -3,7 +3,6 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 import { SessionAssigneeModal } from '../features/sessions/components/SessionAssigneeModal';
 import { BulkAssignModal } from '../features/sessions/components/BulkAssignModal';
 import { MySessionsList } from '../features/sessions/components/MySessionsList';
-import { PersonalStatsCard } from '../features/sessions/components/PersonalStatsCard';
 import type { EnrichedSession } from '../features/sessions/hooks/useSessions';
 
 // Mocks
@@ -55,16 +54,6 @@ const mocks = vi.hoisted(() => ({
     loading: false,
     error: null,
   },
-  personalStats: {
-    stats: {
-      completed_sessions: 14,
-      total_assigned_sessions: 36,
-      primary_role_count: 30,
-      assistant_role_count: 6,
-    },
-    loading: false,
-    error: null,
-  },
   auth: { user: { id: 'usr-admin' } },
 }));
 
@@ -104,10 +93,6 @@ vi.mock('../features/locations/hooks/useLocations', () => ({
 
 vi.mock('../features/sessions/hooks/useMySessions', () => ({
   useMySessions: () => mocks.mySessions,
-}));
-
-vi.mock('../features/sessions/hooks/usePersonalStats', () => ({
-  usePersonalStats: () => mocks.personalStats,
 }));
 
 vi.mock('../hooks/useAuth', () => ({
@@ -219,17 +204,6 @@ describe('Sub-Phase 1.4 UI Components', () => {
       expect(screen.getByText(/Tuesday, 2026-10-06/i)).toBeInTheDocument();
       expect(screen.getByText(/Sporthalle Apfelbaum/i)).toBeInTheDocument();
       expect(screen.getByText(/Primary Lead Trainer/i)).toBeInTheDocument();
-    });
-  });
-
-  describe('PersonalStatsCard', () => {
-    it('renders performance metrics tiles (Completed, Total, Role breakdown)', () => {
-      render(<PersonalStatsCard profileId="usr-1" />);
-
-      expect(screen.getByText('14')).toBeInTheDocument(); // Completed
-      expect(screen.getByText('36')).toBeInTheDocument(); // Total
-      expect(screen.getByText('30')).toBeInTheDocument(); // Primary count
-      expect(screen.getByText('6')).toBeInTheDocument(); // Assistant count
     });
   });
 });

@@ -55,8 +55,7 @@
   },
   "nav": {
     "label": "Hauptnavigation",
-    "home": "Meine Trainings",
-    "homeHead": "Dashboard",
+    "home": "Dashboard",
     "sessions": "Trainings",
     "gaps": "Lücken",
     "team": "Team",
@@ -261,5 +260,49 @@
     "email": "E-Mail",
     "editRoles": "Rollen bearbeiten",
     "deactivate": "Konto deaktivieren"
+  },
+  "home": {
+    "loadError": "Deine Trainings konnten nicht geladen werden.",
+    "next": "Nächstes Training",
+    "with": "Mit {{names}}",
+    "nothingYet": "Noch nichts eingeteilt. Deine Trainings erscheinen hier, sobald ein Cheftrainer sie veröffentlicht hat.",
+    "upcoming": "Demnächst",
+    "noMoreUpcoming": "Keine weiteren Trainings eingeteilt.",
+    "noSeason": "Noch keine Saison.",
+    "upcomingLine_one": "{{count}} Training steht in dieser Saison noch an",
+    "upcomingLine_other": "{{count}} Trainings stehen in dieser Saison noch an",
+    "viewLog": "Trainingsprotokoll ansehen",
+    "calendar": "Kalender-Sync",
+    "calendarBody": "Deine Trainings erscheinen automatisch im Google- oder Apple-Kalender.",
+    "calendarSetUp": "Einrichten",
+    "gapsYouCan": "Offene Lücken, die du füllen kannst",
+    "moreGapsYouCan": "+ {{count}} weitere"
+  },
+  "dashboard": {
+    "loadError": "Das Dashboard konnte nicht geladen werden.",
+    "strip": {
+      "label": "Diese Woche im Überblick",
+      "week": "Kalenderwoche",
+      "coverage": "Besetzung",
+      "coverageSub": "{{filled}}/{{needed}} kommende Plätze besetzt",
+      "gaps": "Offene Lücken"
+    },
+    "gapsHeading": "Nächste Lücken in der Besetzung",
+    "gapsCount": "{{count}} offen",
+    "noGaps": "Alle Trainings sind voll besetzt.",
+    "needRegular_one": "{{count}} Trainer gesucht",
+    "needRegular_other": "{{count}} Trainer gesucht",
+    "needJunior_one": "{{count}} 14/18-Coach gesucht",
+    "needJunior_other": "{{count}} 14/18-Coaches gesucht",
+    "assign": "Einteilen",
+    "myNext": "Mein nächstes Training",
+    "workload": "Auslastung · geleistet + geplant",
+    "workloadRow": "{{completed}} geleistet, {{upcoming}} geplant",
+    "workloadEmpty": "Noch keine Trainer.",
+    "moreGaps": "Alle Lücken ansehen",
+    "recentlyFilled": "Kürzlich besetzt",
+    "recentlyFilledEmpty": "Noch nichts besetzt.",
+    "covered": "{{who}} ist für {{for}} eingesprungen · {{date}}",
+    "myNextEmpty": "Dir ist noch nichts eingeteilt."
   }
 }

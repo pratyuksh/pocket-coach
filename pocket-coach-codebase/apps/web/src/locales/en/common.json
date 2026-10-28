@@ -55,8 +55,7 @@
   },
   "nav": {
     "label": "Main navigation",
-    "home": "My sessions",
-    "homeHead": "Dashboard",
+    "home": "Dashboard",
     "sessions": "Sessions",
     "gaps": "Gaps",
     "team": "Team",
@@ -261,5 +260,49 @@
     "email": "Email",
     "editRoles": "Edit roles",
     "deactivate": "Deactivate account"
+  },
+  "home": {
+    "loadError": "Could not load your sessions.",
+    "next": "Next session",
+    "with": "With {{names}}",
+    "nothingYet": "Nothing assigned yet. Your sessions appear here once a head trainer has published them.",
+    "upcoming": "Upcoming",
+    "noMoreUpcoming": "No further sessions assigned.",
+    "noSeason": "No season yet.",
+    "upcomingLine_one": "{{count}} session still to come this season",
+    "upcomingLine_other": "{{count}} sessions still to come this season",
+    "viewLog": "View session log",
+    "calendar": "Calendar sync",
+    "calendarBody": "Your sessions show up in Google or Apple Calendar automatically.",
+    "calendarSetUp": "Set up",
+    "gapsYouCan": "Open gaps you can cover",
+    "moreGapsYouCan": "+ {{count}} more"
+  },
+  "dashboard": {
+    "loadError": "Could not load the dashboard.",
+    "strip": {
+      "label": "This week at a glance",
+      "week": "Calendar week",
+      "coverage": "Coverage",
+      "coverageSub": "{{filled}}/{{needed}} upcoming slots filled",
+      "gaps": "Open gaps"
+    },
+    "gapsHeading": "Next coverage gaps",
+    "gapsCount": "{{count}} open",
+    "noGaps": "Every session is fully staffed.",
+    "needRegular_one": "{{count}} trainer needed",
+    "needRegular_other": "{{count}} trainers needed",
+    "needJunior_one": "{{count}} 14/18 coach needed",
+    "needJunior_other": "{{count}} 14/18 coaches needed",
+    "assign": "Assign",
+    "myNext": "My next session",
+    "workload": "Workload · completed + upcoming",
+    "workloadRow": "{{completed}} completed, {{upcoming}} upcoming",
+    "workloadEmpty": "No trainers yet.",
+    "moreGaps": "See all gaps",
+    "recentlyFilled": "Recently filled",
+    "recentlyFilledEmpty": "Nothing has been filled yet.",
+    "covered": "{{who}} covered for {{for}} · {{date}}",
+    "myNextEmpty": "Nothing assigned to you yet."
   }
 }

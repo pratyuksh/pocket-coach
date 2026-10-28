@@ -5,6 +5,7 @@ import {
   activeAssigneeIds,
   createTestSeason,
   createTrainer,
+  dayMonth,
   deleteTestSeason,
   profileIdByEmail,
   publishTestSeason,
@@ -70,8 +71,18 @@ test.describe('Assignment flow (real data, throwaway season)', () => {
         trainerPage.getByRole('heading', { name: /your assigned sessions \(\d+\)/i }),
       ).toBeVisible();
       await expect(trainerPage.getByText(date).first()).toBeVisible();
-      // Personal stats are not shown on any screen yet (known issue); 1.4d adds them to the home
-      // and profile screens, and this test should then assert them.
+      // The home lists the session and shows the personal counts (trainer and assistant for a
+      // trainer; the values depend on the active season, which this inactive season is not)
+      await trainerPage.goto('/dashboard');
+      await expect(
+        trainerPage
+          .locator('[data-testid="next-session"], [data-testid="upcoming-session"]')
+          .filter({ hasText: dayMonth(date) })
+          .first(),
+      ).toBeVisible();
+      await expect(trainerPage.getByTestId('stat-completed')).toHaveText(/^\d+$/);
+      await expect(trainerPage.getByTestId('stat-trainer')).toHaveText(/^\d+$/);
+      await expect(trainerPage.getByTestId('stat-assistant')).toHaveText(/^\d+$/);
       await trainerContext.close();
 
       // 3. A fourth regular trainer is refused with a readable message and nothing is saved

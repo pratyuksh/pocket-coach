@@ -18,7 +18,8 @@ try {
   // Fall back to default Playwright browser
 }
 
-const SEASON_SPECS = /(assignments|assignment-flow|roles-flow|publishing|hall-details)\.spec\.ts/;
+const SEASON_SPECS =
+  /(assignments|assignment-flow|roles-flow|publishing|hall-details|home)\.spec\.ts/;
 
 export default defineConfig({
   testDir: './e2e',
