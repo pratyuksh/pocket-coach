@@ -481,5 +481,66 @@
       "assigned": "{{name}} wurde eingeteilt.",
       "removed": "{{name}} wurde entfernt."
     }
+  },
+  "seasonWizard": {
+    "title": "Neue Saison erstellen",
+    "steps": {
+      "label": "Schritte",
+      "dates": "Daten & Vorlage",
+      "schedule": "Wochenplan",
+      "review": "Prüfen"
+    },
+    "name": "Name der Saison",
+    "namePlaceholder": "z. B. Saison 2026/2027",
+    "start": "Startdatum",
+    "end": "Enddatum",
+    "active": "Als aktive Saison festlegen",
+    "activeHint": "Trainings und Dashboard zeigen die aktive Saison. Die bisher aktive Saison wird deaktiviert.",
+    "template": {
+      "heading": "Vorlage für den Wochenplan wählen",
+      "group": "Vorlage",
+      "defaultBadge": "Standardvorlage",
+      "customBadge": "Eigener Aufbau",
+      "customTitle": "Leerer Wochenplan",
+      "customBody": "Trainingstage, Zeiten und Hallen von Grund auf selbst festlegen.",
+      "customHint": "Plätze selbst einrichten",
+      "slots_one": "{{count}} wöchentlicher Termin",
+      "slots_other": "{{count}} wöchentliche Termine",
+      "halls_one": "{{count}} Halle",
+      "halls_other": "{{count}} Hallen",
+      "groups_one": "{{count}} Spielergruppe",
+      "groups_other": "{{count}} Spielergruppen"
+    },
+    "next1": "Weiter: Wochenplan einrichten",
+    "next2": "Weiter: Prüfen & bestätigen",
+    "back": "Zurück",
+    "slotsHeading": "Wöchentliche Trainingstermine ({{count}})",
+    "slotsIntro": "Lege Zeit, Halle und Gruppen jedes wiederkehrenden Wochentermins fest. Hallen werden in den Einstellungen verwaltet.",
+    "addSlot": "Termin hinzufügen",
+    "noSlots": "Noch keine Wochentermine. Füge einen hinzu, um weiterzumachen.",
+    "noHalls": "Es gibt noch keine Hallen. Lege zuerst Hallen in den Einstellungen an.",
+    "row": {
+      "weekday": "Wochentag",
+      "start": "Beginn",
+      "end": "Ende",
+      "hall": "Halle",
+      "noHall": "-- Keine Halle --",
+      "needed": "Benötigte Trainer",
+      "regular": "Reguläre",
+      "regularLabel": "Benötigte reguläre Trainer",
+      "junior": "14/18-Coaches",
+      "juniorLabel": "Benötigte 14/18-Coaches",
+      "groups": "Gruppen",
+      "remove": "Termin entfernen"
+    },
+    "ready": "Bereit zum Erstellen",
+    "figSlots": "Wochentermine",
+    "figHalls": "Hallen",
+    "figSessions": "Geschätzte Trainings",
+    "summary": "Zusammenfassung des Wochenplans",
+    "needed": "{{regular}} + {{junior}} Trainer",
+    "confirm_one": "Bestätigen & {{count}} Training erstellen",
+    "confirm_other": "Bestätigen & {{count}} Trainings erstellen",
+    "failed": "Die Saison konnte nicht erstellt werden."
   }
 }

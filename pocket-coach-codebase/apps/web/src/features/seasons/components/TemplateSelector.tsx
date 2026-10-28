@@ -1,7 +1,7 @@
 import React from 'react';
-import { Badge } from '../../../components/ui';
+import { useTranslation } from 'react-i18next';
 import type { SeasonTemplate } from '@pocket-coach/shared-types';
-import { Sparkles, Calendar, MapPin, Users, Check } from 'lucide-react';
+import { Tag } from '../../../components/ui';
 
 interface TemplateSelectorProps {
   templates: SeasonTemplate[];
@@ -9,89 +9,84 @@ interface TemplateSelectorProps {
   onSelectTemplate: (template: SeasonTemplate | null) => void;
 }
 
+const card = (selected: boolean) =>
+  `relative flex w-full cursor-pointer flex-col gap-1 border bg-transparent p-3.5 text-left text-text ${
+    selected ? 'border-2 border-text bg-neutral-100' : 'border-divider hover:bg-neutral-100'
+  }`;
+
+/** The two ways to start a season: the default template, or an empty weekly schedule. */
 export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
   templates,
   selectedTemplateId,
   onSelectTemplate,
 }) => {
-  const defaultTemplate = templates.find((t) => t.is_default) || templates[0];
+  const { t } = useTranslation();
+  const template = templates.find((tpl) => tpl.is_default) || templates[0];
+  const days = template?.template_data?.training_days ?? [];
+  const hallCount = new Set(days.map((d) => d.location_name.toLowerCase())).size;
+  const groupCount = template?.template_data?.player_groups?.length ?? 0;
 
   return (
-    <div className="space-y-3">
-      <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">
-        Choose Schedule Template
-      </label>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {/* Default Junior Season Template */}
-        {defaultTemplate && (
-          <div
-            onClick={() => onSelectTemplate(defaultTemplate)}
-            className={`cursor-pointer relative p-4 rounded-2xl border transition-all duration-200 ${
-              selectedTemplateId === defaultTemplate.id
-                ? 'bg-emerald-500/10 border-emerald-500 ring-2 ring-emerald-500/30'
-                : 'bg-white border-slate-200 hover:border-emerald-500/50'
-            }`}
+    <div className="flex flex-col gap-2">
+      <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-neutral-700">
+        {t('seasonWizard.template.heading')}
+      </span>
+      <div
+        role="radiogroup"
+        aria-label={t('seasonWizard.template.group')}
+        className="grid grid-cols-1 gap-3 sm:grid-cols-2"
+      >
+        {template && (
+          <button
+            type="button"
+            role="radio"
+            aria-checked={selectedTemplateId === template.id}
+            onClick={() => onSelectTemplate(template)}
+            className={card(selectedTemplateId === template.id)}
           >
-            {selectedTemplateId === defaultTemplate.id && (
-              <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center">
-                <Check className="w-3 h-3" />
-              </div>
+            <span className="flex items-center justify-between gap-2">
+              <Tag size="sm">{t('seasonWizard.template.defaultBadge')}</Tag>
+              {selectedTemplateId === template.id && (
+                <span aria-hidden="true" className="text-sm font-extrabold">
+                  ✓
+                </span>
+              )}
+            </span>
+            <span className="font-heading text-base font-extrabold">{template.name}</span>
+            {template.description && (
+              <span className="text-xs text-neutral-700">{template.description}</span>
             )}
-
-            <div className="flex items-center gap-2 mb-1">
-              <Badge variant="gradient">
-                <Sparkles className="w-3 h-3 text-emerald-400 mr-1" /> Default Template
-              </Badge>
-            </div>
-
-            <h4 className="text-base font-bold text-slate-900 mt-1">{defaultTemplate.name}</h4>
-            <p className="text-xs text-slate-500 mt-1 line-clamp-2">
-              {defaultTemplate.description}
-            </p>
-
-            <div className="mt-3 pt-3 border-t border-slate-100 flex flex-wrap gap-2 text-xs text-slate-600">
-              <span className="flex items-center gap-1">
-                <Calendar className="w-3.5 h-3.5 text-emerald-500" /> 5 Weekly Slots
-              </span>
-              <span className="flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 text-emerald-500" /> 3 Hall Locations
-              </span>
-              <span className="flex items-center gap-1">
-                <Users className="w-3.5 h-3.5 text-emerald-500" /> 3 Player Groups
-              </span>
-            </div>
-          </div>
+            <span className="mt-2 flex flex-wrap gap-x-3 gap-y-0.5 border-t border-divider pt-2 text-xs text-neutral-700">
+              <span>{t('seasonWizard.template.slots', { count: days.length })}</span>
+              <span>{t('seasonWizard.template.halls', { count: hallCount })}</span>
+              <span>{t('seasonWizard.template.groups', { count: groupCount })}</span>
+            </span>
+          </button>
         )}
 
-        {/* Custom Blank Schedule Option */}
-        <div
+        <button
+          type="button"
+          role="radio"
+          aria-checked={selectedTemplateId === null}
           onClick={() => onSelectTemplate(null)}
-          className={`cursor-pointer relative p-4 rounded-2xl border transition-all duration-200 ${
-            selectedTemplateId === null
-              ? 'bg-emerald-500/10 border-emerald-500 ring-2 ring-emerald-500/30'
-              : 'bg-white border-slate-200 hover:border-emerald-500/50'
-          }`}
+          className={card(selectedTemplateId === null)}
         >
-          {selectedTemplateId === null && (
-            <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center">
-              <Check className="w-3 h-3" />
-            </div>
-          )}
-
-          <div className="mb-1">
-            <Badge variant="neutral">Custom Setup</Badge>
-          </div>
-
-          <h4 className="text-base font-bold text-slate-900 mt-1">Custom Blank Schedule</h4>
-          <p className="text-xs text-slate-500 mt-1">
-            Build your training days, time slots, and hall locations from scratch.
-          </p>
-
-          <div className="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-400">
-            Configure custom slots manually
-          </div>
-        </div>
+          <span className="flex items-center justify-between gap-2">
+            <Tag size="sm">{t('seasonWizard.template.customBadge')}</Tag>
+            {selectedTemplateId === null && (
+              <span aria-hidden="true" className="text-sm font-extrabold">
+                ✓
+              </span>
+            )}
+          </span>
+          <span className="font-heading text-base font-extrabold">
+            {t('seasonWizard.template.customTitle')}
+          </span>
+          <span className="text-xs text-neutral-700">{t('seasonWizard.template.customBody')}</span>
+          <span className="mt-2 border-t border-divider pt-2 text-xs text-neutral-700">
+            {t('seasonWizard.template.customHint')}
+          </span>
+        </button>
       </div>
     </div>
   );

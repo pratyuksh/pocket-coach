@@ -150,3 +150,12 @@ export function monthTitle(year: number, month: number, language: string): strin
     timeZone: 'UTC',
   }).format(new Date(Date.UTC(year, month, 1)));
 }
+
+/** Full weekday name for a day-of-week number (0 = Sunday), in the given language. */
+export function weekdayLong(dayOfWeek: number, language: string): string {
+  // 2024-01-07 was a Sunday.
+  const date = new Date(Date.UTC(2024, 0, 7 + dayOfWeek));
+  return new Intl.DateTimeFormat(localeFor(language), { weekday: 'long', timeZone: 'UTC' }).format(
+    date,
+  );
+}

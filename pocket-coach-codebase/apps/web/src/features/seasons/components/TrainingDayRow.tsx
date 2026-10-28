@@ -1,16 +1,8 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Location } from '@pocket-coach/shared-types';
-import { Trash2, MapPin, Clock, Users } from 'lucide-react';
-
-export const WEEKDAYS = [
-  'Sunday',
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-];
+import { Button, Field, Input, Select } from '../../../components/ui';
+import { weekdayLong } from '../../../lib/dates';
 
 export interface SlotConfig {
   id: string;
@@ -39,6 +31,11 @@ interface TrainingDayRowProps {
   onRemove: () => void;
 }
 
+const WEEKDAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
+
+const numberInput = 'w-16 font-mono';
+
+/** One recurring weekday slot of the season: day, time, hall, staffing targets and groups. */
 export const TrainingDayRow: React.FC<TrainingDayRowProps> = ({
   slot,
   locations,
@@ -46,102 +43,83 @@ export const TrainingDayRow: React.FC<TrainingDayRowProps> = ({
   onChange,
   onRemove,
 }) => {
-  const handleGroupToggle = (groupName: string) => {
+  const { t, i18n } = useTranslation();
+  const language = i18n.resolvedLanguage ?? 'de';
+
+  const toggleGroup = (groupName: string) => {
     const exists = slot.player_group_names.includes(groupName);
-    const updatedGroups = exists
-      ? slot.player_group_names.filter((g) => g !== groupName)
-      : [...slot.player_group_names, groupName];
-    onChange({ ...slot, player_group_names: updatedGroups });
+    onChange({
+      ...slot,
+      player_group_names: exists
+        ? slot.player_group_names.filter((g) => g !== groupName)
+        : [...slot.player_group_names, groupName],
+    });
   };
 
+  const halls = locations.filter((loc) => loc.is_active || loc.id === slot.location_id);
+
   return (
-    <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-3 transition-all hover:border-slate-300">
-      <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
-        {/* Day of Week */}
-        <div className="sm:col-span-3">
-          <label className="block text-xs font-semibold text-slate-700 mb-1">Weekday</label>
-          <select
+    <div className="flex flex-col gap-3 border border-divider p-3.5">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-[1fr_96px_96px_1.4fr_auto] sm:items-end">
+        <Field label={t('seasonWizard.row.weekday')} className="col-span-2 sm:col-span-1">
+          <Select
             value={slot.day_of_week}
             onChange={(e) => onChange({ ...slot, day_of_week: parseInt(e.target.value, 10) })}
-            className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 bg-slate-50 text-slate-900 font-medium focus:ring-2 focus:ring-emerald-500 outline-none"
           >
-            {WEEKDAYS.map((name, index) => (
-              <option key={name} value={index}>
-                {name}
+            {WEEKDAY_ORDER.map((d) => (
+              <option key={d} value={d}>
+                {weekdayLong(d, language)}
               </option>
             ))}
-          </select>
-        </div>
-
-        {/* Time Range */}
-        <div className="sm:col-span-4 flex items-center gap-2">
-          <div className="flex-1">
-            <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
-              <Clock className="w-3 h-3 text-emerald-500" /> Start
-            </label>
-            <input
-              type="time"
-              value={slot.default_start_time.slice(0, 5)}
-              onChange={(e) => onChange({ ...slot, default_start_time: `${e.target.value}:00` })}
-              className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 bg-slate-50 text-slate-900 font-mono focus:ring-2 focus:ring-emerald-500 outline-none"
-            />
-          </div>
-          <span className="text-slate-400 mt-5">–</span>
-          <div className="flex-1">
-            <label className="block text-xs font-semibold text-slate-700 mb-1">End</label>
-            <input
-              type="time"
-              value={slot.default_end_time.slice(0, 5)}
-              onChange={(e) => onChange({ ...slot, default_end_time: `${e.target.value}:00` })}
-              className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 bg-slate-50 text-slate-900 font-mono focus:ring-2 focus:ring-emerald-500 outline-none"
-            />
-          </div>
-        </div>
-
-        {/* Sports Hall Location */}
-        <div className="sm:col-span-4">
-          <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
-            <MapPin className="w-3 h-3 text-emerald-500" /> Sports Hall Location
-          </label>
-          <select
+          </Select>
+        </Field>
+        <Field label={t('seasonWizard.row.start')}>
+          <Input
+            type="time"
+            className="font-mono"
+            value={slot.default_start_time.slice(0, 5)}
+            onChange={(e) => onChange({ ...slot, default_start_time: `${e.target.value}:00` })}
+          />
+        </Field>
+        <Field label={t('seasonWizard.row.end')}>
+          <Input
+            type="time"
+            className="font-mono"
+            value={slot.default_end_time.slice(0, 5)}
+            onChange={(e) => onChange({ ...slot, default_end_time: `${e.target.value}:00` })}
+          />
+        </Field>
+        <Field label={t('seasonWizard.row.hall')} className="col-span-2 sm:col-span-1">
+          <Select
             value={slot.location_id || ''}
             onChange={(e) => onChange({ ...slot, location_id: e.target.value || null })}
-            className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 bg-slate-50 text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none"
           >
-            <option value="">-- No Location Assigned --</option>
-            {locations.map((loc) => (
+            <option value="">{t('seasonWizard.row.noHall')}</option>
+            {halls.map((loc) => (
               <option key={loc.id} value={loc.id}>
-                {loc.name} {loc.district_area ? `(${loc.district_area})` : ''}
+                {loc.name}
+                {loc.district_area ? ` (${loc.district_area})` : ''}
               </option>
             ))}
-          </select>
-        </div>
-
-        {/* Delete Slot Action */}
-        <div className="sm:col-span-1 flex justify-end sm:mt-5">
-          <button
-            type="button"
-            onClick={onRemove}
-            className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-colors"
-            title="Remove Slot"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
-        </div>
+          </Select>
+        </Field>
+        <Button variant="ghost" size="sm" className="col-span-2 sm:col-span-1" onClick={onRemove}>
+          {t('seasonWizard.row.remove')}
+        </Button>
       </div>
 
-      {/* Required trainers per track */}
-      <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center gap-4">
-        <span className="text-xs font-semibold text-slate-500 flex items-center gap-1">
-          <Users className="w-3 h-3 text-emerald-500" /> Trainers needed:
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-divider pt-2.5">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-neutral-700">
+          {t('seasonWizard.row.needed')}
         </span>
-        <label className="flex items-center gap-2 text-xs text-slate-600">
-          Regular
-          <input
+        <label className="flex items-center gap-2 text-xs">
+          {t('seasonWizard.row.regular')}
+          <Input
             type="number"
             min={0}
             max={3}
-            aria-label="Regular trainers needed"
+            aria-label={t('seasonWizard.row.regularLabel')}
+            className={numberInput}
             value={slot.required_regular}
             onChange={(e) =>
               onChange({
@@ -149,16 +127,16 @@ export const TrainingDayRow: React.FC<TrainingDayRowProps> = ({
                 required_regular: Math.min(3, Math.max(0, parseInt(e.target.value, 10) || 0)),
               })
             }
-            className="w-16 px-2 py-1 text-sm rounded-lg border border-slate-300 bg-slate-50 text-slate-900 font-mono focus:ring-2 focus:ring-emerald-500 outline-none"
           />
         </label>
-        <label className="flex items-center gap-2 text-xs text-slate-600">
-          14/18 coaches
-          <input
+        <label className="flex items-center gap-2 text-xs">
+          {t('seasonWizard.row.junior')}
+          <Input
             type="number"
             min={0}
             max={2}
-            aria-label="14/18 coaches needed"
+            aria-label={t('seasonWizard.row.juniorLabel')}
+            className={numberInput}
             value={slot.required_junior}
             onChange={(e) =>
               onChange({
@@ -166,30 +144,27 @@ export const TrainingDayRow: React.FC<TrainingDayRowProps> = ({
                 required_junior: Math.min(2, Math.max(0, parseInt(e.target.value, 10) || 0)),
               })
             }
-            className="w-16 px-2 py-1 text-sm rounded-lg border border-slate-300 bg-slate-50 text-slate-900 font-mono focus:ring-2 focus:ring-emerald-500 outline-none"
           />
         </label>
       </div>
 
-      {/* Attending Player Groups */}
-      <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center gap-2">
-        <span className="text-xs font-semibold text-slate-500 flex items-center gap-1">
-          <Users className="w-3 h-3 text-emerald-500" /> Groups:
+      <div className="flex flex-wrap items-center gap-2 border-t border-divider pt-2.5">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-neutral-700">
+          {t('seasonWizard.row.groups')}
         </span>
         {availableGroups.map((groupName) => {
-          const isSelected = slot.player_group_names.includes(groupName);
+          const selected = slot.player_group_names.includes(groupName);
           return (
             <button
               key={groupName}
               type="button"
-              onClick={() => handleGroupToggle(groupName)}
-              className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-all ${
-                isSelected
-                  ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-500/30'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              aria-pressed={selected}
+              onClick={() => toggleGroup(groupName)}
+              className={`cursor-pointer border border-text px-2.5 py-1 text-xs font-semibold ${
+                selected ? 'bg-text text-bg' : 'bg-transparent text-text hover:bg-text/7'
               }`}
             >
-              {isSelected ? '✓ ' : '+ '}
+              {selected ? '✓ ' : '+ '}
               {groupName}
             </button>
           );

@@ -5,10 +5,12 @@ import {
   apiSignIn,
   createTestSeason,
   deleteTestSeason,
+  profileIdByEmail,
   publishTestSeason,
   restoreActiveSeasons,
   sessionIdByDate,
   sessionRequirements,
+  setAssignments,
   signIn,
 } from './helpers';
 
@@ -206,16 +208,40 @@ test.describe('Session Assignment & Personal Schedule E2E Flow', () => {
 
   test('A trainer sees the sessions without management actions and can filter to their own', async ({
     page,
+    request,
   }) => {
-    await signIn(page, ACCOUNTS.trainer);
-    await page.goto('/sessions');
+    // Its own active season: a fresh database (such as CI) has no season at all
+    const token = await apiSignIn(request, ACCOUNTS.head);
+    const before = await activeSeasonIds(request, token);
+    const season = await createTestSeason(request, token, { active: true });
+    await publishTestSeason(request, token, season);
 
-    await expect(page.getByRole('heading', { level: 1, name: 'Sessions' })).toBeVisible();
-    await expect(page.getByRole('checkbox', { name: 'Only mine' })).not.toBeChecked();
-    await expect(page.getByRole('button', { name: /bulk assign/i })).toHaveCount(0);
-    await expect(page.getByRole('button', { name: /^publish/i })).toHaveCount(0);
+    try {
+      const trainerId = await profileIdByEmail(request, token, ACCOUNTS.trainer);
+      const mine = await sessionIdByDate(request, token, season.id, season.sessionDates[0]);
+      await setAssignments(request, token, mine, [
+        { profile_id: trainerId, track: 'regular', session_role: 'primary' },
+      ]);
 
-    await page.getByRole('checkbox', { name: 'Only mine' }).click();
-    await expect(page.getByRole('checkbox', { name: 'Only mine' })).toBeChecked();
+      await signIn(page, ACCOUNTS.trainer);
+      await page.goto('/sessions');
+
+      await expect(page.getByRole('heading', { level: 1, name: 'Sessions' })).toBeVisible();
+      const rows = page.getByTestId('session-row');
+      await expect(rows.first()).toBeVisible();
+      const all = await rows.count();
+      expect(all).toBeGreaterThan(1);
+      await expect(page.getByRole('checkbox', { name: 'Only mine' })).not.toBeChecked();
+      await expect(page.getByRole('button', { name: /bulk assign/i })).toHaveCount(0);
+      await expect(page.getByRole('button', { name: /^publish/i })).toHaveCount(0);
+
+      await page.getByRole('checkbox', { name: 'Only mine' }).click();
+      await expect(page.getByRole('checkbox', { name: 'Only mine' })).toBeChecked();
+      await expect(rows).toHaveCount(1);
+      await expect(rows.first()).toHaveAttribute('data-session-id', mine);
+    } finally {
+      await deleteTestSeason(request, token, season.id);
+      await restoreActiveSeasons(request, token, before);
+    }
   });
 });

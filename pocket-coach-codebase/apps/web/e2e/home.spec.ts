@@ -220,19 +220,36 @@ test.describe('Home and Dashboard (real data, throwaway season)', () => {
 
   test('gaps of an inactive season are not shown', async ({ page, request }) => {
     const headToken = await apiSignIn(request, ACCOUNTS.head);
-    const season = await createTestSeason(request, headToken, { startOffset: 1 });
-    await publishTestSeason(request, headToken, season);
+    const before = await activeSeasonIds(request, headToken);
+    // Without an active season the app falls back to the most recent one (this is what a fresh
+    // database such as CI has), so the inactive season must be older in start date than an
+    // explicitly active one, and an active season must really exist
+    const inactive = await createTestSeason(request, headToken, { startOffset: 1 });
+    await publishTestSeason(request, headToken, inactive);
+    const active = await createTestSeason(request, headToken, { startOffset: 3, active: true });
+    await publishTestSeason(request, headToken, active);
 
     try {
-      const date = season.sessionDates[0];
-      const sessionId = await sessionIdByDate(request, headToken, season.id, date);
+      const inactiveId = await sessionIdByDate(
+        request,
+        headToken,
+        inactive.id,
+        inactive.sessionDates[0],
+      );
+      const activeId = await sessionIdByDate(request, headToken, active.id, active.sessionDates[0]);
 
       await signIn(page, ACCOUNTS.head);
       await page.goto('/dashboard');
       await expect(page.getByTestId('tile-coverage')).toBeVisible();
-      await expect(page.locator(`[data-session-id="${sessionId}"]`)).toHaveCount(0);
+      // The active season's gaps are listed, the inactive season's are not
+      await expect(
+        page.locator(`[data-testid="gap-row"][data-session-id="${activeId}"]`),
+      ).not.toHaveCount(0);
+      await expect(page.locator(`[data-session-id="${inactiveId}"]`)).toHaveCount(0);
     } finally {
-      await deleteTestSeason(request, headToken, season.id);
+      await deleteTestSeason(request, headToken, inactive.id);
+      await deleteTestSeason(request, headToken, active.id);
+      await restoreActiveSeasons(request, headToken, before);
     }
   });
 

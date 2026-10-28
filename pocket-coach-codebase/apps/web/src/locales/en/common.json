@@ -481,5 +481,66 @@
       "assigned": "{{name}} was assigned.",
       "removed": "{{name}} was removed."
     }
+  },
+  "seasonWizard": {
+    "title": "Create new season",
+    "steps": {
+      "label": "Steps",
+      "dates": "Dates & template",
+      "schedule": "Schedule",
+      "review": "Review"
+    },
+    "name": "Season name",
+    "namePlaceholder": "e.g. Season 2026/2027",
+    "start": "Start date",
+    "end": "End date",
+    "active": "Set as active season",
+    "activeHint": "Sessions and the Dashboard show the active season. The season that is active now is deactivated.",
+    "template": {
+      "heading": "Choose schedule template",
+      "group": "Schedule template",
+      "defaultBadge": "Default template",
+      "customBadge": "Custom setup",
+      "customTitle": "Custom Blank Schedule",
+      "customBody": "Build your training days, time slots and halls from scratch.",
+      "customHint": "Configure the slots yourself",
+      "slots_one": "{{count}} weekly slot",
+      "slots_other": "{{count}} weekly slots",
+      "halls_one": "{{count}} hall",
+      "halls_other": "{{count}} halls",
+      "groups_one": "{{count}} player group",
+      "groups_other": "{{count}} player groups"
+    },
+    "next1": "Next: Configure schedule",
+    "next2": "Next: Review & confirm",
+    "back": "Back",
+    "slotsHeading": "Weekly training slots ({{count}})",
+    "slotsIntro": "Set the time, hall and groups of each recurring weekday slot. Halls are managed in Settings.",
+    "addSlot": "Add slot",
+    "noSlots": "No weekly slots yet. Add one to continue.",
+    "noHalls": "There are no halls yet. Add halls in Settings first.",
+    "row": {
+      "weekday": "Weekday",
+      "start": "Start",
+      "end": "End",
+      "hall": "Hall",
+      "noHall": "-- No hall --",
+      "needed": "Trainers needed",
+      "regular": "Regular",
+      "regularLabel": "Regular trainers needed",
+      "junior": "14/18 coaches",
+      "juniorLabel": "14/18 coaches needed",
+      "groups": "Groups",
+      "remove": "Remove slot"
+    },
+    "ready": "Ready for generation",
+    "figSlots": "Weekly slots",
+    "figHalls": "Halls",
+    "figSessions": "Estimated sessions",
+    "summary": "Schedule summary",
+    "needed": "{{regular}} + {{junior}} trainers",
+    "confirm_one": "Confirm & generate {{count}} session",
+    "confirm_other": "Confirm & generate {{count}} sessions",
+    "failed": "Could not create the season."
   }
 }

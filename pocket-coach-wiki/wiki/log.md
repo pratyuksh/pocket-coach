@@ -264,4 +264,10 @@
 ## 2026-10-28 | e2e-date-format-ci-fix | Updated 1 page: wiki/log.md
 * Fixed CI failures in the Home end-to-end specs: they compared on-screen dates with text built in Node ("Thu 29 Oct"), but the CI browser writes "Thu, 29 Oct". The specs now match sessions and gaps by a `data-session-date` attribute (added to the next-session, upcoming-session and coverable-gap items) and no longer depend on how a machine formats dates. The other CI failures came from an earlier commit and are already gone: the home list assertion in the assignment flow was removed, and the suite runs on one worker so specs that switch the active season cannot overlap. Unit tests 270, end-to-end 47. Not committed yet.
 
+## 2026-10-28 | season-wizard-modernist | Updated 2 pages: codebase/implementation-plan.md, wiki/log.md
+* Rebuilt the season wizard (`SeasonSetupModal`, `TemplateSelector`, `TrainingDayRow`) in the Modernist look with English and German; labels used by the end-to-end specs are unchanged. Removed the embedded hall manager (`LocationManagerModal`, deleted): halls are managed in Settings. Template cards now show the template's real counts. Fixed a bug: the blank schedule could not be chosen because an effect re-selected the default template. New `weekdayLong` date helper. Unit tests 275, end-to-end 47. Not committed yet.
+
+## 2026-10-28 | e2e-no-season-ci-fix | Updated 1 page: wiki/log.md
+* Fixed two more CI failures with the same cause: a fresh database (CI) has no season, so the app falls back to the most recent one. "A trainer sees the sessions … Only mine" relied on a season that exists on a developer's machine and now creates and publishes its own (and checks "Only mine" against an assigned session). "Gaps of an inactive season are not shown" had an inactive season as the only (so the fallback) season; it now creates an older inactive and a newer active season and checks that only the active one's gaps appear. The whole suite also passes with no active season. Unit tests 275, end-to-end 47. Not committed yet.
+
 <!-- END OF LOG -->

@@ -1,21 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Modal, Button, Badge } from '../../../components/ui';
-import { useSeasons } from '../hooks/useSeasons';
+import { useTranslation } from 'react-i18next';
+import type { SeasonTemplate } from '@pocket-coach/shared-types';
+import { Button, CheckRow, Dialog, Field, Input } from '../../../components/ui';
+import { formatTimeRange, weekdayLong } from '../../../lib/dates';
+import { AuthError } from '../../auth/AuthLayout';
 import { useLocations } from '../../locations/hooks/useLocations';
+import { useSeasons } from '../hooks/useSeasons';
 import { TemplateSelector } from './TemplateSelector';
 import { TrainingDayRow, SlotConfig, defaultTargets } from './TrainingDayRow';
-import { LocationManagerModal } from '../../locations/components/LocationManagerModal';
-import type { SeasonTemplate } from '@pocket-coach/shared-types';
-import {
-  Sparkles,
-  Plus,
-  ArrowRight,
-  ArrowLeft,
-  CheckCircle2,
-  AlertCircle,
-  Building2,
-  SlidersHorizontal,
-} from 'lucide-react';
 
 interface SeasonSetupModalProps {
   isOpen: boolean;
@@ -34,6 +26,8 @@ export const SeasonSetupModal: React.FC<SeasonSetupModalProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const { t, i18n } = useTranslation();
+  const language = i18n.resolvedLanguage ?? 'de';
   const { templates, createSeason } = useSeasons();
   const { locations } = useLocations();
 
@@ -47,19 +41,20 @@ export const SeasonSetupModal: React.FC<SeasonSetupModalProps> = ({
   const [slots, setSlots] = useState<SlotConfig[]>([]);
   const [groups, setGroups] = useState(DEFAULT_JUNIOR_GROUPS);
 
-  const [locationModalOpen, setLocationModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const loadedTemplateIdRef = React.useRef<string | null>(null);
+  // The user chose the blank schedule on purpose, so the default template must not come back
+  const [customChosen, setCustomChosen] = useState(false);
 
   // Set default template when templates load
   useEffect(() => {
-    if (templates.length > 0 && !selectedTemplate) {
+    if (templates.length > 0 && !selectedTemplate && !customChosen) {
       const def = templates.find((t) => t.is_default) || templates[0];
       setSelectedTemplate(def);
     }
-  }, [templates, selectedTemplate]);
+  }, [templates, selectedTemplate, customChosen]);
 
   // Pre-fill slots from template when selected template changes (only once per template ID)
   useEffect(() => {
@@ -121,6 +116,17 @@ export const SeasonSetupModal: React.FC<SeasonSetupModalProps> = ({
     }
   }, [startDate, endDate, slots]);
 
+  const handleSelectTemplate = (template: SeasonTemplate | null) => {
+    setCustomChosen(template === null);
+    setSelectedTemplate(template);
+    if (template === null) {
+      // A blank schedule starts without slots; choosing a template again fills them in
+      setSlots([]);
+      setGroups(DEFAULT_JUNIOR_GROUPS);
+      loadedTemplateIdRef.current = null;
+    }
+  };
+
   const handleAddSlot = () => {
     setSlots((prev) => [
       ...prev,
@@ -168,306 +174,247 @@ export const SeasonSetupModal: React.FC<SeasonSetupModalProps> = ({
 
       if (onSuccess) onSuccess();
       onClose();
-    } catch (err: any) {
-      setError(err.message || 'Failed to create season');
+    } catch (err: unknown) {
+      setError(err instanceof Error && err.message ? err.message : t('seasonWizard.failed'));
     } finally {
       setSubmitting(false);
     }
   };
 
+  const activeHalls = locations.filter((l) => l.is_active);
+  const steps = [
+    t('seasonWizard.steps.dates'),
+    t('seasonWizard.steps.schedule'),
+    t('seasonWizard.steps.review'),
+  ];
+
   return (
-    <>
-      <Modal isOpen={isOpen} onClose={onClose} title="Create New Season" maxWidth="xl">
-        <div className="space-y-6">
-          {/* Step Progress Bar */}
-          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-            <div className="flex items-center gap-2">
-              <span
-                className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-                  step === 1
-                    ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30'
-                    : 'bg-emerald-500/20 text-emerald-600'
-                }`}
+    <Dialog
+      isOpen={isOpen}
+      onClose={onClose}
+      title={t('seasonWizard.title')}
+      closeLabel={t('actions.close')}
+      maxWidth="xl"
+    >
+      <div className="flex flex-col gap-5">
+        <ol
+          aria-label={t('seasonWizard.steps.label')}
+          className="flex items-center gap-2 border-b-2 border-divider pb-3"
+        >
+          {steps.map((label, index) => {
+            const number = index + 1;
+            const current = step === number;
+            const done = step > number;
+            return (
+              <li
+                key={label}
+                aria-current={current ? 'step' : undefined}
+                className="flex min-w-0 items-center gap-2"
               >
-                1
-              </span>
-              <span
-                className={`text-xs font-semibold ${step === 1 ? 'text-slate-900' : 'text-slate-400'}`}
-              >
-                Dates & Template
-              </span>
+                {index > 0 && <span aria-hidden="true" className="h-0.5 w-5 bg-divider sm:w-8" />}
+                <span
+                  aria-hidden="true"
+                  className={`grid size-6 flex-none place-items-center text-xs font-extrabold ${
+                    current
+                      ? 'bg-text text-bg'
+                      : done
+                        ? 'border border-text text-text'
+                        : 'border border-divider text-neutral-700'
+                  }`}
+                >
+                  {done ? '✓' : number}
+                </span>
+                <span
+                  className={`truncate text-xs font-semibold ${
+                    current ? 'text-text' : 'text-neutral-700'
+                  } ${current ? '' : 'hidden sm:inline'}`}
+                >
+                  {label}
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+
+        {error && <AuthError message={error} />}
+
+        {step === 1 && (
+          <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <Field label={t('seasonWizard.name')} className="sm:col-span-2">
+                <Input
+                  required
+                  value={seasonName}
+                  placeholder={t('seasonWizard.namePlaceholder')}
+                  onChange={(e) => setSeasonName(e.target.value)}
+                />
+              </Field>
+              <Field label={t('seasonWizard.start')}>
+                <Input
+                  type="date"
+                  required
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+              </Field>
+              <Field label={t('seasonWizard.end')}>
+                <Input
+                  type="date"
+                  required
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+              </Field>
             </div>
-            <div className="w-8 h-0.5 bg-slate-200" />
-            <div className="flex items-center gap-2">
-              <span
-                className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-                  step === 2
-                    ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30'
-                    : step > 2
-                      ? 'bg-emerald-500/20 text-emerald-600'
-                      : 'bg-slate-100 text-slate-400'
-                }`}
+            <CheckRow
+              label={t('seasonWizard.active')}
+              description={t('seasonWizard.activeHint')}
+              checked={isActive}
+              onChange={setIsActive}
+            />
+
+            <TemplateSelector
+              templates={templates}
+              selectedTemplateId={selectedTemplate?.id || null}
+              onSelectTemplate={handleSelectTemplate}
+            />
+
+            <div className="flex justify-end border-t border-divider pt-4">
+              <Button
+                onClick={() => setStep(2)}
+                disabled={!seasonName.trim() || !startDate || !endDate}
               >
-                2
-              </span>
-              <span
-                className={`text-xs font-semibold ${step === 2 ? 'text-slate-900' : 'text-slate-400'}`}
-              >
-                Schedule & Halls
-              </span>
-            </div>
-            <div className="w-8 h-0.5 bg-slate-200" />
-            <div className="flex items-center gap-2">
-              <span
-                className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-                  step === 3
-                    ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30'
-                    : 'bg-slate-100 text-slate-400'
-                }`}
-              >
-                3
-              </span>
-              <span
-                className={`text-xs font-semibold ${step === 3 ? 'text-slate-900' : 'text-slate-400'}`}
-              >
-                Generate
-              </span>
+                {t('seasonWizard.next1')} →
+              </Button>
             </div>
           </div>
+        )}
 
-          {error && (
-            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 text-sm flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              <span>{error}</span>
+        {step === 2 && (
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div className="flex flex-col gap-0.5">
+                <h3 className="text-sm font-extrabold">
+                  {t('seasonWizard.slotsHeading', { count: slots.length })}
+                </h3>
+                <p className="text-xs text-neutral-700">{t('seasonWizard.slotsIntro')}</p>
+              </div>
+              <Button variant="secondary" size="sm" onClick={handleAddSlot}>
+                + {t('seasonWizard.addSlot')}
+              </Button>
             </div>
-          )}
 
-          {/* STEP 1: Basic Info & Template */}
-          {step === 1 && (
-            <div className="space-y-5">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="sm:col-span-3">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Season Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={seasonName}
-                    onChange={(e) => setSeasonName(e.target.value)}
-                    placeholder="e.g. Season 2026/2027"
-                    required
-                    className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 font-medium focus:ring-2 focus:ring-emerald-500 outline-none"
+            {activeHalls.length === 0 && (
+              <p className="border-l-2 border-accent bg-accent-100 px-3 py-2 text-sm">
+                {t('seasonWizard.noHalls')}
+              </p>
+            )}
+
+            <div className="flex max-h-[380px] flex-col gap-3 overflow-y-auto">
+              {slots.length === 0 ? (
+                <p className="border border-dashed border-divider py-8 text-center text-sm text-neutral-700">
+                  {t('seasonWizard.noSlots')}
+                </p>
+              ) : (
+                slots.map((slot) => (
+                  <TrainingDayRow
+                    key={slot.id}
+                    slot={slot}
+                    locations={locations}
+                    availableGroups={groups.map((g) => g.name)}
+                    onChange={(updated) => handleUpdateSlot(slot.id, updated)}
+                    onRemove={() => handleRemoveSlot(slot.id)}
                   />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Start Date *
-                  </label>
-                  <input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    required
-                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    End Date *
-                  </label>
-                  <input
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    required
-                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none"
-                  />
-                </div>
-
-                <div className="flex items-end">
-                  <label className="flex items-center gap-2 cursor-pointer pb-2">
-                    <input
-                      type="checkbox"
-                      checked={isActive}
-                      onChange={(e) => setIsActive(e.target.checked)}
-                      className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 accent-emerald-500"
-                    />
-                    <span className="text-sm font-semibold text-slate-700">
-                      Set as Active Season
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              <TemplateSelector
-                templates={templates}
-                selectedTemplateId={selectedTemplate?.id || null}
-                onSelectTemplate={(tpl) => setSelectedTemplate(tpl)}
-              />
-
-              <div className="flex justify-end pt-4 border-t border-slate-100">
-                <Button
-                  variant="primary"
-                  onClick={() => setStep(2)}
-                  disabled={!seasonName.trim() || !startDate || !endDate}
-                >
-                  Next: Configure Schedule <ArrowRight className="w-4 h-4 ml-1" />
-                </Button>
-              </div>
+                ))
+              )}
             </div>
-          )}
 
-          {/* STEP 2: Configure Slots & Halls */}
-          {step === 2 && (
-            <div className="space-y-5">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                    <SlidersHorizontal className="w-4 h-4 text-emerald-500" />
-                    Weekly Training Slots ({slots.length})
-                  </h4>
-                  <p className="text-xs text-slate-500">
-                    Configure time, sports hall location, and attending groups for each recurring
-                    weekday slot.
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" onClick={() => setLocationModalOpen(true)}>
-                    <Building2 className="w-4 h-4 mr-1 text-emerald-500" /> Manage Halls
-                  </Button>
-                  <Button variant="primary" size="sm" onClick={handleAddSlot}>
-                    <Plus className="w-4 h-4 mr-1" /> Add Slot
-                  </Button>
-                </div>
-              </div>
-
-              {/* Slot Rows */}
-              <div className="space-y-3 max-h-[360px] overflow-y-auto pr-1">
-                {slots.length === 0 ? (
-                  <div className="py-8 text-center text-sm text-slate-500 border border-dashed border-slate-300 rounded-2xl">
-                    No weekly training slots configured. Click "Add Slot" to add one.
-                  </div>
-                ) : (
-                  slots.map((slot) => (
-                    <TrainingDayRow
-                      key={slot.id}
-                      slot={slot}
-                      locations={locations}
-                      availableGroups={groups.map((g) => g.name)}
-                      onChange={(updated) => handleUpdateSlot(slot.id, updated)}
-                      onRemove={() => handleRemoveSlot(slot.id)}
-                    />
-                  ))
-                )}
-              </div>
-
-              <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                <Button variant="outline" onClick={() => setStep(1)}>
-                  <ArrowLeft className="w-4 h-4 mr-1" /> Back
-                </Button>
-                <Button variant="primary" onClick={() => setStep(3)} disabled={slots.length === 0}>
-                  Next: Review & Confirm <ArrowRight className="w-4 h-4 ml-1" />
-                </Button>
-              </div>
+            <div className="flex items-center justify-between border-t border-divider pt-4">
+              <Button variant="secondary" onClick={() => setStep(1)}>
+                ← {t('seasonWizard.back')}
+              </Button>
+              <Button onClick={() => setStep(3)} disabled={slots.length === 0}>
+                {t('seasonWizard.next2')} →
+              </Button>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* STEP 3: Preview & Confirm */}
-          {step === 3 && (
-            <div className="space-y-6">
-              <div className="p-5 rounded-2xl bg-gradient-to-r from-emerald-900/90 via-teal-900/90 to-slate-900 text-white border border-emerald-500/30 space-y-3">
-                <div className="flex items-center justify-between">
-                  <Badge variant="gradient">
-                    <Sparkles className="w-3.5 h-3.5 text-emerald-300 mr-1" /> Ready for Generation
-                  </Badge>
-                  <span className="text-xs font-medium text-emerald-200">
-                    {startDate} to {endDate}
-                  </span>
-                </div>
-
-                <h3 className="text-xl font-black text-white">{seasonName}</h3>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                  <div className="p-3 rounded-xl bg-white/10 backdrop-blur-sm">
-                    <div className="text-xs text-emerald-200">Weekly Slots</div>
-                    <div className="text-lg font-bold text-white">{slots.length} Slots</div>
+        {step === 3 && (
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-1 border-y-2 border-divider py-3">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-accent-700">
+                {t('seasonWizard.ready')}
+              </span>
+              <h3 className="font-heading text-[22px] font-extrabold">{seasonName}</h3>
+              <span className="text-[12.5px] text-neutral-700">
+                {startDate} – {endDate}
+              </span>
+              <dl className="mt-2 grid grid-cols-3 border-t border-divider">
+                {[
+                  [t('seasonWizard.figSlots'), String(slots.length)],
+                  [t('seasonWizard.figHalls'), String(activeHalls.length)],
+                  [t('seasonWizard.figSessions'), `~${estimatedSessionCount}`],
+                ].map(([label, value]) => (
+                  <div
+                    key={label}
+                    className="flex flex-col border-l border-divider px-3 py-2 first:border-l-0 first:pl-0"
+                  >
+                    <dt className="text-xs text-neutral-700">{label}</dt>
+                    <dd className="font-heading text-2xl font-extrabold tabular-nums">{value}</dd>
                   </div>
-                  <div className="p-3 rounded-xl bg-white/10 backdrop-blur-sm">
-                    <div className="text-xs text-emerald-200">Hall Locations</div>
-                    <div className="text-lg font-bold text-white">{locations.length} Halls</div>
-                  </div>
-                  <div className="p-3 rounded-xl bg-white/10 backdrop-blur-sm">
-                    <div className="text-xs text-emerald-200">Estimated Sessions</div>
-                    <div className="text-lg font-bold text-emerald-300">
-                      ~{estimatedSessionCount} Sessions
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                  Configured Schedule Summary
-                </h4>
-                <div className="divide-y divide-slate-100 border border-slate-200 rounded-2xl overflow-hidden bg-white">
-                  {slots.map((s) => {
-                    const loc = locations.find((l) => l.id === s.location_id);
-                    const dayNames = [
-                      'Sunday',
-                      'Monday',
-                      'Tuesday',
-                      'Wednesday',
-                      'Thursday',
-                      'Friday',
-                      'Saturday',
-                    ];
-                    return (
-                      <div
-                        key={s.id}
-                        className="p-3.5 flex flex-wrap items-center justify-between gap-2 text-sm"
-                      >
-                        <div className="font-semibold text-slate-900 flex items-center gap-2">
-                          <span>{dayNames[s.day_of_week]}</span>
-                          <span className="text-xs font-mono text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-lg">
-                            {s.default_start_time.slice(0, 5)} - {s.default_end_time.slice(0, 5)}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-slate-500">
-                          {loc && <span className="font-medium text-slate-700">📍 {loc.name}</span>}
-                          <span className="text-slate-400">|</span>
-                          <span>{s.player_group_names.join(', ')}</span>
-                          <span className="text-slate-400">|</span>
-                          <span>
-                            {s.required_regular} + {s.required_junior} trainers
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                <Button variant="outline" onClick={() => setStep(2)}>
-                  <ArrowLeft className="w-4 h-4 mr-1" /> Back
-                </Button>
-                <Button variant="primary" onClick={handleSubmit} isLoading={submitting}>
-                  <CheckCircle2 className="w-4 h-4 mr-1.5" /> Confirm & Generate{' '}
-                  {estimatedSessionCount} Sessions
-                </Button>
-              </div>
+                ))}
+              </dl>
             </div>
-          )}
-        </div>
-      </Modal>
 
-      {/* Hall Locations Manager Dialog */}
-      <LocationManagerModal
-        isOpen={locationModalOpen}
-        onClose={() => setLocationModalOpen(false)}
-      />
-    </>
+            <div className="flex flex-col gap-1">
+              <h4 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-neutral-700">
+                {t('seasonWizard.summary')}
+              </h4>
+              <ul>
+                {slots.map((s) => {
+                  const loc = locations.find((l) => l.id === s.location_id);
+                  return (
+                    <li
+                      key={s.id}
+                      data-testid="slot-summary"
+                      className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5 border-b border-divider py-2.5 text-sm"
+                    >
+                      <span className="flex items-baseline gap-2 font-semibold">
+                        {weekdayLong(s.day_of_week, language)}
+                        <span className="text-xs font-normal tabular-nums text-neutral-700">
+                          {formatTimeRange(s.default_start_time, s.default_end_time)}
+                        </span>
+                      </span>
+                      <span className="text-xs text-neutral-700">
+                        {[
+                          loc?.name,
+                          s.player_group_names.join(', '),
+                          t('seasonWizard.needed', {
+                            regular: s.required_regular,
+                            junior: s.required_junior,
+                          }),
+                        ]
+                          .filter(Boolean)
+                          .join(' · ')}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+            <div className="flex items-center justify-between border-t border-divider pt-4">
+              <Button variant="secondary" onClick={() => setStep(2)}>
+                ← {t('seasonWizard.back')}
+              </Button>
+              <Button onClick={handleSubmit} isLoading={submitting}>
+                {t('seasonWizard.confirm', { count: estimatedSessionCount })}
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    </Dialog>
   );
 };
