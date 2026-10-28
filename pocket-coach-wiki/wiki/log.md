@@ -270,4 +270,7 @@
 ## 2026-10-28 | e2e-no-season-ci-fix | Updated 1 page: wiki/log.md
 * Fixed two more CI failures with the same cause: a fresh database (CI) has no season, so the app falls back to the most recent one. "A trainer sees the sessions … Only mine" relied on a season that exists on a developer's machine and now creates and publishes its own (and checks "Only mine" against an assigned session). "Gaps of an inactive season are not shown" had an inactive season as the only (so the fallback) season; it now creates an older inactive and a newer active season and checks that only the active one's gaps appear. The whole suite also passes with no active season. Unit tests 275, end-to-end 47. Not committed yet.
 
+## 2026-10-28 | availability-page-removed | Updated 2 pages: codebase/implementation-plan.md, wiki/log.md
+* Removed the Availability placeholder page and its `/availability` route: it was legacy-styled, English-only, showed sample content and was reachable by URL although it is not in the navigation. It returns with Phase 2.1 (the shared availability types stay). Unit tests 275. Not committed yet.
+
 <!-- END OF LOG -->

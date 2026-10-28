@@ -9,6 +9,11 @@ test.describe('Settings (in the app shell)', () => {
   }) => {
     await signIn(page, 'trainer1@club.de');
 
+    // The Availability page is gone until Phase 2.1: not in the navigation, and no page by URL
+    await page.goto('/availability');
+    await expect(page.getByText('Availability Survey & Matrix')).toHaveCount(0);
+    await page.goto('/dashboard');
+
     const nav = page.getByRole('navigation', { name: 'Main navigation' }).first();
     await expect(nav.getByRole('link')).toHaveText([
       'Dashboard',

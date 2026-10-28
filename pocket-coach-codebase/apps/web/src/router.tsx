@@ -4,7 +4,6 @@ import { ProtectedRoute, PublicOnlyRoute } from './components/layout/ProtectedRo
 import { DashboardPage } from './pages/Dashboard';
 import { SessionsPage } from './pages/Sessions';
 import { SessionDetailPage } from './pages/SessionDetail';
-import { AvailabilityPage } from './pages/Availability';
 import { SubstitutionsPage } from './pages/Substitutions';
 import { TrainersPage } from './pages/Trainers';
 import { TrainerProfilePage } from './pages/TrainerProfile';
@@ -24,7 +23,6 @@ export const router = createBrowserRouter([
       { path: 'dashboard', element: <DashboardPage /> },
       { path: 'sessions', element: <SessionsPage /> },
       { path: 'sessions/:sessionId', element: <SessionDetailPage /> },
-      { path: 'availability', element: <AvailabilityPage /> },
       { path: 'substitutions', element: <SubstitutionsPage /> },
       { path: 'trainers', element: <TrainersPage /> },
       { path: 'trainers/:profileId', element: <TrainerProfilePage /> },
